@@ -1,0 +1,66 @@
+[workspace]
+members = [
+    "src/candid_gen",
+    "src/canister_client",
+    "src/canister_client_macros",
+    "src/canister_logger",
+    "src/canister_state_macros",
+    "src/canister_time",
+    "src/canister_tracing_macros",
+    "src/serializer",
+    "src/stable_memory",
+    "src/types",
+    "src/utils",
+    "src/subcanister_manager",
+]
+
+[profile.release]
+lto = "thin"
+panic = "abort"
+
+
+[workspace.dependencies]
+candid = { version = "0.10.13", features = ["value"] }
+ciborium = "0.2.2"
+futures = "0.3.29"
+# Enable `custom` feature of k256's getrandom dependency. See icp_neuron/impl/src/ecdsa.rs for more details.
+getrandom = { version = "0.3.1", features = ["custom"] }
+hex = "0.4.3"
+ic-cdk = "0.17.1"
+ic-cdk-macros = "0.17.1"
+ic-cdk-timers = "0.11.0"
+ic-ledger-types = "0.14.0"
+ic-stable-structures = "0.6.7"
+ic-transport-types = "0.39.3"
+ic0 = "0.23.0"
+icrc-ledger-types = "0.1.8"
+k256 = "0.13.1"
+proc-macro2 = "1.0.93"
+quote = "1.0.33"
+rmp-serde = "1.1.2"
+serde = "1.0.196"
+serde_bytes = "0.11.12"
+serde_cbor = "0.11.2"
+serde_json = "1.0.138"
+serde_with = "3.7.0"
+serde_yaml = "0.9.29"
+serde_tokenstream = "0.2.2"
+sha2 = "0.10.8"
+syn = "2.0.98"
+tracing = "0.1.40"
+tracing-attributes = "0.1.27"
+tracing-subscriber = "0.3.18"
+num-bigint = "0.4.4"
+time = { version = "0.3.36", features = [
+  "macros",
+  "serde",
+  "parsing",
+  "formatting",
+] }
+async-trait = "0.1.86"
+enum_dispatch = "0.3.13"
+typetag = "0.2.18"
+minicbor = { version = "0.25.1", features = ["alloc", "derive"] }
+canfund = "0.7.0"
+ic-asset-certification = "3.0.3"
+ic-http-certification = "3.0.3"
