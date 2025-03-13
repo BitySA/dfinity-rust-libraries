@@ -1,8 +1,8 @@
+use bity_ic_types::{CanisterId, Cycles};
 use ic_cdk::api::call::CallResult;
 use ic_cdk::api::management_canister;
 use ic_cdk::api::management_canister::main::CanisterIdRecord;
 use tracing::{error, info};
-use types::{CanisterId, Cycles};
 
 pub async fn deposit_cycles(canister_id: CanisterId, amount: Cycles) -> CallResult<()> {
     if let Err((code, msg)) =

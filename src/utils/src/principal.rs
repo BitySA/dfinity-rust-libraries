@@ -2,7 +2,11 @@ use candid::Principal;
 use icrc_ledger_types::icrc1::account::Account;
 use std::str::FromStr;
 
+// Utilities for working with Internet Computer Principal identifiers and accounts.
+
+/// Trait for converting accounts to the principal.subaccount format.
 pub trait PrincipalDotAccountFormat {
+    /// Converts an account to a string in the format "principal.subaccount"
     fn to_principal_dot_account(&self) -> String;
 }
 
@@ -17,6 +21,16 @@ impl PrincipalDotAccountFormat for Account {
         }
     }
 }
+
+/// Converts a string in the format "principal.subaccount" to an Account.
+///
+/// # Arguments
+///
+/// * `input` - A string in the format "principal.subaccount"
+///
+/// # Returns
+///
+/// Returns a Result containing the parsed Account, or an error message if parsing fails.
 pub fn string_to_account(input: String) -> Result<Account, String> {
     if let Some(index) = input.find('.') {
         let (principal_str, subaccount_str) = input.split_at(index);
@@ -66,6 +80,15 @@ pub fn string_to_account(input: String) -> Result<Account, String> {
     }
 }
 
+/// Validates and normalizes a principal.subaccount string.
+///
+/// # Arguments
+///
+/// * `input` - A string to validate and normalize
+///
+/// # Returns
+///
+/// Returns Some(String) with the normalized format if valid, None if invalid.
 pub fn validate_principal_dot_account(input: &str) -> Option<String> {
     match string_to_account(input.to_string()) {
         Ok(account) => Some(account.to_principal_dot_account()),
@@ -78,6 +101,7 @@ pub fn validate_principal_dot_account(input: &str) -> Option<String> {
         },
     }
 }
+
 #[cfg(test)]
 mod tests {
     use super::*;

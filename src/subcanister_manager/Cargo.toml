@@ -1,7 +1,13 @@
 [package]
-name = "subcanister_manager"
+name = "bity-ic-subcanister-manager"
 version = "0.1.0"
 edition = "2021"
+description = "A library for managing sub-canisters on the Internet Computer"
+license = "MIT"
+repository = "https://github.com/BitySA/dfinity-rust-libraries"
+keywords = ["dfinity", "internet-computer", "ic", "canister", "subcanister"]
+authors = ["Bity Team", "Gautier Wojda <gautier.wojda@bity.com>", "Freddie Hands <freddie.hands@bity.com>", "Victoria Horbunova <victoria.horbunova@bity.com>", "Dustin Becker <dustin.becker@bity.com>"]
+documentation = "https://docs.rs/bity-ic-subcanister-manager"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -9,4 +15,4 @@ edition = "2021"
 ic-cdk = { workspace = true }
 candid = { workspace = true }
 serde = { workspace = true }
-utils = { path = "../utils" }
+bity-ic-utils = { path = "../utils" }

@@ -80,6 +80,121 @@ dependencies = [
 ]
 
 [[package]]
+name = "bity-ic-candid-gen"
+version = "0.1.0"
+dependencies = [
+ "quote",
+ "syn 2.0.99",
+]
+
+[[package]]
+name = "bity-ic-canister-client"
+version = "0.1.0"
+dependencies = [
+ "bity-ic-canister-client-macros",
+ "candid",
+ "ic-cdk",
+ "tracing",
+]
+
+[[package]]
+name = "bity-ic-canister-client-macros"
+version = "0.1.0"
+dependencies = [
+ "bity-ic-types",
+ "candid",
+ "ic-cdk",
+]
+
+[[package]]
+name = "bity-ic-canister-logger"
+version = "0.1.0"
+dependencies = [
+ "bity-ic-canister-time",
+ "candid",
+ "serde",
+ "tracing",
+ "tracing-subscriber",
+]
+
+[[package]]
+name = "bity-ic-canister-state-macros"
+version = "0.1.0"
+
+[[package]]
+name = "bity-ic-canister-time"
+version = "0.1.0"
+dependencies = [
+ "bity-ic-types",
+ "ic-cdk",
+ "ic-cdk-timers",
+ "ic0",
+]
+
+[[package]]
+name = "bity-ic-canister-tracing-macros"
+version = "0.1.0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.99",
+]
+
+[[package]]
+name = "bity-ic-serializer"
+version = "0.1.0"
+dependencies = [
+ "rmp-serde",
+ "serde",
+]
+
+[[package]]
+name = "bity-ic-stable-memory"
+version = "0.1.0"
+dependencies = [
+ "ic-cdk",
+ "ic-stable-structures",
+]
+
+[[package]]
+name = "bity-ic-subcanister-manager"
+version = "0.1.0"
+dependencies = [
+ "bity-ic-utils",
+ "candid",
+ "ic-cdk",
+ "serde",
+]
+
+[[package]]
+name = "bity-ic-types"
+version = "0.1.0"
+dependencies = [
+ "candid",
+ "ic-stable-structures",
+ "icrc-ledger-types",
+ "serde",
+ "serde_bytes",
+]
+
+[[package]]
+name = "bity-ic-utils"
+version = "0.1.0"
+dependencies = [
+ "bity-ic-canister-time",
+ "bity-ic-stable-memory",
+ "bity-ic-types",
+ "candid",
+ "hex",
+ "ic-cdk",
+ "ic-cdk-timers",
+ "icrc-ledger-types",
+ "serde",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
 name = "block-buffer"
 version = "0.10.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -124,67 +239,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3de398570c386726e7a59d9887b68763c481477f9a043fb998a2e09d428df1a9"
 dependencies = [
  "lazy_static",
- "proc-macro2",
- "quote",
- "syn 2.0.99",
-]
-
-[[package]]
-name = "candid_gen"
-version = "0.1.0"
-dependencies = [
- "quote",
- "syn 2.0.99",
-]
-
-[[package]]
-name = "canister_client"
-version = "0.1.0"
-dependencies = [
- "candid",
- "canister_client_macros",
- "ic-cdk",
- "tracing",
-]
-
-[[package]]
-name = "canister_client_macros"
-version = "0.1.0"
-dependencies = [
- "candid",
- "ic-cdk",
- "types",
-]
-
-[[package]]
-name = "canister_logger"
-version = "0.1.0"
-dependencies = [
- "candid",
- "canister_time",
- "serde",
- "tracing",
- "tracing-subscriber",
-]
-
-[[package]]
-name = "canister_state_macros"
-version = "0.1.0"
-
-[[package]]
-name = "canister_time"
-version = "0.1.0"
-dependencies = [
- "ic-cdk",
- "ic-cdk-timers",
- "ic0",
- "types",
-]
-
-[[package]]
-name = "canister_tracing_macros"
-version = "0.1.0"
-dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.99",
@@ -792,14 +846,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "serializer"
-version = "0.1.0"
-dependencies = [
- "rmp-serde",
- "serde",
-]
-
-[[package]]
 name = "sha2"
 version = "0.10.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -850,14 +896,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7fcf8323ef1faaee30a44a340193b1ac6814fd9b7b4e88e9d4519a3e4abe1cfd"
 
 [[package]]
-name = "stable_memory"
-version = "0.1.0"
-dependencies = [
- "ic-cdk",
- "ic-stable-structures",
-]
-
-[[package]]
 name = "stacker"
 version = "0.1.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -890,16 +928,6 @@ dependencies = [
  "quote",
  "rustversion",
  "syn 2.0.99",
-]
-
-[[package]]
-name = "subcanister_manager"
-version = "0.1.0"
-dependencies = [
- "candid",
- "ic-cdk",
- "serde",
- "utils",
 ]
 
 [[package]]
@@ -1090,17 +1118,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1dccffe3ce07af9386bfd29e80c0ab1a8205a2fc34e4bcd40364df902cfa8f3f"
 
 [[package]]
-name = "types"
-version = "0.1.0"
-dependencies = [
- "candid",
- "ic-stable-structures",
- "icrc-ledger-types",
- "serde",
- "serde_bytes",
-]
-
-[[package]]
 name = "unicode-ident"
 version = "1.0.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1111,23 +1128,6 @@ name = "unicode-width"
 version = "0.1.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7dd6e30e90baa6f72411720665d41d89b9a3d039dc45b8faea1ddd07f617f6af"
-
-[[package]]
-name = "utils"
-version = "0.1.0"
-dependencies = [
- "candid",
- "canister_time",
- "hex",
- "ic-cdk",
- "ic-cdk-timers",
- "icrc-ledger-types",
- "serde",
- "stable_memory",
- "tokio",
- "tracing",
- "types",
-]
 
 [[package]]
 name = "valuable"

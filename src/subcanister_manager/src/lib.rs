@@ -1,70 +1,165 @@
-use std::collections::HashMap;
-use std::future::Future;
+//! A library for managing sub-canisters on the Internet Computer.
+//!
+//! This library provides functionality to create, manage, and update sub-canisters
+//! on the Internet Computer. It handles the lifecycle of canisters including
+//! creation, installation, updates, and state management.
+//!
+//! # Features
+//!
+//! - Create and manage sub-canisters
+//! - Handle canister lifecycle (create, install, update, stop)
+//! - Manage canister controllers and permissions
+//! - Handle cycles allocation and management
+//!
+//! # Example
+//!
+//! ```rust
+//! use bity_ic_subcanister_manager::{SubCanisterManager, CanisterState};
+//!
+//! // Create a new sub-canister manager
+//! let manager = SubCanisterManager::new(
+//!     master_canister_id,
+//!     HashMap::new(),
+//!     vec![],
+//!     vec![],
+//!     1_000_000_000, // initial cycles
+//!     100_000_000,   // reserved cycles
+//!     false,         // test mode
+//!     "commit_hash".to_string(),
+//!     wasm_module,
+//! );
+//! ```
+//!
+//! # License
+//!
+//! This project is licensed under the MIT License.
 
-use candid::{ CandidType, Encode, Nat, Principal };
+use bity_ic_utils::retry_async::retry_async;
+use candid::{CandidType, Encode, Nat, Principal};
 use ic_cdk::api::management_canister::main::{
-    create_canister,
-    install_code,
-    start_canister,
-    stop_canister,
-    CanisterIdRecord,
-    CanisterInstallMode,
-    CanisterSettings,
-    CreateCanisterArgument,
-    InstallCodeArgument,
-    LogVisibility,
+    canister_status, create_canister, install_code, start_canister, stop_canister,
+    CanisterIdRecord, CanisterInstallMode, CanisterSettings, CreateCanisterArgument,
+    InstallCodeArgument, LogVisibility,
 };
-use serde::{ Deserialize, Serialize };
-use utils::retry_async::retry_async;
-use std::fmt::Debug;
-use std::any::Any;
+use serde::{Deserialize, Serialize};
+use std::{any::Any, collections::HashMap, fmt::Debug, future::Future};
 
+/// Error types for storage operations
 #[derive(Debug)]
-pub enum NewCanisterError {
+pub enum NewStorageError {
+    /// Error when creating a new canister
     CreateCanisterError(String),
+    /// Error when installing code on a canister
     InstallCodeError(String),
+    /// Error when serializing initialization arguments
     FailedToSerializeInitArgs(String),
 }
 
-pub trait SubCanister {
-    type InitArgs: Send + Sync;
-    type UpgradeArgs: Send + Sync;
-    type Canister: Send + Sync;
-
-    fn create_canister(
-        &mut self
-    ) -> impl Future<Output = Result<Box<impl Canister>, NewCanisterError>> + Send + '_; // Explicitly capture lifetime
-    fn update_canisters(&mut self) -> impl Future<Output = Result<(), Vec<String>>> + Send + '_; // Explicitly capture lifetime
-    fn list_canisters(&self) -> Vec<Box<impl Canister>>;
-    fn list_canisters_ids(&self) -> Vec<Principal>;
+/// Error types for canister operations
+#[derive(Debug)]
+pub enum NewCanisterError {
+    /// Error when creating a new canister
+    CreateCanisterError(String),
+    /// Error when installing code on a canister
+    InstallCodeError(String),
+    /// Error when serializing initialization arguments
+    FailedToSerializeInitArgs(String),
 }
 
+/// Error types for canister operations
 #[derive(Serialize, Deserialize, Clone)]
-pub struct SubCanisterManager<U, T>
+pub enum CanisterError {
+    /// Error when controllers cannot be found
+    CantFindControllers(String),
+}
+
+/// Represents the current state of a canister
+#[derive(CandidType, Serialize, Deserialize, Clone, PartialEq, Debug)]
+pub enum CanisterState {
+    /// Canister has been created but not yet installed
+    Created,
+    /// Canister is installed and running
+    Installed,
+    /// Canister has been stopped
+    Stopped,
+}
+
+/// Trait that must be implemented by canister types
+pub trait Canister {
+    /// Type of parameters used for canister initialization
+    type ParamType: CandidType + Serialize + Clone + Send;
+
+    /// Creates a new canister instance
+    fn new(canister_id: Principal, state: CanisterState, canister_param: Self::ParamType) -> Self;
+
+    /// Returns the canister's parameters
+    fn canister_param(&self) -> Self::ParamType;
+
+    /// Returns the canister's ID
+    fn canister_id(&self) -> Principal;
+
+    /// Returns the current state of the canister
+    fn state(&self) -> CanisterState;
+
+    /// Returns the canister as an Any type for type erasure
+    fn as_any(&self) -> &dyn Any;
+
+    /// Retrieves the controllers of the canister
+    fn get_canister_controllers(
+        &self,
+    ) -> impl std::future::Future<Output = Result<Vec<Principal>, CanisterError>> + Send
     where
-        T: Canister + Clone + Serialize + Debug + Send + Sync,
-        U: Clone + Serialize + CandidType + Send + Sync {
-    pub init_args: U,
-    pub upgrade_args: U,
+        Self: Sync,
+    {
+        async {
+            match retry_async(
+                || {
+                    canister_status(CanisterIdRecord {
+                        canister_id: self.canister_id(),
+                    })
+                },
+                3,
+            )
+            .await
+            {
+                Ok(res) => Ok(res.0.settings.controllers),
+                Err(e) => Err(CanisterError::CantFindControllers(format!("{e:?}"))),
+            }
+        }
+    }
+}
+
+/// Manager for handling sub-canisters
+#[derive(Serialize, Deserialize, Clone)]
+pub struct SubCanisterManager<T>
+where
+    T: Canister + Clone,
+{
+    /// ID of the master canister
     pub master_canister_id: Principal,
+    /// Map of sub-canisters
     pub sub_canisters: HashMap<Principal, Box<T>>,
+    /// List of controllers
     pub controllers: Vec<Principal>,
+    /// List of authorized principals
     pub authorized_principal: Vec<Principal>,
+    /// Initial cycles for new canisters
     pub initial_cycles: u128,
+    /// Reserved cycles for canisters
     pub reserved_cycles: u128,
+    /// Whether the manager is in test mode
     pub test_mode: bool,
+    /// Commit hash of the current version
     pub commit_hash: String,
+    /// WASM module for canister installation
     pub wasm: Vec<u8>,
 }
 
-impl<U, T> SubCanisterManager<U, T>
-    where
-        T: Canister + Clone + Serialize + Debug + Send + Sync,
-        U: Clone + Serialize + CandidType + Send + Sync
+impl<T> SubCanisterManager<T>
+where
+    T: Canister + Clone,
 {
     pub fn new(
-        init_args: U,
-        upgrade_args: U,
         master_canister_id: Principal,
         sub_canisters: HashMap<Principal, Box<T>>,
         mut controllers: Vec<Principal>,
@@ -73,14 +168,12 @@ impl<U, T> SubCanisterManager<U, T>
         reserved_cycles: u128,
         test_mode: bool,
         commit_hash: String,
-        wasm: Vec<u8>
+        wasm: Vec<u8>,
     ) -> Self {
         controllers.push(master_canister_id);
         authorized_principal.push(master_canister_id);
 
         Self {
-            init_args,
-            upgrade_args,
             master_canister_id,
             sub_canisters,
             controllers,
@@ -94,10 +187,9 @@ impl<U, T> SubCanisterManager<U, T>
     }
 
     pub fn create_canister(
-        &mut self
-    ) -> impl Future<Output = Result<Box<impl Canister + Debug + Clone>, NewCanisterError>> +
-        Send +
-        '_ {
+        &mut self,
+        init_args: <T as Canister>::ParamType,
+    ) -> impl Future<Output = Result<Box<T>, NewCanisterError>> + '_ {
         async move {
             // find in self.sub_canisters if a canister is already created but not installed
             let mut canister_id = Principal::anonymous();
@@ -112,24 +204,27 @@ impl<U, T> SubCanisterManager<U, T>
             if canister_id == Principal::anonymous() {
                 // Define the initial settings for the new canister
                 let settings = CanisterSettings {
-                    controllers: Some(self.controllers.clone()), // Ensure the current canister is a controller
+                    controllers: Some(self.controllers.clone()),
                     compute_allocation: None,
                     memory_allocation: None,
                     freezing_threshold: None,
                     reserved_cycles_limit: Some(Nat::from(self.reserved_cycles)),
                     log_visibility: Some(LogVisibility::Public),
-                    wasm_memory_limit: None, // use default of 3GB
+                    wasm_memory_limit: None,
                 };
                 // Step 1: Create the canister
-                canister_id = match
-                    retry_async(|| {
+                canister_id = match retry_async(
+                    || {
                         create_canister(
                             CreateCanisterArgument {
                                 settings: Some(settings.clone()),
                             },
-                            self.initial_cycles as u128
+                            self.initial_cycles as u128,
                         )
-                    }, 3).await
+                    },
+                    3,
+                )
+                .await
                 {
                     Ok(canister) => canister.0.canister_id,
                     Err(e) => {
@@ -139,11 +234,15 @@ impl<U, T> SubCanisterManager<U, T>
 
                 self.sub_canisters.insert(
                     canister_id,
-                    Box::new(T::new(canister_id, CanisterState::Created))
+                    Box::new(T::new(
+                        canister_id,
+                        CanisterState::Created,
+                        init_args.clone(),
+                    )),
                 );
             }
 
-            let init_args = match Encode!(&self.init_args.clone()) {
+            let encoded_init_args = match Encode!(&init_args) {
                 Ok(encoded_init_args) => encoded_init_args,
                 Err(e) => {
                     return Err(NewCanisterError::FailedToSerializeInitArgs(format!("{e}")));
@@ -153,9 +252,9 @@ impl<U, T> SubCanisterManager<U, T>
             // Step 2: Install the Wasm module to the newly created canister
             let install_args = InstallCodeArgument {
                 mode: CanisterInstallMode::Install,
-                canister_id: canister_id,
+                canister_id,
                 wasm_module: self.wasm.clone(),
-                arg: init_args,
+                arg: encoded_init_args.clone(),
             };
 
             match install_code(install_args.clone()).await {
@@ -164,7 +263,12 @@ impl<U, T> SubCanisterManager<U, T>
                     return Err(NewCanisterError::InstallCodeError(format!("{:?}", e.1)));
                 }
             }
-            let canister = Box::new(T::new(canister_id, CanisterState::Installed));
+
+            let canister = Box::new(T::new(
+                canister_id,
+                CanisterState::Installed,
+                init_args.clone(),
+            ));
 
             self.sub_canisters.insert(canister_id, canister.clone());
 
@@ -173,42 +277,47 @@ impl<U, T> SubCanisterManager<U, T>
     }
 
     pub fn update_canisters(
-        &mut self
-    ) -> impl Future<Output = Result<(), Vec<String>>> + Send + '_ {
+        &mut self,
+        update_args: <T as Canister>::ParamType,
+    ) -> impl Future<Output = Result<(), Vec<String>>> + '_ {
         async move {
-            let init_args = match Encode!(&self.upgrade_args.clone()) {
+            let init_args = match Encode!(&update_args.clone()) {
                 Ok(encoded_init_args) => encoded_init_args,
                 Err(e) => {
-                    return Err(
-                        vec![format!("ERROR : failed to create init args with error - {e}")]
-                    );
+                    return Err(vec![format!(
+                        "ERROR : failed to create init args with error - {e}"
+                    )]);
                 }
             };
 
             let mut canister_upgrade_errors = vec![];
 
-            for (canister_id, _) in self.sub_canisters.clone().iter() {
-                match
-                    retry_async(|| {
+            for (canister_id, canister) in self.sub_canisters.clone().iter() {
+                match retry_async(
+                    || {
                         stop_canister(CanisterIdRecord {
                             canister_id: *canister_id,
                         })
-                    }, 3).await
+                    },
+                    3,
+                )
+                .await
                 {
                     Ok(_) => {
                         self.sub_canisters.insert(
                             *canister_id,
-                            Box::new(T::new(*canister_id, CanisterState::Stopped))
+                            Box::new(T::new(
+                                *canister_id,
+                                CanisterState::Stopped,
+                                update_args.clone(),
+                            )),
                         );
                     }
                     Err(e) => {
-                        canister_upgrade_errors.push(
-                            format!(
-                                "ERROR: storage upgrade :: storage with principal : {} failed to stop with error {:?}",
-                                *canister_id,
-                                e
-                            )
-                        );
+                        canister_upgrade_errors.push(format!(
+                            "ERROR: storage upgrade :: storage with principal : {} failed to stop with error {:?}",
+                            *canister_id, e
+                        ));
                         continue;
                     }
                 }
@@ -228,44 +337,45 @@ impl<U, T> SubCanisterManager<U, T>
 
                 match result {
                     Ok(_) => {
-                        match
-                            retry_async(|| {
+                        match retry_async(
+                            || {
                                 start_canister(CanisterIdRecord {
                                     canister_id: *canister_id,
                                 })
-                            }, 3).await
+                            },
+                            3,
+                        )
+                        .await
                         {
                             Ok(_) => {
                                 self.sub_canisters.insert(
                                     *canister_id,
-                                    Box::new(T::new(*canister_id, CanisterState::Installed))
+                                    Box::new(T::new(
+                                        *canister_id,
+                                        CanisterState::Installed,
+                                        update_args.clone(),
+                                    )),
                                 );
                             }
                             Err(e) => {
-                                canister_upgrade_errors.push(
-                                    format!(
-                                        "ERROR: storage upgrade :: storage with principal : {} failed to start with error {:?}",
-                                        *canister_id,
-                                        e
-                                    )
-                                );
+                                canister_upgrade_errors.push(format!(
+                                    "ERROR: storage upgrade :: storage with principal : {} failed to start with error {:?}",
+                                    *canister_id, e
+                                ));
                             }
                         }
                     }
                     Err(e) => {
-                        canister_upgrade_errors.push(
-                            format!(
-                                "ERROR: storage upgrade :: storage with principal : {} failed to install upgrade {:?}",
-                                *canister_id,
-                                e
-                            )
-                        );
+                        canister_upgrade_errors.push(format!(
+                            "ERROR: storage upgrade :: storage with principal : {} failed to install upgrade {:?}",
+                            *canister_id, e
+                        ));
                     }
                 }
             }
 
-            if canister_upgrade_errors.len() > 0 {
-                return Err(canister_upgrade_errors);
+            if !canister_upgrade_errors.is_empty() {
+                Err(canister_upgrade_errors)
             } else {
                 Ok(())
             }
@@ -279,18 +389,4 @@ impl<U, T> SubCanisterManager<U, T>
     pub fn list_canisters_ids(&self) -> Vec<Principal> {
         self.sub_canisters.clone().into_keys().collect()
     }
-}
-
-#[derive(CandidType, Serialize, Deserialize, Clone, PartialEq, Debug)]
-pub enum CanisterState {
-    Created,
-    Installed,
-    Stopped,
-}
-
-pub trait Canister {
-    fn new(canister_id: Principal, state: CanisterState) -> Self;
-    fn canister_id(&self) -> Principal;
-    fn state(&self) -> CanisterState;
-    fn as_any(&self) -> &dyn Any;
 }
