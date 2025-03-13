@@ -1,9 +1,14 @@
+//! Memory usage tracking utilities for Internet Computer canisters.
+
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
 
+/// Represents the memory usage of a canister.
 #[derive(Serialize, Deserialize, CandidType)]
 pub struct MemorySize {
+    /// Heap memory usage in bytes
     heap: u64,
+    /// Stable memory usage in bytes
     stable: u64,
 }
 
@@ -11,11 +16,12 @@ impl MemorySize {
     pub fn used() -> Self {
         Self {
             heap: wasm_memory_size(),
-            stable: stable_memory::used(),
+            stable: bity_ic_stable_memory::used(),
         }
     }
 }
 
+/// Returns the current WebAssembly memory size in bytes.
 pub fn wasm_memory_size() -> u64 {
     #[cfg(target_arch = "wasm32")]
     {

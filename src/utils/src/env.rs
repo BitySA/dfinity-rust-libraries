@@ -1,20 +1,31 @@
-use candid::{ CandidType, Principal };
-use canister_time::now_nanos;
-use serde::{ Deserialize, Serialize };
-use types::BuildVersion;
-use types::{ CanisterId, Cycles, TimestampMillis, TimestampNanos };
+//! Environment-related utilities for Internet Computer canisters.
 
+use bity_ic_canister_time::now_nanos;
+use bity_ic_types::BuildVersion;
+use bity_ic_types::{CanisterId, Cycles, TimestampMillis, TimestampNanos};
+use candid::{CandidType, Principal};
+use serde::{Deserialize, Serialize};
+
+/// Represents the environment configuration of a canister.
 #[derive(Default, CandidType, Serialize, Deserialize, Clone)]
 pub struct CanisterEnv {
+    /// Whether the canister is running in test mode
     test_mode: bool,
+    /// The build version of the canister
     version: BuildVersion,
+    /// The Git commit hash of the canister's code
     commit_hash: String,
 }
 
+/// Trait for accessing canister environment information.
 pub trait Environment {
+    /// Returns the current time in nanoseconds
     fn now_nanos(&self) -> TimestampNanos;
+    /// Returns the caller's principal
     fn caller(&self) -> Principal;
+    /// Returns the canister's own ID
     fn canister_id(&self) -> CanisterId;
+    /// Returns the current cycle balance
     fn cycles_balance(&self) -> Cycles;
 
     fn now(&self) -> TimestampMillis {

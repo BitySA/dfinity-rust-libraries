@@ -1,5 +1,33 @@
 use std::future::Future;
 
+// Provides async retry functionality for operations that may fail.
+
+/// Retries an asynchronous operation a specified number of times.
+///
+/// # Arguments
+///
+/// * `operation` - A function that returns a Future with a Result
+/// * `retries` - The maximum number of retry attempts
+///
+/// # Returns
+///
+/// Returns the result of the operation if successful, or the last error encountered
+///
+/// # Example
+///
+/// ```
+/// use bity_dfinity_library::utils::retry_async;
+///
+/// async fn fallible_operation() -> Result<i32, String> {
+///     // Some operation that might fail
+///     Ok(42)
+/// }
+///
+/// async fn example() {
+///     let result = retry_async(|| fallible_operation(), 3).await;
+///     assert!(result.is_ok());
+/// }
+/// ```
 pub async fn retry_async<F, Fut, T, E>(mut operation: F, retries: usize) -> Result<T, E>
 where
     F: FnMut() -> Fut,

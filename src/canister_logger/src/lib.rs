@@ -1,4 +1,24 @@
-// Inspired by https://github.com/dfinity/ic/blob/master/rs/rust_canisters/canister_log/src/lib.rs
+//! Module for logging in Internet Computer canisters.
+//!
+//! This module provides a logging system for canisters that supports both regular logs
+//! and traces, with JSON formatting and circular buffer storage. It integrates with
+//! the `tracing` ecosystem for structured logging.
+//!
+//! # Example
+//! ```
+//! use bity_dfinity_library::canister_logger::{init, export_logs};
+//! use tracing::info;
+//!
+//! // Initialize the logger
+//! init(true);  // Enable tracing
+//!
+//! // Log some messages
+//! info!("Application started");
+//! tracing::trace!("Detailed trace message");
+//!
+//! // Export logs
+//! let logs = export_logs();
+//! ```
 
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
@@ -20,6 +40,16 @@ thread_local! {
     static TRACE: RefCell<LogBuffer> = RefCell::new(LogBuffer::default());
 }
 
+/// Initializes the logging system.
+///
+/// This function sets up the logging infrastructure with JSON formatting,
+/// file and line number information, and optional tracing support.
+///
+/// # Arguments
+/// * `enable_trace` - Whether to enable trace-level logging
+///
+/// # Panics
+/// Panics if the logger has already been initialized
 pub fn init(enable_trace: bool) {
     if INITIALIZED.with(|i| i.replace(true)) {
         panic!("Logger already initialized");
@@ -50,6 +80,14 @@ pub fn init(enable_trace: bool) {
     }
 }
 
+/// Initializes the logging system with pre-existing logs.
+///
+/// This function initializes the logger and populates it with existing log entries.
+///
+/// # Arguments
+/// * `enable_trace` - Whether to enable trace-level logging
+/// * `logs` - Pre-existing log entries to add
+/// * `traces` - Pre-existing trace entries to add
 pub fn init_with_logs(enable_trace: bool, logs: Vec<LogEntry>, traces: Vec<LogEntry>) {
     init(enable_trace);
 
@@ -61,14 +99,34 @@ pub fn init_with_logs(enable_trace: bool, logs: Vec<LogEntry>, traces: Vec<LogEn
     }
 }
 
-/// A circular buffer for log messages.
+/// A circular buffer for storing log messages.
+///
+/// This struct implements a fixed-size circular buffer that automatically
+/// evicts the oldest entries when full.
+///
+/// # Examples
+/// ```
+/// use bity_dfinity_library::canister_logger::LogBuffer;
+///
+/// let mut buffer = LogBuffer::with_capacity(10);
+/// buffer.append(LogEntry {
+///     timestamp: 1000,
+///     message: "Test message".to_string(),
+/// });
+/// ```
 pub struct LogBuffer {
     max_capacity: usize,
     entries: VecDeque<LogEntry>,
 }
 
 impl LogBuffer {
-    /// Creates a new buffer of the specified max capacity.
+    /// Creates a new buffer with the specified maximum capacity.
+    ///
+    /// # Arguments
+    /// * `max_capacity` - The maximum number of entries the buffer can hold
+    ///
+    /// # Returns
+    /// A new `LogBuffer` instance
     pub fn with_capacity(max_capacity: usize) -> Self {
         Self {
             max_capacity,
@@ -76,7 +134,13 @@ impl LogBuffer {
         }
     }
 
-    /// Adds a new entry to the buffer, potentially evicting older entries.
+    /// Adds a new entry to the buffer.
+    ///
+    /// If the buffer is at capacity, the oldest entry is removed before adding
+    /// the new one.
+    ///
+    /// # Arguments
+    /// * `entry` - The log entry to add
     pub fn append(&mut self, entry: LogEntry) {
         while self.entries.len() >= self.max_capacity {
             self.entries.pop_front();
@@ -84,7 +148,10 @@ impl LogBuffer {
         self.entries.push_back(entry);
     }
 
-    /// Returns an iterator over entries in the order of their insertion.
+    /// Returns an iterator over the entries in insertion order.
+    ///
+    /// # Returns
+    /// An iterator yielding references to `LogEntry`
     pub fn iter(&self) -> impl Iterator<Item = &LogEntry> {
         self.entries.iter()
     }
@@ -99,26 +166,51 @@ impl Default for LogBuffer {
     }
 }
 
+/// Exports all current log entries.
+///
+/// # Returns
+/// A vector containing all log entries
 pub fn export_logs() -> Vec<LogEntry> {
     LOG.with_borrow(|l| l.iter().cloned().collect())
 }
 
+/// Exports all current trace entries.
+///
+/// # Returns
+/// A vector containing all trace entries
 pub fn export_traces() -> Vec<LogEntry> {
     TRACE.with_borrow(|t| t.iter().cloned().collect())
 }
 
+/// Represents a single log entry with timestamp and message.
+///
+/// This struct is used to store individual log messages with their
+/// associated timestamps.
 #[derive(CandidType, Serialize, Deserialize, Clone)]
 pub struct LogEntry {
+    /// The timestamp when the log entry was created (in milliseconds)
     pub timestamp: u64,
+    /// The log message content
     pub message: String,
 }
 
+/// A writer implementation for the logging system.
+///
+/// This struct handles the actual writing of log messages to the appropriate
+/// buffer based on whether it's handling traces or regular logs.
 struct LogWriter {
     trace: bool,
     buffer: Vec<u8>,
 }
 
 impl LogWriter {
+    /// Creates a new log writer.
+    ///
+    /// # Arguments
+    /// * `trace` - Whether this writer handles trace messages
+    ///
+    /// # Returns
+    /// A new `LogWriter` instance
     fn new(trace: bool) -> LogWriter {
         LogWriter {
             trace,
@@ -138,7 +230,7 @@ impl Write for LogWriter {
         let json = String::from_utf8(buffer).unwrap();
 
         let log_entry = LogEntry {
-            timestamp: canister_time::timestamp_millis(),
+            timestamp: bity_ic_canister_time::timestamp_millis(),
             message: json,
         };
 
@@ -152,12 +244,14 @@ impl Write for LogWriter {
     }
 }
 
+/// A timer implementation for log timestamps.
+///
+/// This struct provides timestamp formatting for log entries.
 struct Timer;
 
 impl FormatTime for Timer {
     fn format_time(&self, w: &mut Writer) -> std::fmt::Result {
-        let now = canister_time::timestamp_millis();
-
+        let now = bity_ic_canister_time::timestamp_millis();
         w.write_str(&format!("{now}"))
     }
 }

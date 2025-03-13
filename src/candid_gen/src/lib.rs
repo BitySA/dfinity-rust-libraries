@@ -1,14 +1,65 @@
+//! Procedural macros for generating Candid method implementations.
+//!
+//! This module provides procedural macros to generate boilerplate code for Candid
+//! method implementations in Internet Computer canisters. It supports both query
+//! and update methods, with and without arguments.
+//!
+//! # Features
+//! - Generation of Candid method implementations
+//! - Support for query and update methods
+//! - Support for methods with and without arguments
+//! - Automatic type generation for Args and Response
+//!
+//! # Examples
+//! ```
+//! use bity_dfinity_library::candid_gen::*;
+//!
+//! // Generate a method with arguments
+//! generate_candid_method!(my_canister, transfer, update);
+//!
+//! // Generate a method without arguments
+//! generate_candid_method_no_args!(my_canister, get_balance, query);
+//! ```
+
 use proc_macro::TokenStream;
 use quote::{format_ident, quote};
 use syn::punctuated::Punctuated;
 use syn::{parse_macro_input, Ident, Token};
 
+/// Represents the attributes needed to generate a Candid method.
+///
+/// This struct contains the information required to generate a method implementation,
+/// including the canister name, method name, and method type (query/update).
 struct MethodAttribute {
+    /// The name of the canister (without the "_canister" suffix)
     canister_name: String,
+    /// The name of the method to generate
     method_name: String,
+    /// The type of method ("query" or "update")
     method_type: String,
 }
 
+/// Generates a Candid method implementation with arguments.
+///
+/// This procedural macro generates a method implementation with the specified
+/// arguments and response types. The generated method will be marked with the
+/// appropriate Candid method attribute.
+///
+/// # Arguments
+/// The macro takes three comma-separated identifiers:
+/// * `canister_name` - The name of the canister (without "_canister" suffix)
+/// * `method_name` - The name of the method to generate
+/// * `method_type` - The type of method ("query" or "update")
+///
+/// # Returns
+/// A TokenStream containing the generated method implementation.
+///
+/// # Example
+/// ```
+/// use bity_dfinity_library::candid_gen::generate_candid_method;
+///
+/// generate_candid_method!(my_canister, transfer, update);
+/// ```
 #[proc_macro]
 pub fn generate_candid_method(input: TokenStream) -> TokenStream {
     let inputs = parse_macro_input!(input with Punctuated::<Ident, Token![,]>::parse_terminated)
@@ -35,6 +86,27 @@ pub fn generate_candid_method(input: TokenStream) -> TokenStream {
     TokenStream::from(tokens)
 }
 
+/// Generates a Candid method implementation without arguments.
+///
+/// This procedural macro generates a method implementation without arguments,
+/// only returning a response type. The generated method will be marked with the
+/// appropriate Candid method attribute.
+///
+/// # Arguments
+/// The macro takes three comma-separated identifiers:
+/// * `canister_name` - The name of the canister (without "_canister" suffix)
+/// * `method_name` - The name of the method to generate
+/// * `method_type` - The type of method ("query" or "update")
+///
+/// # Returns
+/// A TokenStream containing the generated method implementation.
+///
+/// # Example
+/// ```
+/// use bity_dfinity_library::candid_gen::generate_candid_method_no_args;
+///
+/// generate_candid_method_no_args!(my_canister, get_balance, query);
+/// ```
 #[proc_macro]
 pub fn generate_candid_method_no_args(input: TokenStream) -> TokenStream {
     let inputs = parse_macro_input!(input with Punctuated::<Ident, Token![,]>::parse_terminated)
@@ -60,6 +132,21 @@ pub fn generate_candid_method_no_args(input: TokenStream) -> TokenStream {
     TokenStream::from(tokens)
 }
 
+/// Extracts method attributes from the input tokens.
+///
+/// This function processes the input tokens to create a `MethodAttribute` struct
+/// containing the canister name, method name, and method type.
+///
+/// # Arguments
+/// * `inputs` - A vector of strings containing the input tokens
+///
+/// # Returns
+/// A `MethodAttribute` struct with the processed information.
+///
+/// # Panics
+/// Panics if:
+/// - The input vector has fewer than 3 elements
+/// - The method type is not "query" or "update"
 fn get_method_attribute(inputs: Vec<String>) -> MethodAttribute {
     let first_arg = inputs.get(0).unwrap();
     let second_arg = inputs.get(1).unwrap();

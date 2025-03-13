@@ -1,8 +1,34 @@
+//! Module for handling Internet Computer ledger operations and account management.
+//!
+//! This module provides utilities for working with the Internet Computer's ledger system,
+//! including account identifier computation, subaccount management, and conversion between
+//! different account formats.
+//!
+//! # Example
+//! ```
+//! use candid::Principal;
+//! use ic_ledger_types::AccountIdentifier;
+//!
+//! let principal = Principal::from_text("rrkah-fqaaa-aaaaa-aaaaq-cai").unwrap();
+//! let account_id = principal_to_legacy_account_id(principal, None);
+//! ```
+
 use candid::Principal;
 use ic_ledger_types::{AccountIdentifier, Subaccount, DEFAULT_SUBACCOUNT};
 use icrc_ledger_types::icrc1::account::Account;
 use sha2::{Digest, Sha256};
 
+/// Computes a neuron staking subaccount using SHA-256 hashing.
+///
+/// This function generates a deterministic subaccount for neuron staking by hashing
+/// the controller's principal and a nonce value.
+///
+/// # Arguments
+/// * `controller` - The principal ID of the controller
+/// * `nonce` - A unique value to ensure different subaccounts for the same controller
+///
+/// # Returns
+/// A 32-byte array representing the computed subaccount
 pub fn compute_neuron_staking_subaccount_bytes(controller: Principal, nonce: u64) -> [u8; 32] {
     const DOMAIN: &[u8] = b"neuron-stake";
     const DOMAIN_LENGTH: [u8; 1] = [0x0c];
@@ -15,6 +41,16 @@ pub fn compute_neuron_staking_subaccount_bytes(controller: Principal, nonce: u64
     hasher.finalize().into()
 }
 
+/// Converts an ICRC-1 account to a legacy account identifier.
+///
+/// This function converts an ICRC-1 account format to the legacy account identifier format,
+/// handling the conversion of subaccounts appropriately.
+///
+/// # Arguments
+/// * `icrc_account` - The ICRC-1 account to convert
+///
+/// # Returns
+/// The corresponding legacy account identifier
 pub fn icrc_account_to_legacy_account_id(icrc_account: Account) -> AccountIdentifier {
     let subaccount: Subaccount = icrc_account
         .subaccount
@@ -22,6 +58,17 @@ pub fn icrc_account_to_legacy_account_id(icrc_account: Account) -> AccountIdenti
     AccountIdentifier::new(&icrc_account.owner, &subaccount)
 }
 
+/// Creates a legacy account identifier from a principal and optional subaccount.
+///
+/// This function creates a legacy account identifier using the provided principal
+/// and an optional subaccount. If no subaccount is provided, the default subaccount is used.
+///
+/// # Arguments
+/// * `principal` - The principal ID to use
+/// * `subaccount` - An optional subaccount to use
+///
+/// # Returns
+/// The corresponding legacy account identifier
 pub fn principal_to_legacy_account_id(
     principal: Principal,
     subaccount: Option<Subaccount>,

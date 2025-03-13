@@ -1,8 +1,45 @@
+//! Module for procedural macros that add tracing capabilities to canister functions.
+//!
+//! This module provides macros that automatically add tracing instrumentation to functions,
+//! making it easier to debug and monitor canister behavior. It wraps functions with tracing
+//! capabilities while preserving their original functionality.
+//!
+//! # Example
+//! ```
+//! use bity_dfinity_library::canister_tracing_macros::trace;
+//!
+//! #[trace]
+//! async fn my_function(arg1: u64, arg2: String) -> Result<(), String> {
+//!     // Function implementation
+//!     Ok(())
+//! }
+//! ```
+
 use proc_macro::TokenStream;
 use proc_macro2::Ident;
 use quote::{format_ident, quote};
 use syn::{parse_macro_input, FnArg, ItemFn, Pat, PatIdent, PatType, Signature};
 
+/// A procedural macro attribute that adds tracing capabilities to a function.
+///
+/// This macro wraps the target function with tracing instrumentation, automatically
+/// logging function entry, arguments, and return values at the trace level.
+///
+/// # Usage
+/// Add the `#[trace]` attribute above any function you want to trace:
+/// ```rust
+/// #[trace]
+/// fn my_function(arg: u64) -> u64 {
+///     arg * 2
+/// }
+/// ```
+///
+/// # Features
+/// * Automatically traces function entry and exit
+/// * Logs all function arguments
+/// * Logs the return value
+/// * Works with both synchronous and asynchronous functions
+/// * Preserves the original function signature
 #[proc_macro_attribute]
 pub fn trace(_: TokenStream, item: TokenStream) -> TokenStream {
     let mut inner = parse_macro_input!(item as ItemFn);
@@ -38,6 +75,19 @@ pub fn trace(_: TokenStream, item: TokenStream) -> TokenStream {
     TokenStream::from(expanded)
 }
 
+/// Extracts argument names from a function signature.
+///
+/// This helper function processes a function signature to extract the names of all arguments,
+/// including the receiver (self) if present.
+///
+/// # Arguments
+/// * `signature` - The function signature to process
+///
+/// # Returns
+/// A vector of identifiers representing the argument names
+///
+/// # Panics
+/// Panics if it encounters an argument pattern that it cannot process
 fn get_arg_names(signature: &Signature) -> Vec<Ident> {
     signature
         .inputs

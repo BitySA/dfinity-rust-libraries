@@ -1,12 +1,17 @@
 [package]
-name = "canister_client"
+name = "bity-ic-canister-client"
 version = "0.1.0"
 edition = "2021"
-
+description = "Description spécifique de la crate"
+license = "MIT"
+repository = "https://github.com/bity/bity_dfinity_library"
+keywords = ["dfinity", "internet-computer", "ic", "canister", "subcanister"]
+authors = ["Bity Team", "Gautier Wojda <gautier.wojda@bity.com>", "Freddie Hands <freddie.hands@bity.com>", "Victoria Horbunova <victoria.horbunova@bity.com>", "Dustin Becker <dustin.becker@bity.com>"]
+documentation = "https://docs.rs/bity-ic-canister-client"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 candid = { workspace = true }
-canister_client_macros = { path = "../canister_client_macros" }
+bity-ic-canister-client-macros = { path = "../canister_client_macros" }
 ic-cdk = { workspace = true }
 tracing = { workspace = true }
