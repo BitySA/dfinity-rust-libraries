@@ -1,0 +1,23 @@
+---
+# Publish crates to crates.io
+# Only triggered on tags
+# Tags must be of format {name}-{version} and {name} must be the lib folder under src/
+name: publish crates
+on:
+  push:
+    tags:
+      - '*'
+jobs:
+  publish:
+    name: Publish crates
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+      - name: Publish crates to crates.io
+        run: |
+          [[ -d src/${GITHUB_REF_NAME%%-*} ]] || exit 1
+          pushd src/${GITHUB_REF_NAME%%-*}
+          cargo publish
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CRATES_IO_API_TOKEN }}
