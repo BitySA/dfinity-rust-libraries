@@ -19,7 +19,7 @@ ic-cdk = { workspace = true }
 hex = { workspace = true }
 serde = { workspace = true }
 bity-ic-stable-memory = { path = "../stable_memory" }
-bity-ic-types = { path = "../types" }
+bity-ic-types = "0.1.0"
 tracing = { workspace = true }
 ic-cdk-timers = { workspace = true }
 tokio = { version = "1.39.2", features = ["macros", "rt"]}
