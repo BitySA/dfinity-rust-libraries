@@ -1,9 +1,9 @@
 use crate::Environment;
+use bity_ic_types::TimestampMillis;
 use ic_cdk_timers::TimerId;
 use job_macros::job;
 use std::any::type_name;
 use std::time::Duration;
-use types::TimestampMillis;
 
 #[job(attempts = 3, interval = 60)]
 fn my_job() {
@@ -120,8 +120,8 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use types::BuildVersion;
-    use utils::env::CanisterEnv;
+    use bity_ic_types::BuildVersion;
+    use bity_ic_utils::env::CanisterEnv;
 
     // Example functions
     async fn example_async_action() -> Result<(), String> {
