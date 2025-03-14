@@ -149,9 +149,10 @@ name = "bity-ic-canister-timer-jobs"
 version = "0.1.0"
 dependencies = [
  "bity-ic-types 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "bity-ic-utils",
+ "bity-ic-utils 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "ic-cdk",
  "ic-cdk-timers",
+ "job_macros",
  "quote",
  "serde",
  "syn 2.0.100",
@@ -210,7 +211,7 @@ dependencies = [
 name = "bity-ic-subcanister-manager"
 version = "0.1.0"
 dependencies = [
- "bity-ic-utils",
+ "bity-ic-utils 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "candid",
  "ic-cdk",
  "serde",
@@ -243,6 +244,25 @@ dependencies = [
 [[package]]
 name = "bity-ic-utils"
 version = "0.1.0"
+dependencies = [
+ "bity-ic-canister-time 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "bity-ic-stable-memory 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "bity-ic-types 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "candid",
+ "hex",
+ "ic-cdk",
+ "ic-cdk-timers",
+ "icrc-ledger-types",
+ "serde",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "bity-ic-utils"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d4a26047a2fd791b3684ae0119df7eb7bf1e35bef115845d74430ecae772769c"
 dependencies = [
  "bity-ic-canister-time 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "bity-ic-stable-memory 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -641,6 +661,14 @@ name = "itoa"
 version = "1.0.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4a5f13b858c8d314ee3e8f639011f7ccefe71f97f96e50151fb991f267928e2c"
+
+[[package]]
+name = "job_macros"
+version = "0.1.0"
+dependencies = [
+ "quote",
+ "syn 1.0.109",
+]
 
 [[package]]
 name = "lazy_static"
