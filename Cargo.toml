@@ -3,7 +3,6 @@ resolver = "2"
 members = [
     "src/candid_gen",
     "src/canister_client",
-    "src/canister_client_macros",
     "src/canister_logger",
     "src/canister_state_macros",
     "src/canister_time",

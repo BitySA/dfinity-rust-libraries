@@ -33,8 +33,7 @@ use candid::Principal;
 use ic_cdk::api::call::{CallResult, RejectionCode};
 use std::fmt::Debug;
 
-pub use bity_ic_canister_client_macros::*;
-
+pub mod canister_client_macros;
 /// Makes a cross-canister call with custom serialization and deserialization.
 ///
 /// This function handles the complete flow of a cross-canister call, including:
