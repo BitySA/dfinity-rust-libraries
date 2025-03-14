@@ -14,7 +14,7 @@ documentation = "https://docs.rs/bity-ic-canister-timer-jobs"
 [dependencies]
 ic-cdk-timers = { workspace = true }
 serde = { workspace = true }
-bity-ic-types = { path = "../types" }
+bity-ic-types = "0.1.0"
 bity-ic-utils = { path = "../utils" }
 tracing = { workspace = true }
 ic-cdk = { workspace = true }
