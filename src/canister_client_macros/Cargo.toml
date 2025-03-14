@@ -13,4 +13,4 @@ documentation = "https://docs.rs/bity-ic-canister-client-macros"
 [dependencies]
 ic-cdk = { workspace = true }
 candid = { workspace = true }
-bity-ic-types = { path = "../types" }
+bity-ic-types = "0.1.0"
