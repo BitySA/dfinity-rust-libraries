@@ -12,6 +12,6 @@ documentation = "https://docs.rs/bity-ic-canister-client"
 
 [dependencies]
 candid = { workspace = true }
-bity-ic-canister-client-macros = { path = "../canister_client_macros" }
 ic-cdk = { workspace = true }
 tracing = { workspace = true }
+bity-ic-canister-client-macros = "0.1.0"
