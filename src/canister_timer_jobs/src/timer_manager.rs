@@ -1,14 +1,8 @@
 use crate::Environment;
 use bity_ic_types::TimestampMillis;
 use ic_cdk_timers::TimerId;
-use job_macros::job;
 use std::any::type_name;
 use std::time::Duration;
-
-#[job(attempts = 3, interval = 60)]
-fn my_job() {
-    println!("This is the job function.");
-}
 
 // NOTE: https://nullderef.com/blog/rust-async-sync/#_what_ended_up_working_the_maybe_async_crate
 // NOTE: https://www.byronwasti.com/async-func-pointers/
