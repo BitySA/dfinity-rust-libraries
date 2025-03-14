@@ -101,7 +101,7 @@ dependencies = [
 name = "bity-ic-canister-client-macros"
 version = "0.1.0"
 dependencies = [
- "bity-ic-types",
+ "bity-ic-types 0.1.0",
  "candid",
  "ic-cdk",
 ]
@@ -125,7 +125,7 @@ version = "0.1.0"
 name = "bity-ic-canister-time"
 version = "0.1.0"
 dependencies = [
- "bity-ic-types",
+ "bity-ic-types 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "ic-cdk",
  "ic-cdk-timers",
  "ic0",
@@ -178,12 +178,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "bity-ic-types"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9aa6cbdb85decd1d1fb7369de04cc7b7d491f56b3e46e5ead13d27fb112ea59d"
+dependencies = [
+ "candid",
+ "ic-stable-structures",
+ "icrc-ledger-types",
+ "serde",
+ "serde_bytes",
+]
+
+[[package]]
 name = "bity-ic-utils"
 version = "0.1.0"
 dependencies = [
  "bity-ic-canister-time",
  "bity-ic-stable-memory",
- "bity-ic-types",
+ "bity-ic-types 0.1.0",
  "candid",
  "hex",
  "ic-cdk",
