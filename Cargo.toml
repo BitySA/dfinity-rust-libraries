@@ -13,6 +13,8 @@ members = [
     "src/types",
     "src/utils",
     "src/subcanister_manager",
+    "src/ledger_utils",
+    "src/canister_timer_jobs",
 ]
 
 [profile.release]
@@ -65,3 +67,4 @@ minicbor = { version = "0.25.1", features = ["alloc", "derive"] }
 canfund = "0.7.0"
 ic-asset-certification = "3.0.3"
 ic-http-certification = "3.0.3"
+sha256 = "1.6.0"

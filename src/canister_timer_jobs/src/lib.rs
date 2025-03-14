@@ -15,6 +15,7 @@
 //! });
 //! ```
 
+use bity_ic_utils::env::Environment;
 use ic_cdk_timers::TimerId;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::cell::RefCell;
@@ -23,7 +24,6 @@ use std::ops::Deref;
 use std::rc::Rc;
 use std::time::Duration;
 use tracing::trace;
-use utils::env::Environment;
 
 use crate::timer_manager::TimerManager;
 
