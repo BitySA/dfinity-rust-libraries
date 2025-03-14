@@ -19,4 +19,4 @@ icrc_ledger_canister_c2c_client = { path = "../../external_canisters/icrc_ledger
 icrc-ledger-types = { workspace = true }
 sha2 = { workspace = true }
 sha256 = { path = "../sha256" }
-bity-ic-types = "0.1.0"
+bity-ic-types = { path = "../types" }
