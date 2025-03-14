@@ -102,26 +102,16 @@ dependencies = [
 name = "bity-ic-canister-client"
 version = "0.1.0"
 dependencies = [
- "bity-ic-canister-client-macros",
  "candid",
  "ic-cdk",
  "tracing",
 ]
 
 [[package]]
-name = "bity-ic-canister-client-macros"
-version = "0.1.0"
-dependencies = [
- "bity-ic-types 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "candid",
- "ic-cdk",
-]
-
-[[package]]
 name = "bity-ic-canister-logger"
 version = "0.1.0"
 dependencies = [
- "bity-ic-canister-time",
+ "bity-ic-canister-time 0.1.0",
  "candid",
  "serde",
  "tracing",
@@ -143,6 +133,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "bity-ic-canister-time"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f2b478178b7a12077ff913efbf0e955e2ccac47c5b7ee3017557239428fdce87"
+dependencies = [
+ "bity-ic-types 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "ic-cdk",
+ "ic-cdk-timers",
+ "ic0",
+]
+
+[[package]]
 name = "bity-ic-canister-timer-jobs"
 version = "0.1.0"
 dependencies = [
@@ -150,8 +152,9 @@ dependencies = [
  "bity-ic-utils",
  "ic-cdk",
  "ic-cdk-timers",
- "job_macros",
+ "quote",
  "serde",
+ "syn 2.0.100",
  "tokio",
  "tracing",
 ]
@@ -188,6 +191,16 @@ dependencies = [
 [[package]]
 name = "bity-ic-stable-memory"
 version = "0.1.0"
+dependencies = [
+ "ic-cdk",
+ "ic-stable-structures",
+]
+
+[[package]]
+name = "bity-ic-stable-memory"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b03f42d556b406c039b7f2b8d655667a5b252f901ca1fa25d506c274b57613c6"
 dependencies = [
  "ic-cdk",
  "ic-stable-structures",
@@ -231,8 +244,8 @@ dependencies = [
 name = "bity-ic-utils"
 version = "0.1.0"
 dependencies = [
- "bity-ic-canister-time",
- "bity-ic-stable-memory",
+ "bity-ic-canister-time 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "bity-ic-stable-memory 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "bity-ic-types 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "candid",
  "hex",
@@ -628,14 +641,6 @@ name = "itoa"
 version = "1.0.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4a5f13b858c8d314ee3e8f639011f7ccefe71f97f96e50151fb991f267928e2c"
-
-[[package]]
-name = "job_macros"
-version = "0.1.0"
-dependencies = [
- "quote",
- "syn 2.0.100",
-]
 
 [[package]]
 name = "lazy_static"
