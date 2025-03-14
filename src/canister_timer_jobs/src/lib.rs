@@ -27,6 +27,7 @@ use tracing::trace;
 
 use crate::timer_manager::TimerManager;
 
+pub mod job_macros;
 pub mod timer_manager;
 
 /// A collection of timer-based jobs managed together.

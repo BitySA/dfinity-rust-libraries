@@ -13,12 +13,12 @@ documentation = "https://docs.rs/bity-ic-utils"
 
 [dependencies]
 candid = { workspace = true }
-bity-ic-canister-time = { path = "../canister_time" }
+bity-ic-canister-time = "0.1.0"
 icrc-ledger-types = { workspace = true }
 ic-cdk = { workspace = true }
 hex = { workspace = true }
 serde = { workspace = true }
-bity-ic-stable-memory = { path = "../stable_memory" }
+bity-ic-stable-memory = "0.1.0"
 bity-ic-types = "0.1.0"
 tracing = { workspace = true }
 ic-cdk-timers = { workspace = true }
