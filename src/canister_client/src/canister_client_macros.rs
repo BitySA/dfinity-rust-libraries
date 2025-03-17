@@ -6,7 +6,7 @@
 //!
 //! # Examples
 //! ```
-//! use bity_dfinity_library::canister_client_macros::*;
+//! use bity_ic_canister_client::*;
 //!
 //! // Generate an update call function
 //! generate_update_call!(my_method);
@@ -38,7 +38,7 @@
 ///
 /// # Example
 /// ```
-/// use bity_dfinity_library::canister_client_macros::generate_update_call;
+/// use bity_ic_canister_client::generate_update_call;
 ///
 /// generate_update_call!(transfer);
 /// ```
@@ -81,7 +81,7 @@ macro_rules! generate_update_call {
 ///
 /// # Example
 /// ```
-/// use bity_dfinity_library::canister_client_macros::generate_query_call;
+/// use bity_ic_canister_client::generate_query_call;
 ///
 /// generate_query_call!(get_balance);
 /// ```
@@ -126,7 +126,7 @@ macro_rules! generate_query_call {
 ///
 /// # Example
 /// ```
-/// use bity_dfinity_library::canister_client_macros::generate_c2c_call;
+/// use bity_ic_canister_client::generate_c2c_call;
 ///
 /// generate_c2c_call!(transfer);
 /// ```
@@ -134,7 +134,7 @@ macro_rules! generate_query_call {
 macro_rules! generate_c2c_call {
     ($method_name:ident) => {
         pub async fn $method_name(
-            canister_id: types::CanisterId,
+            canister_id: bity_ic_types::CanisterId,
             args: &$method_name::Args,
         ) -> ic_cdk::api::call::CallResult<$method_name::Response> {
             let method_name = concat!(stringify!($method_name), "_msgpack");
@@ -166,7 +166,7 @@ macro_rules! generate_c2c_call {
 ///
 /// # Example
 /// ```
-/// use bity_dfinity_library::canister_client_macros::generate_candid_c2c_call;
+/// use bity_ic_canister_client::generate_candid_c2c_call;
 ///
 /// generate_candid_c2c_call!(transfer);
 /// ```
@@ -177,7 +177,7 @@ macro_rules! generate_candid_c2c_call {
     };
     ($method_name:ident, $external_canister_method_name:ident) => {
         pub async fn $method_name<A>(
-            canister_id: $crate::types::CanisterId,
+            canister_id: bity_ic_types::CanisterId,
             args: A,
         ) -> $crate::ic_cdk::api::call::CallResult<$method_name::Response>
         where
@@ -211,7 +211,7 @@ macro_rules! generate_candid_c2c_call {
 ///
 /// # Example
 /// ```
-/// use bity_dfinity_library::canister_client_macros::generate_candid_c2c_call_with_payment;
+/// use bity_ic_canister_client::generate_candid_c2c_call_with_payment;
 ///
 /// generate_candid_c2c_call_with_payment!(transfer);
 /// ```
@@ -219,7 +219,7 @@ macro_rules! generate_candid_c2c_call {
 macro_rules! generate_candid_c2c_call_with_payment {
     ($method_name:ident) => {
         pub async fn $method_name(
-            canister_id: ::types::CanisterId,
+            canister_id: bity_ic_types::CanisterId,
             args: &$method_name::Args,
             cycles: ::types::Cycles,
         ) -> ::ic_cdk::api::call::CallResult<$method_name::Response> {
@@ -253,7 +253,7 @@ macro_rules! generate_candid_c2c_call_with_payment {
 ///
 /// # Example
 /// ```
-/// use bity_dfinity_library::canister_client_macros::generate_candid_c2c_call_tuple_args;
+/// use bity_ic_canister_client::generate_candid_c2c_call_tuple_args;
 ///
 /// generate_candid_c2c_call_tuple_args!(transfer);
 /// ```
@@ -264,7 +264,7 @@ macro_rules! generate_candid_c2c_call_tuple_args {
     };
     ($method_name:ident, $external_canister_method_name:ident) => {
         pub async fn $method_name(
-            canister_id: ::types::CanisterId,
+            canister_id: bity_ic_types::CanisterId,
             args: $method_name::Args,
         ) -> ::ic_cdk::api::call::CallResult<$method_name::Response> {
             let method_name = stringify!($external_canister_method_name);
@@ -296,7 +296,7 @@ macro_rules! generate_candid_c2c_call_tuple_args {
 ///
 /// # Example
 /// ```
-/// use bity_dfinity_library::canister_client_macros::generate_candid_c2c_call_no_args;
+/// use bity_ic_canister_client::generate_candid_c2c_call_no_args;
 ///
 /// generate_candid_c2c_call_no_args!(get_version);
 /// ```
@@ -307,7 +307,7 @@ macro_rules! generate_candid_c2c_call_no_args {
     };
     ($method_name:ident, $external_canister_method_name:ident) => {
         pub async fn $method_name(
-            canister_id: $crate::types::CanisterId,
+            canister_id: bity_ic_types::CanisterId,
         ) -> $crate::ic_cdk::api::call::CallResult<$method_name::Response> {
             let method_name = stringify!($external_canister_method_name);
 
