@@ -100,8 +100,9 @@ dependencies = [
 
 [[package]]
 name = "bity-ic-canister-client"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
+ "bity-ic-types 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "candid",
  "ic-cdk",
  "tracing",

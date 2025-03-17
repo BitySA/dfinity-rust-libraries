@@ -11,7 +11,7 @@
 //!
 //! # Examples
 //! ```
-//! use bity_dfinity_library::canister_client::make_c2c_call;
+//! use bity_ic_canister_client::make_c2c_call;
 //! use candid::{encode_one, decode_one};
 //!
 //! async fn transfer(
@@ -61,7 +61,7 @@ pub mod canister_client_macros;
 ///
 /// # Example
 /// ```
-/// use bity_dfinity_library::canister_client::make_c2c_call;
+/// use bity_ic_canister_client::make_c2c_call;
 /// use candid::{encode_one, decode_one};
 ///
 /// async fn example(canister_id: Principal, args: &MyArgs) -> CallResult<MyResponse> {
@@ -129,7 +129,7 @@ where
 ///
 /// # Example
 /// ```
-/// use bity_dfinity_library::canister_client::make_c2c_call_with_payment;
+/// use bity_ic_canister_client::make_c2c_call_with_payment;
 /// use candid::{encode_one, decode_one};
 ///
 /// async fn example(canister_id: Principal, args: &MyArgs, cycles: u128) -> CallResult<MyResponse> {
@@ -190,7 +190,7 @@ where
 ///
 /// # Example
 /// ```
-/// use bity_dfinity_library::canister_client::make_c2c_call_raw;
+/// use bity_ic_canister_client::make_c2c_call_raw;
 ///
 /// async fn example(canister_id: Principal, payload: &[u8]) -> CallResult<Vec<u8>> {
 ///     make_c2c_call_raw(canister_id, "my_method", payload, 0).await
