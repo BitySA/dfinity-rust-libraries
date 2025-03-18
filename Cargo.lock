@@ -209,10 +209,11 @@ dependencies = [
 
 [[package]]
 name = "bity-ic-subcanister-manager"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "bity-ic-utils 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "candid",
+ "canfund",
  "ic-cdk",
  "serde",
 ]
@@ -331,6 +332,25 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.100",
+]
+
+[[package]]
+name = "canfund"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b23c9f11d24d5a101a0ed297ace8b76261737ba9654f3ddfeb35a3d73c33d230"
+dependencies = [
+ "async-trait",
+ "candid",
+ "futures",
+ "ic-cdk",
+ "ic-cdk-timers",
+ "ic-ledger-types",
+ "icrc-ledger-types",
+ "num-bigint",
+ "serde",
+ "serde_bytes",
+ "thiserror",
 ]
 
 [[package]]

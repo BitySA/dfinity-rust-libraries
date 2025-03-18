@@ -36,12 +36,18 @@
 
 use bity_ic_utils::retry_async::retry_async;
 use candid::{CandidType, Encode, Nat, Principal};
+use canfund::{
+    manager::{options::FundManagerOptions, RegisterOpts},
+    operations::fetch::FetchCyclesBalanceFromCanisterStatus,
+    FundManager,
+};
 use ic_cdk::api::management_canister::main::{
     canister_status, create_canister, install_code, start_canister, stop_canister,
     CanisterIdRecord, CanisterInstallMode, CanisterSettings, CreateCanisterArgument,
     InstallCodeArgument, LogVisibility,
 };
 use serde::{Deserialize, Serialize};
+use std::sync::Arc;
 use std::{any::Any, collections::HashMap, fmt::Debug, future::Future};
 
 /// Error types for storage operations
@@ -130,7 +136,7 @@ pub trait Canister {
 }
 
 /// Manager for handling sub-canisters
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize)]
 pub struct SubCanisterManager<T>
 where
     T: Canister + Clone,
@@ -153,6 +159,12 @@ where
     pub commit_hash: String,
     /// WASM module for canister installation
     pub wasm: Vec<u8>,
+    /// Fund manager
+    #[serde(skip)]
+    pub fund_manager: FundManager,
+    /// Funding config
+    #[serde(skip)]
+    pub funding_config: FundManagerOptions,
 }
 
 impl<T> SubCanisterManager<T>
@@ -183,6 +195,8 @@ where
             test_mode,
             commit_hash,
             wasm,
+            fund_manager: FundManager::new(),
+            funding_config: FundManagerOptions::new(),
         }
     }
 
@@ -389,4 +403,61 @@ where
     pub fn list_canisters_ids(&self) -> Vec<Principal> {
         self.sub_canisters.clone().into_keys().collect()
     }
+}
+
+impl<T> Clone for SubCanisterManager<T>
+where
+    T: Canister + Clone,
+{
+    fn clone(&self) -> Self {
+        let mut fund_manager = FundManager::new();
+
+        add_canisters_to_fund_manager(
+            &mut fund_manager,
+            self.funding_config.clone(),
+            self.sub_canisters.clone().into_keys().collect(),
+        );
+
+        Self {
+            master_canister_id: self.master_canister_id.clone(),
+            sub_canisters: self.sub_canisters.clone(),
+            controllers: self.controllers.clone(),
+            authorized_principal: self.authorized_principal.clone(),
+            initial_cycles: self.initial_cycles,
+            reserved_cycles: self.reserved_cycles,
+            test_mode: self.test_mode,
+            commit_hash: self.commit_hash.clone(),
+            wasm: self.wasm.clone(),
+            fund_manager: fund_manager,
+            funding_config: self.funding_config.clone(),
+        }
+    }
+}
+
+pub fn add_canisters_to_fund_manager(
+    fund_manager: &mut FundManager,
+    funding_config: FundManagerOptions,
+    canister_id_lst: Vec<Principal>,
+) {
+    fund_manager.stop();
+
+    // let funding_config = FundManagerOptions::new()
+    //     .with_interval_secs(60)
+    //     .with_strategy(FundStrategy::BelowThreshold(
+    //         CyclesThreshold::new()
+    //             .with_min_cycles(1_000_000_000_000)
+    //             .with_fund_cycles(2_000_000_000_000),
+    //     ));
+
+    fund_manager.with_options(funding_config);
+
+    for canister_id in canister_id_lst {
+        fund_manager.register(
+            canister_id,
+            RegisterOpts::new()
+                .with_cycles_fetcher(Arc::new(FetchCyclesBalanceFromCanisterStatus::new())),
+        );
+    }
+
+    fund_manager.start();
 }
