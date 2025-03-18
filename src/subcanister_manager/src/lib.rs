@@ -181,6 +181,7 @@ where
         test_mode: bool,
         commit_hash: String,
         wasm: Vec<u8>,
+        funding_config: FundManagerOptions,
     ) -> Self {
         controllers.push(master_canister_id);
         authorized_principal.push(master_canister_id);
@@ -196,7 +197,7 @@ where
             commit_hash,
             wasm,
             fund_manager: FundManager::new(),
-            funding_config: FundManagerOptions::new(),
+            funding_config: funding_config,
         }
     }
 
@@ -440,14 +441,6 @@ pub fn add_canisters_to_fund_manager(
     canister_id_lst: Vec<Principal>,
 ) {
     fund_manager.stop();
-
-    // let funding_config = FundManagerOptions::new()
-    //     .with_interval_secs(60)
-    //     .with_strategy(FundStrategy::BelowThreshold(
-    //         CyclesThreshold::new()
-    //             .with_min_cycles(1_000_000_000_000)
-    //             .with_fund_cycles(2_000_000_000_000),
-    //     ));
 
     fund_manager.with_options(funding_config);
 
