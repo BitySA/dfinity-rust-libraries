@@ -247,6 +247,12 @@ where
                     }
                 };
 
+                add_canisters_to_fund_manager(
+                    &mut self.fund_manager,
+                    self.funding_config.clone(),
+                    vec![canister_id],
+                );
+
                 self.sub_canisters.insert(
                     canister_id,
                     Box::new(T::new(
