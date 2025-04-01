@@ -142,6 +142,65 @@ macro_rules! canister_state {
             __STATE.with_borrow_mut(|s| f(s.as_mut().expect(__STATE_NOT_INITIALIZED)))
         }
 
+        /// Trait for async functions that can be used with state operations
+        /// This is temporary trait to be replaced once rust release official AsyncFn trait definition.
+        /// see https://github.com/rust-lang/rust/pull/132706
+        pub trait AsyncFn<Args>: FnOnce<Args> {
+            type Future: std::future::Future<Output = Self::Output> + Send + 'static;
+            type Output;
+        }
+
+        impl<F, Args, Fut, Out> AsyncFn<Args> for F
+        where
+            F: FnOnce<Args, Output = Fut>,
+            Fut: std::future::Future<Output = Out> + Send + 'static,
+        {
+            type Future = Fut;
+            type Output = Out;
+        }
+
+        /// Reads the state using an async closure.
+        ///
+        /// # Arguments
+        /// * `f` - An async closure that takes a reference to the state and returns a value
+        ///
+        /// # Returns
+        /// A Future that will resolve to the result of the closure
+        ///
+        /// # Panics
+        /// Panics if the state has not been initialized
+        pub fn read_state_async<F>(f: F) -> F::Future
+        where
+            F: AsyncFn<(&$type,)>,
+            F::Future: Send + 'static,
+        {
+            __STATE.with_borrow(|s| {
+                let state = s.as_ref().expect(__STATE_NOT_INITIALIZED);
+                f(state)
+            })
+        }
+
+        /// Mutates the state using an async closure.
+        ///
+        /// # Arguments
+        /// * `f` - An async closure that takes a mutable reference to the state and returns a value
+        ///
+        /// # Returns
+        /// A Future that will resolve to the result of the closure
+        ///
+        /// # Panics
+        /// Panics if the state has not been initialized
+        pub fn mutate_state_async<F>(f: F) -> F::Future
+        where
+            F: AsyncFn<(&mut $type,)>,
+            F::Future: Send + 'static,
+        {
+            __STATE.with_borrow_mut(|s| {
+                let state = s.as_mut().expect(__STATE_NOT_INITIALIZED);
+                f(state)
+            })
+        }
+
         /// Checks if the state can be borrowed.
         ///
         /// # Returns
