@@ -60,7 +60,7 @@
 macro_rules! canister_state {
     ($type:ty) => {
         thread_local! {
-            static __STATE: std::cell::RefCell<Option<$type>> = std::cell::RefCell::default();
+            static __STATE: std::cell::RefCell<Option<std::rc::Rc<$type>>> = std::cell::RefCell::default();
         }
 
         const __STATE_ALREADY_INITIALIZED: &str = "State has already been initialized";
@@ -78,7 +78,7 @@ macro_rules! canister_state {
                 if s.is_some() {
                     panic!("{}", __STATE_ALREADY_INITIALIZED);
                 } else {
-                    *s = Some(state);
+                    *s = Some(std::rc::Rc::new(state));
                 }
             });
         }
@@ -94,7 +94,7 @@ macro_rules! canister_state {
         /// # Panics
         /// Panics if the state has not been initialized
         pub fn replace_state(state: $type) -> $type {
-            __STATE.replace(Some(state)).expect(__STATE_NOT_INITIALIZED)
+            __STATE.replace(Some(std::rc::Rc::new(state))).expect(__STATE_NOT_INITIALIZED).as_ref().clone()
         }
 
         /// Takes ownership of the current state.
@@ -105,7 +105,7 @@ macro_rules! canister_state {
         /// # Panics
         /// Panics if the state has not been initialized
         pub fn take_state() -> $type {
-            __STATE.take().expect(__STATE_NOT_INITIALIZED)
+            __STATE.take().expect(__STATE_NOT_INITIALIZED).as_ref().clone()
         }
 
         /// Reads the state using a closure.
@@ -122,7 +122,7 @@ macro_rules! canister_state {
         where
             F: FnOnce(&$type) -> R,
         {
-            __STATE.with_borrow(|s| f(s.as_ref().expect(__STATE_NOT_INITIALIZED)))
+            __STATE.with_borrow(|s| f(s.as_ref().expect(__STATE_NOT_INITIALIZED).as_ref()))
         }
 
         /// Mutates the state using a closure.
@@ -139,20 +139,23 @@ macro_rules! canister_state {
         where
             F: FnOnce(&mut $type) -> R,
         {
-            __STATE.with_borrow_mut(|s| f(s.as_mut().expect(__STATE_NOT_INITIALIZED)))
+            __STATE.with_borrow_mut(|s| {
+                let state = std::rc::Rc::make_mut(s.as_mut().expect(__STATE_NOT_INITIALIZED));
+                f(state)
+            })
         }
 
         /// Trait for async functions that can be used with state operations
         /// This is temporary trait to be replaced once rust release official AsyncFn trait definition.
         /// see https://github.com/rust-lang/rust/pull/132706
-        pub trait AsyncFn<Args>: FnOnce<Args> {
+        pub trait AsyncFn<Args>: FnOnce(Args) {
             type Future: std::future::Future<Output = Self::Output> + Send + 'static;
             type Output;
         }
 
         impl<F, Args, Fut, Out> AsyncFn<Args> for F
         where
-            F: FnOnce<Args, Output = Fut>,
+            F: FnOnce(Args, Output = Fut),
             Fut: std::future::Future<Output = Out> + Send + 'static,
         {
             type Future = Fut;
@@ -175,7 +178,7 @@ macro_rules! canister_state {
             F::Future: Send + 'static,
         {
             __STATE.with_borrow(|s| {
-                let state = s.as_ref().expect(__STATE_NOT_INITIALIZED);
+                let state = s.as_ref().expect(__STATE_NOT_INITIALIZED).as_ref();
                 f(state)
             })
         }
@@ -196,7 +199,7 @@ macro_rules! canister_state {
             F::Future: Send + 'static,
         {
             __STATE.with_borrow_mut(|s| {
-                let state = s.as_mut().expect(__STATE_NOT_INITIALIZED);
+                let state = std::rc::Rc::make_mut(s.as_mut().expect(__STATE_NOT_INITIALIZED));
                 f(state)
             })
         }
