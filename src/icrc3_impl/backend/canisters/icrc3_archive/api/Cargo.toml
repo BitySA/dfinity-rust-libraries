@@ -7,9 +7,6 @@ edition = "2021"
 [features]
 inttest = []
 
-[workspace]
-
-
 [dependencies]
 bity-ic-types = "0.1.0"
 candid = "0.10.13"
