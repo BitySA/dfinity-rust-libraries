@@ -10,6 +10,7 @@ candid = { workspace = true }
 serde = { workspace = true }
 bity-ic-types = { workspace = true }
 icrc-ledger-types = { workspace = true }
-icrc3_archive_api = { path = "../../icrc3_archive/api" }
-icrc3 = { path = "../../../../icrc3_library" }
 ic-cdk = { workspace = true }
+
+bity-ic-icrc3-archive-api = { path = "../../icrc3_archive/api" }
+bity-ic-icrc3 = { path = "../../../../icrc3_library" }

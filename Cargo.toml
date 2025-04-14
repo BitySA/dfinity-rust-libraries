@@ -15,16 +15,16 @@ members = [
     "src/ledger_utils",
     "src/canister_timer_jobs",
 
-    "src/icrc3/backend/canisters/icrc3_example/api",
-    "src/icrc3/backend/canisters/icrc3_example/impl",
-    "src/icrc3/backend/canisters/icrc3_archive/api",
-    "src/icrc3/backend/canisters/icrc3_archive/c2c_client",
-    "src/icrc3/backend/canisters/icrc3_archive/impl",
+    "src/icrc3_impl/backend/canisters/icrc3_example/api",
+    "src/icrc3_impl/backend/canisters/icrc3_example/impl",
+    "src/icrc3_impl/backend/canisters/icrc3_archive/api",
+    "src/icrc3_impl/backend/canisters/icrc3_archive/c2c_client",
+    "src/icrc3_impl/backend/canisters/icrc3_archive/impl",
     # "src/icrc3/backend/canisters/icrc3_index/api",
     # "src/icrc3/backend/canisters/icrc3_index/c2c_client",
     # "src/icrc3/backend/canisters/icrc3_index/impl",
-    "src/icrc3/icrc3_library",
-    "src/icrc3/backend/integration_testing",
+    "src/icrc3_impl/icrc3_library",
+    "src/icrc3_impl/backend/integration_testing",
 ]
 
 [profile.release]

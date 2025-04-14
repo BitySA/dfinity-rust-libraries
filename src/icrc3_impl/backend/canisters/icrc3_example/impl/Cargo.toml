@@ -17,13 +17,14 @@ bity-ic-serializer = { workspace = true }
 bity-ic-stable-memory = { workspace = true }
 bity-ic-types ={ workspace = true }
 bity-ic-utils = { workspace = true }
+bity-ic-icrc3-example-api = { path = "../api" }
+bity-ic-icrc3 = { path = "../../../../icrc3_library" }
+
 ic-cdk = { workspace = true }
 ic-cdk-macros = { workspace = true }
 ic-stable-structures = { workspace = true }
 serde = { workspace = true }
 tracing = { workspace = true }
-icrc3_example_api = { path = "../api" }
-icrc3 = { path = "../../../../icrc3_library" }
 sha2 = { workspace = true }
 icrc-ledger-types = { workspace = true }
 ic0 = { workspace = true }
