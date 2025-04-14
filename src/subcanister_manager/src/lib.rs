@@ -115,7 +115,7 @@ pub trait Canister {
         &self,
     ) -> impl std::future::Future<Output = Result<Vec<Principal>, CanisterError>> + Send
     where
-        Self: Sync,
+        Self: Sync + Send,
     {
         async {
             match retry_async(
@@ -139,7 +139,7 @@ pub trait Canister {
 #[derive(Serialize, Deserialize)]
 pub struct SubCanisterManager<T>
 where
-    T: Canister + Clone,
+    T: Canister + Clone + Send,
 {
     /// ID of the master canister
     pub master_canister_id: Principal,
@@ -169,7 +169,7 @@ where
 
 impl<T> SubCanisterManager<T>
 where
-    T: Canister + Clone,
+    T: Canister + Clone + Send,
 {
     pub fn new(
         master_canister_id: Principal,
@@ -414,7 +414,7 @@ where
 
 impl<T> Clone for SubCanisterManager<T>
 where
-    T: Canister + Clone,
+    T: Canister + Clone + Send,
 {
     fn clone(&self) -> Self {
         let mut fund_manager = FundManager::new();

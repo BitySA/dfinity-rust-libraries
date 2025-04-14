@@ -1,0 +1,59 @@
+type ArchivedBlocks = record {
+  args : vec GetBlocksRequest;
+  callback : func (vec GetBlocksRequest) -> (GetBlocksResult) query;
+};
+type Args = variant { Upgrade : UpgradeArgs; Init : InitArgs };
+type BlockWithId = record { id : nat; block : ICRC3Value };
+type BuildVersion = record { major : nat32; minor : nat32; patch : nat32 };
+type Duration = record { secs : nat64; nanos : nat32 };
+type GetBlocksRequest = record { start : nat; length : nat };
+type GetBlocksResult = record {
+  log_length : nat;
+  blocks : vec BlockWithId;
+  archived_blocks : vec ArchivedBlocks;
+};
+type ICRC3ArchiveInfo = record {
+  end : nat;
+  canister_id : principal;
+  start : nat;
+};
+type ICRC3Config = record {
+  constants : ICRC3Properties;
+  supported_blocks : vec SupportedBlockType;
+};
+type ICRC3DataCertificate = record { certificate : blob; hash_tree : blob };
+type ICRC3Properties = record {
+  max_blocks_per_response : nat;
+  initial_cycles : nat;
+  tx_window : Duration;
+  max_transactions_to_purge : nat;
+  max_memory_size_bytes : nat;
+  max_transactions_in_window : nat;
+  reserved_cycles : nat;
+};
+type ICRC3Value = variant {
+  Int : int;
+  Map : vec record { text; ICRC3Value };
+  Nat : nat;
+  Blob : blob;
+  Text : text;
+  Array : vec ICRC3Value;
+};
+type InitArgs = record {
+  test_mode : bool;
+  authorized_principals : vec principal;
+  version : BuildVersion;
+  icrc3_config : ICRC3Config;
+  commit_hash : text;
+};
+type SupportedBlockType = record { url : text; block_type : text };
+type UpgradeArgs = record { version : BuildVersion; commit_hash : text };
+service : (Args) -> {
+  add_random_transaction : (null) -> (null);
+  add_same_transactions : (null) -> (null);
+  icrc3_get_archives : (null) -> (vec ICRC3ArchiveInfo) query;
+  icrc3_get_blocks : (vec GetBlocksRequest) -> (GetBlocksResult) query;
+  icrc3_get_properties : (null) -> (ICRC3Properties) query;
+  icrc3_get_tip_certificate : (null) -> (ICRC3DataCertificate) query;
+  icrc3_supported_block_types : (null) -> (vec SupportedBlockType) query;
+}

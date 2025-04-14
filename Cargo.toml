@@ -14,6 +14,17 @@ members = [
     "src/subcanister_manager",
     "src/ledger_utils",
     "src/canister_timer_jobs",
+
+    "src/icrc3/backend/canisters/icrc3_example/api",
+    "src/icrc3/backend/canisters/icrc3_example/impl",
+    "src/icrc3/backend/canisters/icrc3_archive/api",
+    "src/icrc3/backend/canisters/icrc3_archive/c2c_client",
+    "src/icrc3/backend/canisters/icrc3_archive/impl",
+    # "src/icrc3/backend/canisters/icrc3_index/api",
+    # "src/icrc3/backend/canisters/icrc3_index/c2c_client",
+    # "src/icrc3/backend/canisters/icrc3_index/impl",
+    "src/icrc3/icrc3_library",
+    "src/icrc3/backend/integration_testing",
 ]
 
 [profile.release]
@@ -48,8 +59,10 @@ serde_with = "3.7.0"
 serde_yaml = "0.9.29"
 serde_tokenstream = "0.2.2"
 sha2 = "0.10.8"
-syn = "2.0.100"
-tracing = "0.1.40"
+syn = { version = "2.0.100", features = [
+  "full",
+] }
+tracing = "0.1.41"
 tracing-attributes = "0.1.27"
 tracing-subscriber = "0.3.18"
 num-bigint = "0.4.4"
@@ -67,3 +80,23 @@ canfund = "0.7.0"
 ic-asset-certification = "3.0.3"
 ic-http-certification = "3.0.3"
 sha256 = "1.6.0"
+pocket-ic = "7.0.0"
+ic-certification = "3.0.3"
+leb128 = "0.2.5"
+num-traits = { version = "0.2.12", features = ["libm"] }
+deluxe = "0.5.0"
+lazy_static = "1.4.0"
+
+bity-ic-canister-client = "0.1.3"
+bity-ic-canister-logger = "0.1.0"
+bity-ic-canister-state-macros = "0.1.0"
+bity-ic-canister-tracing-macros = "0.1.0"
+bity-ic-canister-time = "0.1.0"
+bity-ic-serializer = "0.1.0"
+bity-ic-stable-memory = "0.1.0"
+bity-ic-types = "0.1.0"
+bity-ic-utils = "0.1.0"
+bity-ic-subcanister-manager = "0.2.2"
+bity-ic-icrc3-archive-api = "0.1.0"
+bity-ic-icrc3-archive-c2c-client = "0.1.0"
+bity-ic-icrc3 = "0.1.0"

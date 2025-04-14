@@ -1,0 +1,19 @@
+[package]
+name = "bity-ic-icrc3-archive-api"
+version = "0.1.0"
+description = "GLDT forward and reserve swap to GLD - api"
+edition = "2021"
+
+[features]
+inttest = []
+
+[dependencies]
+candid = { workspace = true }
+icrc-ledger-types = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+bity-ic-types = { workspace = true }
+serde_bytes = { workspace = true }
+ic-stable-structures = { workspace = true }
+sha2 = { workspace = true }
+hex = { workspace = true }
+serde_cbor = { workspace = true }

@@ -1,0 +1,30 @@
+[package]
+name = "icrc3_archive"
+version = "0.1.0"
+description = "GLDT forward and reserve swap to GLD NFT - archive"
+edition = "2021"
+
+[lib]
+path = "src/lib.rs"
+crate-type = ["cdylib"]
+
+[dependencies]
+candid = { workspace = true }
+bity-ic-canister-logger = { workspace = true }
+bity-ic-canister-state-macros ={ workspace = true }
+bity-ic-canister-tracing-macros = { workspace = true }
+ic-cdk = { workspace = true }
+ic-cdk-macros = { workspace = true }
+ic-stable-structures = { workspace = true }
+icrc-ledger-types = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_bytes = { workspace = true}
+bity-ic-serializer ={ workspace = true }
+bity-ic-stable-memory ={ workspace = true }
+bity-ic-types = { workspace = true }
+bity-ic-utils = { workspace = true }
+tracing = { workspace = true }
+icrc3_archive_api = { path = "../api" }
+ciborium = { workspace = true }
+num-traits = { workspace = true }
+ic0 = { workspace = true }

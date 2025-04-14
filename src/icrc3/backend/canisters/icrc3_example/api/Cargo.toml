@@ -1,0 +1,15 @@
+[package]
+name = "icrc3_example_api"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+candid = { workspace = true }
+serde = { workspace = true }
+bity-ic-types = { workspace = true }
+icrc-ledger-types = { workspace = true }
+icrc3_archive_api = { path = "../../icrc3_archive/api" }
+icrc3 = { path = "../../../../icrc3_library" }
+ic-cdk = { workspace = true }

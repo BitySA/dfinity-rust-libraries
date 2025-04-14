@@ -1,0 +1,23 @@
+[package]
+name = "integration_testing"
+version = "0.1.0"
+edition = "2021"
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+pocket-ic = { workspace = true}
+candid = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+icrc3 = { path = "../../icrc3_library" }
+bity-ic-types = { workspace = true }
+bity-ic-utils = { workspace = true }
+bity-ic-canister-time = { workspace = true }
+rand = "0.8.5"
+lazy_static = "1.4.0"
+icrc3_example_api = { path = "../canisters/icrc3_example/api" }
+icrc3_archive_api = { path = "../canisters/icrc3_archive/api" }
+# icrc3_index_api = { path = "../canisters/icrc3_index/api" }
+serde_bytes = { workspace = true}
+icrc-ledger-types = { workspace = true }
+
+arbitrary = { version = "1.4.1", features = ["derive"] } 

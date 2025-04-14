@@ -74,8 +74,9 @@ macro_rules! canister_state {
         /// # Panics
         /// Panics if the state has already been initialized
         pub fn init_state(state: $type) {
-            __STATE.with_borrow_mut(|s| {
-                if s.is_some() {
+            __STATE.with(|s| {
+                let mut lock = s.write().unwrap();
+                if lock.is_some() {
                     panic!("{}", __STATE_ALREADY_INITIALIZED);
                 } else {
                     *s = Some(std::rc::Rc::new(state));
@@ -204,12 +205,40 @@ macro_rules! canister_state {
             })
         }
 
-        /// Checks if the state can be borrowed.
+        /// Reads the state using an async closure.
+        ///
+        /// # Arguments
+        /// * `f` - An async closure that takes a reference to the state and returns a future
         ///
         /// # Returns
-        /// `true` if the state can be borrowed, `false` otherwise
-        pub fn can_borrow_state() -> bool {
-            __STATE.with(|s| s.try_borrow().is_ok())
+        /// A Future that will resolve to the result of the closure
+        ///
+        /// # Panics
+        /// Panics if the state has not been initialized
+        pub fn read_state_async<F, Fut, R>(f: F) -> impl std::future::Future<Output = R>
+        where
+            F: for<'a> FnOnce(&'a $type) -> Fut,
+            Fut: std::future::Future<Output = R>,
+        {
+            __STATE.with_borrow_mut(|s| f(s.as_mut().expect(__STATE_NOT_INITIALIZED)))
+        }
+
+        /// Mutates the state using an async closure.
+        ///
+        /// # Arguments
+        /// * `f` - An async closure that takes a mutable reference to the state and returns a future
+        ///
+        /// # Returns
+        /// A Future that will resolve to the result of the closure
+        ///
+        /// # Panics
+        /// Panics if the state has not been initialized
+        pub fn mutate_state_async<F, Fut, R>(f: F) -> impl std::future::Future<Output = R>
+        where
+            F: for<'a> FnOnce(&'a mut $type) -> Fut,
+            Fut: std::future::Future<Output = R>,
+        {
+            __STATE.with_borrow_mut(|s| f(s.as_mut().expect(__STATE_NOT_INITIALIZED)))
         }
     };
 }
