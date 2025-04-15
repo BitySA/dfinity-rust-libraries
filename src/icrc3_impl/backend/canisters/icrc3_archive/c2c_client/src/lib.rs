@@ -1,5 +1,5 @@
 use bity_ic_canister_client::generate_candid_c2c_call;
-use icrc3_archive_api::*;
+use bity_ic_icrc3_archive_api::*;
 
 // Queries
 generate_candid_c2c_call!(icrc3_get_blocks);
