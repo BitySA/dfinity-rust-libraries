@@ -13,8 +13,7 @@ use sha2::{Digest, Sha256};
 use std::collections::HashMap;
 use tracing::trace;
 
-const ARCHIVE_WASM: &[u8] =
-    include_bytes!("../../../icrc3_canisters/wasm/icrc3_archive_canister.wasm.gz");
+const ARCHIVE_WASM: &[u8] = include_bytes!("../../wasm/icrc3_archive_canister.wasm.gz");
 const DEFAULT_INITIAL_CYCLES: u128 = 100_000_000_000_000_000;
 const DEFAULT_RESERVED_CYCLES: u128 = 100_000_000_000_000_000;
 const DEFAULT_MIN_CYCLES: u128 = 1_000_000_000_000;
