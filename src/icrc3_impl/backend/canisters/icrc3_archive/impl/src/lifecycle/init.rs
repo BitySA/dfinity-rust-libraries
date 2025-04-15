@@ -8,7 +8,7 @@ use crate::state::{Data, RuntimeState};
 
 use super::init_canister;
 use crate::utils::trace;
-pub use icrc3_archive_api::lifecycle::Args;
+pub use bity_ic_icrc3_archive_api::lifecycle::Args;
 
 #[init]
 fn init(args: Args) {

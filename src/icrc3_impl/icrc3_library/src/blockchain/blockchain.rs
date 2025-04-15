@@ -2,10 +2,12 @@ use crate::blockchain::archive_canister_manager::ArchiveCanisterManager;
 use crate::utils::trace;
 use std::collections::VecDeque;
 
+use bity_ic_icrc3_archive_api::types::{
+    block_interface::{Block, BlockIndex},
+    encoded_blocks::EncodedBlock,
+    hash::HashOf,
+};
 use candid::Principal;
-use icrc3_archive_api::types::block_interface::{Block, BlockIndex};
-use icrc3_archive_api::types::encoded_blocks::EncodedBlock;
-use icrc3_archive_api::types::hash::HashOf;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::sync::{Arc, RwLock};
 

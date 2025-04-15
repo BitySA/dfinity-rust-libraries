@@ -1,12 +1,12 @@
 use crate::types::archive::Archive;
 use bity_ic_canister_state_macros::canister_state;
+use bity_ic_icrc3_archive_api::{archive_config::ArchiveConfig, lifecycle::BlockType};
 use bity_ic_types::{BuildVersion, TimestampMillis};
 use bity_ic_utils::{
     env::{CanisterEnv, Environment},
     memory::MemorySize,
 };
 use candid::{CandidType, Principal};
-use icrc3_archive_api::{archive_config::ArchiveConfig, lifecycle::BlockType};
 use serde::{Deserialize, Serialize};
 
 canister_state!(RuntimeState);

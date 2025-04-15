@@ -1,13 +1,13 @@
-use crate::{blockchain::archive_canister::ArchiveCanister, utils::trace};
+use crate::blockchain::archive_canister::ArchiveCanister;
 
+use bity_ic_icrc3_archive_api::{
+    archive_config::ArchiveConfig, lifecycle::BlockType, types::encoded_blocks::EncodedBlock,
+};
 use bity_ic_subcanister_manager::{Canister, SubCanisterManager};
 use bity_ic_types::BuildVersion;
 use candid::Principal;
 use canfund::manager::options::{CyclesThreshold, FundManagerOptions, FundStrategy};
 use ic_ledger_types::BlockIndex;
-use icrc3_archive_api::archive_config::ArchiveConfig;
-use icrc3_archive_api::lifecycle::BlockType;
-use icrc3_archive_api::types::encoded_blocks::EncodedBlock;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::collections::HashMap;
@@ -29,9 +29,9 @@ pub struct ArchiveCanisterManager {
     /// The sub-canister manager for handling canister lifecycle
     pub sub_canister_manager: SubCanisterManager<ArchiveCanister>,
     /// Arguments used for initializing new canisters
-    pub init_args: icrc3_archive_api::init::InitArgs,
+    pub init_args: bity_ic_icrc3_archive_api::init::InitArgs,
     /// Arguments used for upgrading existing canisters
-    pub upgrade_args: icrc3_archive_api::post_upgrade::UpgradeArgs,
+    pub upgrade_args: bity_ic_icrc3_archive_api::post_upgrade::UpgradeArgs,
     /// Mapping of block IDs to canister IDs
     pub canisters_by_block_id: Vec<(BlockIndex, Principal)>,
 }
@@ -40,7 +40,7 @@ impl Default for ArchiveCanisterManager {
     /// Creates a default ArchiveCanisterManager with default settings.
     fn default() -> Self {
         let this_canister_id = ic_cdk::api::id();
-        let version = icrc3_archive_api::VERSION.to_string();
+        let version = bity_ic_icrc3_archive_api::VERSION.to_string();
         let mut hasher = Sha256::new();
         hasher.update(version.as_bytes());
         let commit_hash = format!("{:x}", hasher.finalize());
@@ -64,17 +64,21 @@ impl Default for ArchiveCanisterManager {
                             .with_fund_cycles(DEFAULT_FUND_CYCLES),
                     )),
             ),
-            init_args: icrc3_archive_api::init::InitArgs {
+            init_args: bity_ic_icrc3_archive_api::init::InitArgs {
                 test_mode: false,
-                version: icrc3_archive_api::VERSION.parse::<BuildVersion>().unwrap(),
+                version: bity_ic_icrc3_archive_api::VERSION
+                    .parse::<BuildVersion>()
+                    .unwrap(),
                 commit_hash: commit_hash.clone(),
                 authorized_principals: vec![this_canister_id],
                 archive_config: ArchiveConfig::default(),
                 master_canister_id: this_canister_id,
                 block_type: BlockType::Default,
             },
-            upgrade_args: icrc3_archive_api::post_upgrade::UpgradeArgs {
-                version: icrc3_archive_api::VERSION.parse::<BuildVersion>().unwrap(),
+            upgrade_args: bity_ic_icrc3_archive_api::post_upgrade::UpgradeArgs {
+                version: bity_ic_icrc3_archive_api::VERSION
+                    .parse::<BuildVersion>()
+                    .unwrap(),
                 commit_hash,
                 block_type: BlockType::Default,
             },
@@ -97,8 +101,8 @@ impl ArchiveCanisterManager {
     /// * `reserved_cycles` - Reserved number of cycles
     /// * `wasm` - The WASM module for the archive canister
     pub fn new(
-        init_args: icrc3_archive_api::init::InitArgs,
-        upgrade_args: icrc3_archive_api::post_upgrade::UpgradeArgs,
+        init_args: bity_ic_icrc3_archive_api::init::InitArgs,
+        upgrade_args: bity_ic_icrc3_archive_api::post_upgrade::UpgradeArgs,
         sub_canisters: HashMap<Principal, Box<ArchiveCanister>>,
         controllers: Vec<Principal>,
         authorized_principal: Vec<Principal>,
@@ -186,7 +190,7 @@ impl ArchiveCanisterManager {
         // If no canister had enough space, create a new canister
         match self
             .sub_canister_manager
-            .create_canister(icrc3_archive_api::Args::Init(init_args))
+            .create_canister(bity_ic_icrc3_archive_api::Args::Init(init_args))
             .await
         {
             Ok(mut new_canister) => {

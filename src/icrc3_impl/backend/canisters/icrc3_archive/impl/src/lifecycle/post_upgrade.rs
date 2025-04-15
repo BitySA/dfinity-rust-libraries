@@ -1,9 +1,9 @@
 use crate::{memory::get_upgrades_memory, state::RuntimeState};
 use bity_ic_canister_logger::LogEntry;
 use bity_ic_canister_tracing_macros::trace;
+pub use bity_ic_icrc3_archive_api::lifecycle::Args;
 use bity_ic_stable_memory::get_reader;
 use ic_cdk_macros::post_upgrade;
-pub use icrc3_archive_api::lifecycle::Args;
 use tracing::info;
 
 use super::init_canister;

@@ -3,14 +3,15 @@ use crate::transaction::{BasicTransaction, TransactionKind, TransactionType};
 use crate::types::Icrc3Error;
 use crate::utils::trace;
 
+use bity_ic_icrc3_archive_api::types::{block_interface::Block, defaultblock::DefaultBlock};
 use candid::Nat;
-use icrc3_archive_api::types::block_interface::Block;
-use icrc3_archive_api::types::defaultblock::DefaultBlock;
-use icrc_ledger_types::icrc::generic_value::ICRC3Value;
-use icrc_ledger_types::icrc3::archive::ICRC3ArchiveInfo;
-use icrc_ledger_types::icrc3::blocks::{BlockWithId, ICRC3DataCertificate};
-use icrc_ledger_types::icrc3::blocks::{GetBlocksRequest, GetBlocksResult, SupportedBlockType};
-use icrc_ledger_types::icrc3::{archive::QueryArchiveFn, blocks::ArchivedBlocks};
+use icrc_ledger_types::{
+    icrc::generic_value::ICRC3Value,
+    icrc3::archive::ICRC3ArchiveInfo,
+    icrc3::blocks::{BlockWithId, ICRC3DataCertificate},
+    icrc3::blocks::{GetBlocksRequest, GetBlocksResult, SupportedBlockType},
+    icrc3::{archive::QueryArchiveFn, blocks::ArchivedBlocks},
+};
 use serde_bytes::ByteBuf;
 
 /// The main interface for ICRC3 operations.

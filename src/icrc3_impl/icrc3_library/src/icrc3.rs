@@ -1,14 +1,12 @@
 use crate::blockchain::blockchain::Blockchain;
-use crate::config::{ICRC3Config, ICRC3Properties};
+use crate::config::ICRC3Config;
 use crate::utils::{get_timestamp, last_block_hash_tree, trace};
 
+use bity_ic_icrc3_archive_api::types::hash::HashOf;
 use candid::Nat;
 use ic_certification::AsHashTree;
-use icrc3_archive_api::types::hash::HashOf;
 use icrc_ledger_types::icrc::generic_value::ICRC3Value;
-use icrc_ledger_types::icrc3::blocks::{ICRC3DataCertificate, SupportedBlockType};
 use serde::{Deserialize, Serialize};
-use serde_bytes::ByteBuf;
 use std::collections::VecDeque;
 use std::time::Duration;
 

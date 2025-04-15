@@ -1,8 +1,8 @@
 use crate::state::read_state;
-use ic_cdk::query;
-pub use icrc3_archive_api::queries::total_transactions::{
+pub use bity_ic_icrc3_archive_api::queries::total_transactions::{
     Args as GetTotalTransactionsArg, Response as GetTotalTransactionsResponse,
 };
+use ic_cdk::query;
 
 #[query]
 async fn total_transactions(_: GetTotalTransactionsArg) -> GetTotalTransactionsResponse {

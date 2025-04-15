@@ -1,8 +1,8 @@
 use crate::utils::trace;
+use bity_ic_icrc3_archive_api::types::encoded_blocks::EncodedBlock;
 use bity_ic_subcanister_manager::Canister;
 use bity_ic_utils::retry_async::retry_async;
 use candid::{CandidType, Principal};
-use icrc3_archive_api::types::encoded_blocks::EncodedBlock;
 use icrc_ledger_types::icrc3::archive::ICRC3ArchiveInfo;
 use serde::{Deserialize, Serialize};
 
@@ -15,7 +15,7 @@ pub struct ArchiveCanister {
     /// The current state of the canister
     pub state: bity_ic_subcanister_manager::CanisterState,
     /// The parameters used to initialize or upgrade the canister
-    pub canister_param: icrc3_archive_api::Args,
+    pub canister_param: bity_ic_icrc3_archive_api::Args,
     /// Information about the blocks stored in this archive
     pub archive_info: ICRC3ArchiveInfo,
 }
@@ -43,14 +43,14 @@ impl ArchiveCanister {
         }
 
         let res = retry_async(
-            || icrc3_archive_c2c_client::insert_blocks(self.canister_id(), &blocks),
+            || bity_ic_icrc3_archive_c2c_client::insert_blocks(self.canister_id(), &blocks),
             3,
         )
         .await;
 
         match res {
             Ok(data_response) => match data_response {
-                icrc3_archive_api::insert_blocks::Response::Success => {
+                bity_ic_icrc3_archive_api::insert_blocks::Response::Success => {
                     // Update the archive info: increment the `end` by the number of blocks inserted
                     let block_count = blocks.len() as u64;
                     self.archive_info.end += block_count;
@@ -64,7 +64,7 @@ impl ArchiveCanister {
 
                     Ok(())
                 }
-                icrc3_archive_api::insert_blocks::Response::Error(_) => {
+                bity_ic_icrc3_archive_api::insert_blocks::Response::Error(_) => {
                     Err("Failed to insert data".to_string())
                 }
             },
@@ -80,7 +80,7 @@ impl ArchiveCanister {
     /// * `Err(String)` if the operation failed
     pub async fn get_available_space(&self) -> Result<u128, String> {
         let res = retry_async(
-            || icrc3_archive_c2c_client::remaining_capacity(self.canister_id(), &()),
+            || bity_ic_icrc3_archive_c2c_client::remaining_capacity(self.canister_id(), &()),
             3, // Retry up to 3 times
         )
         .await;
@@ -105,7 +105,7 @@ impl ArchiveCanister {
 }
 
 impl bity_ic_subcanister_manager::Canister for ArchiveCanister {
-    type ParamType = icrc3_archive_api::Args;
+    type ParamType = bity_ic_icrc3_archive_api::Args;
 
     /// Creates a new archive canister instance.
     ///
@@ -124,7 +124,7 @@ impl bity_ic_subcanister_manager::Canister for ArchiveCanister {
         canister_param: Self::ParamType,
     ) -> Self {
         match &canister_param {
-            icrc3_archive_api::Args::Init(init_args) => Self {
+            bity_ic_icrc3_archive_api::Args::Init(init_args) => Self {
                 state,
                 canister_param: canister_param.clone(),
                 archive_info: ICRC3ArchiveInfo {
@@ -133,7 +133,7 @@ impl bity_ic_subcanister_manager::Canister for ArchiveCanister {
                     end: init_args.archive_config.block_offset.into(),
                 },
             },
-            icrc3_archive_api::Args::Upgrade(_) => {
+            bity_ic_icrc3_archive_api::Args::Upgrade(_) => {
                 panic!(
                     "Cannot initialize the canister with an Upgrade argument. Please provide an Init argument."
                 );

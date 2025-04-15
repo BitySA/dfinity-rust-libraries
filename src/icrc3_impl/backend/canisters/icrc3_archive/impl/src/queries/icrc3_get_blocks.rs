@@ -2,15 +2,15 @@
 use crate::state::read_state;
 use crate::utils::trace;
 
+pub use bity_ic_icrc3_archive_api::icrc3_get_blocks::{
+    Args as GetBlocksArg, Response as GetBlockseResponse,
+};
+use bity_ic_icrc3_archive_api::{
+    lifecycle::BlockType,
+    types::{block_interface::Block, defaultblock::DefaultBlock, encoded_blocks::EncodedBlock},
+};
 use candid::Nat;
 use ic_cdk::query;
-use icrc3_archive_api::lifecycle::BlockType;
-use icrc3_archive_api::types::block_interface::Block;
-use icrc3_archive_api::types::defaultblock::DefaultBlock;
-pub use icrc3_archive_api::{
-    icrc3_get_blocks::{Args as GetBlocksArg, Response as GetBlockseResponse},
-    types::encoded_blocks::EncodedBlock,
-};
 use icrc_ledger_types::icrc3::blocks::BlockWithId;
 
 // #[query(guard = "caller_is_main_canister")]
@@ -20,7 +20,7 @@ fn icrc3_get_blocks(req: GetBlocksArg) -> GetBlockseResponse {
     let block_type = read_state(|s| s.data.block_type.clone());
     let mut blocks = vec![];
 
-    let mut response = for arg in req {
+    for arg in req {
         let start = arg.start.clone().0.try_into().unwrap();
         let length = arg.length.clone().0.try_into().unwrap();
 
@@ -50,7 +50,7 @@ fn icrc3_get_blocks(req: GetBlocksArg) -> GetBlockseResponse {
                 }
             }
         }
-    };
+    }
 
     GetBlockseResponse {
         log_length: Nat::from(log_length),

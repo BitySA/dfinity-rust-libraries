@@ -1,8 +1,8 @@
 use crate::state::read_state;
-use ic_cdk::query;
-pub use icrc3_archive_api::queries::remaining_capacity::{
+pub use bity_ic_icrc3_archive_api::queries::remaining_capacity::{
     Args as GetArchiveSizeArg, Response as GetArchiveSizeResponse,
 };
+use ic_cdk::query;
 
 #[query]
 async fn remaining_capacity(_: GetArchiveSizeArg) -> GetArchiveSizeResponse {
