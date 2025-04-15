@@ -1,0 +1,34 @@
+{
+  "canisters": {
+    "icrc3_example": {
+      "build": ["./scripts/build_example.sh"],
+      "candid": "./canisters/icrc3/api/can.did",
+      "declarations": {
+        "bindings": ["js", "did"],
+        "env_override": null,
+        "output": "./canisters/icrc3/api/declarations"
+      },
+      "type": "custom",
+      "wasm": "./wasm/icrc3_canister.wasm.gz"
+    },
+    "icrc3_archive": {
+      "build": ["./scripts/build_archive.sh"],
+      "candid": "./canisters/icrc3_archive/api/can.did",
+      "declarations": {
+        "bindings": ["js", "did"],
+        "env_override": null,
+        "output": "./canisters/icrc3_archive/api/declarations"
+      },
+      "type": "custom",
+      "wasm": "./wasm/icrc3_archive_canister.wasm.gz"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "output_env_file": ".env",
+  "version": 1
+}

@@ -1,0 +1,10 @@
+/Users/gwojda/bity_dfinity_library/src/icrc3_impl/backend/canisters/icrc3_archive/api/target/package/bity-ic-icrc3-archive-api-0.1.0/target/debug/deps/libtime_core-593ce90e177594bc.rmeta: /Users/gwojda/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/time-core-0.1.4/src/lib.rs /Users/gwojda/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/time-core-0.1.4/src/convert.rs /Users/gwojda/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/time-core-0.1.4/src/hint.rs /Users/gwojda/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/time-core-0.1.4/src/util.rs
+
+/Users/gwojda/bity_dfinity_library/src/icrc3_impl/backend/canisters/icrc3_archive/api/target/package/bity-ic-icrc3-archive-api-0.1.0/target/debug/deps/libtime_core-593ce90e177594bc.rlib: /Users/gwojda/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/time-core-0.1.4/src/lib.rs /Users/gwojda/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/time-core-0.1.4/src/convert.rs /Users/gwojda/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/time-core-0.1.4/src/hint.rs /Users/gwojda/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/time-core-0.1.4/src/util.rs
+
+/Users/gwojda/bity_dfinity_library/src/icrc3_impl/backend/canisters/icrc3_archive/api/target/package/bity-ic-icrc3-archive-api-0.1.0/target/debug/deps/time_core-593ce90e177594bc.d: /Users/gwojda/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/time-core-0.1.4/src/lib.rs /Users/gwojda/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/time-core-0.1.4/src/convert.rs /Users/gwojda/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/time-core-0.1.4/src/hint.rs /Users/gwojda/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/time-core-0.1.4/src/util.rs
+
+/Users/gwojda/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/time-core-0.1.4/src/lib.rs:
+/Users/gwojda/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/time-core-0.1.4/src/convert.rs:
+/Users/gwojda/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/time-core-0.1.4/src/hint.rs:
+/Users/gwojda/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/time-core-0.1.4/src/util.rs:
