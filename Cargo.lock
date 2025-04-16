@@ -350,6 +350,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "bity-ic-icrc3-macros"
+version = "0.1.0"
+dependencies = [
+ "lazy_static",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.100",
+]
+
+[[package]]
 name = "bity-ic-ledger-utils"
 version = "0.1.0"
 dependencies = [
@@ -1220,6 +1230,7 @@ dependencies = [
  "bity-ic-canister-time 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "bity-ic-canister-tracing-macros 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "bity-ic-icrc3",
+ "bity-ic-icrc3-macros",
  "bity-ic-serializer 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "bity-ic-stable-memory 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "bity-ic-types 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1231,7 +1242,6 @@ dependencies = [
  "ic0",
  "icrc-ledger-types",
  "icrc3-example-api",
- "icrc3-macros",
  "lazy_static",
  "serde",
  "serde_bytes",
@@ -1250,16 +1260,6 @@ dependencies = [
  "ic-cdk",
  "icrc-ledger-types",
  "serde",
-]
-
-[[package]]
-name = "icrc3-macros"
-version = "0.1.0"
-dependencies = [
- "lazy_static",
- "proc-macro2",
- "quote",
- "syn 2.0.100",
 ]
 
 [[package]]

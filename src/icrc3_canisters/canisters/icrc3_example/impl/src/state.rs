@@ -2,13 +2,13 @@ use crate::utils::trace;
 
 use bity_ic_canister_state_macros::canister_state;
 use bity_ic_icrc3::transaction::{Hash, TransactionType};
+use bity_ic_icrc3_macros::icrc3_state;
 use bity_ic_types::TimestampSeconds;
 use bity_ic_types::{BuildVersion, Cycles, TimestampMillis};
 use bity_ic_utils::env::{CanisterEnv, Environment};
 use bity_ic_utils::memory::MemorySize;
 use candid::Nat;
 use candid::{CandidType, Principal};
-use icrc3_macros::icrc3_state;
 use icrc_ledger_types::icrc::generic_value::ICRC3Value;
 use serde::{Deserialize, Serialize};
 use serde_bytes::ByteBuf;

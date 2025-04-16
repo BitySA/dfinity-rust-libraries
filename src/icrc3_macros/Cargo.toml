@@ -1,5 +1,5 @@
 [package]
-name = "icrc3-macros"
+name = "bity-ic-icrc3-macros"
 version = "0.1.0"
 edition = "2021"
 description = "Icrc3 macros"
