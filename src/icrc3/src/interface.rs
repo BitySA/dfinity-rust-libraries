@@ -1,5 +1,5 @@
 use crate::icrc3::ICRC3;
-use crate::transaction::{BasicTransaction, TransactionKind, TransactionType};
+use crate::transaction::{self, BasicTransaction, TransactionKind, TransactionType};
 use crate::types::Icrc3Error;
 use crate::utils::trace;
 
@@ -115,6 +115,10 @@ impl<T: TransactionType> ICRC3Interface<T> for ICRC3 {
             }
         }
 
+        let mut transaction_as_icrc3: ICRC3Value = transaction.clone().into();
+
+        self.add_phash(&mut transaction_as_icrc3);
+
         let basic_transaction = BasicTransaction::new(transaction.clone().into());
 
         let mut checked_transaction = match basic_transaction.validate_transaction_fields() {
@@ -163,6 +167,7 @@ impl<T: TransactionType> ICRC3Interface<T> for ICRC3 {
 
         self.ledger.push_back(checked_transaction.clone());
         self.last_index += 1;
+        self.last_phash = Some(ByteBuf::from(checked_transaction.clone().hash().to_vec()));
 
         let block =
             DefaultBlock::from_transaction(self.blockchain.last_hash, checked_transaction, now);

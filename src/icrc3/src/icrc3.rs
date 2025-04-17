@@ -7,6 +7,7 @@ use candid::Nat;
 use ic_certification::AsHashTree;
 use icrc_ledger_types::icrc::generic_value::ICRC3Value;
 use serde::{Deserialize, Serialize};
+use serde_bytes::ByteBuf;
 use std::collections::VecDeque;
 use std::time::Duration;
 
@@ -29,6 +30,7 @@ pub struct ICRC3 {
     pub blockchain: Blockchain,
     pub ledger: VecDeque<ICRC3Value>,
     pub last_index: u64,
+    pub last_phash: Option<ByteBuf>,
     pub icrc3_config: ICRC3Config,
 }
 
@@ -50,6 +52,7 @@ impl ICRC3 {
             blockchain: Blockchain::default(),
             ledger: VecDeque::new(),
             last_index: 0,
+            last_phash: None,
             icrc3_config,
         }
     }
@@ -176,6 +179,22 @@ impl ICRC3 {
         )
         .root_hash();
         hash_tree_root.to_vec()
+    }
+
+    pub fn add_phash(&mut self, icrc3_transaction: &mut ICRC3Value) {
+        if let ICRC3Value::Map(map) = icrc3_transaction {
+            if let Some(last_phash) = self.last_phash.clone() {
+                map.insert(
+                    "phash".to_string(),
+                    ICRC3Value::Blob(ByteBuf::from(last_phash.to_vec())),
+                );
+            } else {
+                map.insert(
+                    "phash".to_string(),
+                    ICRC3Value::Blob(ByteBuf::from(vec![0; 32])),
+                );
+            }
+        }
     }
 }
 

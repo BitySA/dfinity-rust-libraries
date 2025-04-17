@@ -104,7 +104,7 @@ impl BasicTransaction {
             ICRC3Value::Map(map) => {
                 trace(&format!("validate_transaction_fields {:?}", map));
 
-                let phash = match map.get("phash") {
+                match map.get("phash") {
                     Some(phash) => match phash {
                         ICRC3Value::Blob(_) => {
                             trace(&format!("phash is a blob"));
