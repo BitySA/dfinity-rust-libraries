@@ -119,7 +119,7 @@ impl<T: TransactionType> ICRC3Interface<T> for ICRC3 {
 
         self.add_phash(&mut transaction_as_icrc3);
 
-        let basic_transaction = BasicTransaction::new(transaction.clone().into());
+        let basic_transaction = BasicTransaction::new(transaction_as_icrc3);
 
         let mut checked_transaction = match basic_transaction.validate_transaction_fields() {
             Ok(transaction_kind) => match transaction_kind {

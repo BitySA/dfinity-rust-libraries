@@ -81,7 +81,6 @@ impl Data {
 
 #[derive(CandidType, Serialize, Deserialize, Clone, Debug)]
 pub struct FakeTransaction {
-    pub phash: String,
     pub btype: String,
     pub timestamp: u64,
     pub sender: Principal,
@@ -91,7 +90,6 @@ pub struct FakeTransaction {
 impl Default for FakeTransaction {
     fn default() -> Self {
         Self {
-            phash: "".to_string(),
             btype: "".to_string(),
             timestamp: 0,
             sender: Principal::anonymous(),
@@ -109,7 +107,6 @@ impl FakeTransaction {
         trace(&format!("random fake transaction"));
         let now = ic_cdk::api::time();
         Self {
-            phash: format!("phash_{}", now),
             btype: "btype_test".to_string(),
             timestamp: now,
             sender: Principal::anonymous(),
@@ -129,7 +126,6 @@ impl TransactionType for FakeTransaction {
 
     fn hash(&self) -> Hash {
         let mut hasher = Sha256::new();
-        hasher.update(self.phash.as_bytes());
         hasher.update(self.btype.as_bytes());
         hasher.update(self.timestamp.to_le_bytes().as_slice());
         hasher.update(self.sender.as_slice());
@@ -145,10 +141,6 @@ impl TransactionType for FakeTransaction {
 impl From<FakeTransaction> for ICRC3Value {
     fn from(tx: FakeTransaction) -> Self {
         let mut map = BTreeMap::new();
-        map.insert(
-            "phash".to_string(),
-            ICRC3Value::Blob(ByteBuf::from(tx.phash.as_bytes())),
-        );
         map.insert("btype".to_string(), ICRC3Value::Text(tx.btype));
         map.insert(
             "timestamp".to_string(),
