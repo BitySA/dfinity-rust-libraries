@@ -57,6 +57,8 @@ pub trait TransactionType: Sized + Clone + Into<ICRC3Value> {
 
     /// Computes and returns the hash of the transaction.
     fn hash(&self) -> Hash;
+
+    fn block_type(&self) -> String;
 }
 
 /// Enum representing different kinds of transactions supported by the system.

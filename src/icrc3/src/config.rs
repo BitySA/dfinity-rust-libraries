@@ -66,6 +66,28 @@ pub struct ICRC3Properties {
     pub max_transactions_to_purge: u128,
 }
 
+impl ICRC3Properties {
+    pub fn new(
+        tx_window: Duration,
+        max_transactions_in_window: u128,
+        max_memory_size_bytes: u128,
+        max_blocks_per_response: u128,
+        initial_cycles: u128,
+        reserved_cycles: u128,
+        max_transactions_to_purge: u128,
+    ) -> Self {
+        Self {
+            tx_window,
+            max_transactions_in_window,
+            max_memory_size_bytes,
+            max_blocks_per_response,
+            initial_cycles,
+            reserved_cycles,
+            max_transactions_to_purge,
+        }
+    }
+}
+
 impl Default for ICRC3Properties {
     fn default() -> Self {
         ICRC3Properties {

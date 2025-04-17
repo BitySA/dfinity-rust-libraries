@@ -4,6 +4,7 @@ use bity_ic_icrc3::config::{ICRC3Config, ICRC3Properties};
 use bity_ic_types::{BuildVersion, CanisterId};
 use candid::Principal;
 use icrc3_example_api::Args;
+use icrc_ledger_types::icrc3::blocks::SupportedBlockType;
 use pocket_ic::{PocketIc, PocketIcBuilder};
 use std::time::Duration;
 
@@ -61,7 +62,10 @@ impl TestEnvBuilder {
             commit_hash: "".to_string(),
             authorized_principals: vec![self.controller],
             icrc3_config: ICRC3Config {
-                supported_blocks: vec![],
+                supported_blocks: vec![SupportedBlockType {
+                    block_type: "btype_test".to_string(),
+                    url: "https://github.com/dfinity/ICRC/blob/main/ICRCs/ICRC-3/README.md#supported-block-types".to_string(),
+                }],
                 constants,
             },
         });

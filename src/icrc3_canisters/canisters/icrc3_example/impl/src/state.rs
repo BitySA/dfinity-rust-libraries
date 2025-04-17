@@ -110,7 +110,7 @@ impl FakeTransaction {
         let now = ic_cdk::api::time();
         Self {
             phash: format!("phash_{}", now),
-            btype: format!("btype_{}", now),
+            btype: "btype_test".to_string(),
             timestamp: now,
             sender: Principal::anonymous(),
             recipient: Principal::anonymous(),
@@ -135,6 +135,10 @@ impl TransactionType for FakeTransaction {
         hasher.update(self.sender.as_slice());
         hasher.update(self.recipient.as_slice());
         hasher.finalize().into()
+    }
+
+    fn block_type(&self) -> String {
+        self.btype.clone()
     }
 }
 

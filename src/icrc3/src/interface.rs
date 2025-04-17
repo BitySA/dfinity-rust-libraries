@@ -134,6 +134,15 @@ impl<T: TransactionType> ICRC3Interface<T> for ICRC3 {
             }
         };
 
+        if !self
+            .icrc3_config
+            .supported_blocks
+            .iter()
+            .any(|b| b.block_type == transaction.block_type())
+        {
+            return Err(Icrc3Error::Icrc3Error("Unsupported block type".to_string()));
+        }
+
         let transaction_hash = transaction.hash();
 
         checked_transaction = ICRC3Value::Map(match checked_transaction {
