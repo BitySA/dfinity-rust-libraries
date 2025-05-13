@@ -46,9 +46,45 @@ use ic_cdk::api::management_canister::main::{
     CanisterIdRecord, CanisterInstallMode, CanisterSettings, CreateCanisterArgument,
     InstallCodeArgument, LogVisibility,
 };
+use ic_cdk::api::{
+    call::{call, call_with_payment128, CallResult},
+    canister_version,
+};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use std::{any::Any, collections::HashMap, fmt::Debug, future::Future};
+
+#[derive(CandidType, Deserialize)]
+struct CreateCanisterArg {
+    settings: Option<CanisterSettings>,
+    subnet_type: Option<String>,
+    subnet_selection: Option<SubnetSelection>,
+}
+
+#[derive(CandidType, Deserialize)]
+enum SubnetSelection {
+    Subnet { subnet: Principal },
+    Filter { filter: SubnetFilter },
+}
+
+#[derive(CandidType, Deserialize)]
+struct SubnetFilter {
+    subnet_type: Option<String>,
+}
+
+#[derive(
+    CandidType, Serialize, Deserialize, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy,
+)]
+pub struct GetSubnetForCanisterResponse {
+    subnet_id: Option<Principal>,
+}
+
+#[derive(
+    CandidType, Serialize, Deserialize, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy,
+)]
+pub struct GetSubnetForCanisterArgs {
+    canister_id: Option<Principal>,
+}
 
 /// Error types for storage operations
 #[derive(Debug)]
@@ -217,6 +253,22 @@ where
             }
 
             if canister_id == Principal::anonymous() {
+                let get_subnet_result: CallResult<(GetSubnetForCanisterResponse,)> = call(
+                    Principal::from_text("rwlgt-iiaaa-aaaaa-aaaaa-cai").unwrap(), // registry canister
+                    "get_subnet_for_canister",
+                    (GetSubnetForCanisterArgs {
+                        canister_id: Some(ic_cdk::id()),
+                    },),
+                )
+                .await;
+
+                let subnet = match get_subnet_result {
+                    Ok(subnet) => subnet.0.subnet_id,
+                    Err(e) => {
+                        return Err(NewCanisterError::CreateCanisterError(format!("{e:?}")));
+                    }
+                };
+
                 // Define the initial settings for the new canister
                 let settings = CanisterSettings {
                     controllers: Some(self.controllers.clone()),
@@ -227,23 +279,55 @@ where
                     log_visibility: Some(LogVisibility::Public),
                     wasm_memory_limit: None,
                 };
-                // Step 1: Create the canister
-                canister_id = match retry_async(
+
+                let canister_call_result: CallResult<(CanisterIdRecord,)> = retry_async(
                     || {
-                        create_canister(
-                            CreateCanisterArgument {
+                        call_with_payment128(
+                            Principal::management_canister(),
+                            "create_canister",
+                            (CreateCanisterArg {
                                 settings: Some(settings.clone()),
-                            },
+                                subnet_type: None,
+                                subnet_selection: Some(SubnetSelection::Subnet {
+                                    subnet: subnet.unwrap(),
+                                }),
+                            },),
                             self.initial_cycles as u128,
                         )
                     },
                     3,
                 )
-                .await
-                {
+                .await;
+
+                canister_id = match canister_call_result {
                     Ok(canister) => canister.0.canister_id,
                     Err(e) => {
-                        return Err(NewCanisterError::CreateCanisterError(format!("{e:?}")));
+                        // can not create canister, try to create it with a different subnet
+                        let canister_call_result: CallResult<(CanisterIdRecord,)> = retry_async(
+                            || {
+                                call_with_payment128(
+                                    Principal::management_canister(),
+                                    "create_canister",
+                                    (CreateCanisterArg {
+                                        settings: Some(settings.clone()),
+                                        subnet_type: None,
+                                        subnet_selection: None,
+                                    },),
+                                    self.initial_cycles as u128,
+                                )
+                            },
+                            3,
+                        )
+                        .await;
+
+                        match canister_call_result {
+                            Ok(canister) => canister.0.canister_id,
+                            Err(e) => {
+                                return Err(NewCanisterError::CreateCanisterError(format!(
+                                    "{e:?}"
+                                )));
+                            }
+                        }
                     }
                 };
 
