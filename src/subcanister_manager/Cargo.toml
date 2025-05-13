@@ -1,6 +1,6 @@
 [package]
 name = "bity-ic-subcanister-manager"
-version = "0.2.3"
+version = "0.2.4"
 edition = "2021"
 description = "A library for managing sub-canisters on the Internet Computer"
 license = "MIT"
@@ -17,3 +17,4 @@ candid = { workspace = true }
 serde = { workspace = true }
 bity-ic-utils = "0.1.0"
 canfund = "0.8.2"
+ic0 = { workspace = true }
