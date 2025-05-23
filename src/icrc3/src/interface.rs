@@ -100,6 +100,12 @@ impl<T: TransactionType> ICRC3Interface<T> for ICRC3 {
     async fn add_transaction(&mut self, transaction: T) -> Result<u64, Icrc3Error> {
         let now = ic_cdk::api::time() as u128;
 
+        let timestamp = if transaction.timestamp().is_none() {
+            now
+        } else {
+            transaction.timestamp().unwrap() as u128
+        };
+
         let num_pruned = self.purge_old_transactions(now);
 
         // If we pruned some transactions, let this one through
@@ -178,8 +184,11 @@ impl<T: TransactionType> ICRC3Interface<T> for ICRC3 {
         self.last_index += 1;
         self.last_phash = Some(ByteBuf::from(checked_transaction.clone().hash().to_vec()));
 
-        let block =
-            DefaultBlock::from_transaction(self.blockchain.last_hash, checked_transaction, now);
+        let block = DefaultBlock::from_transaction(
+            self.blockchain.last_hash,
+            checked_transaction,
+            timestamp,
+        );
 
         match self.blockchain.add_block(block).await {
             Ok(_) => (),
