@@ -186,6 +186,7 @@ fn init() {
     
     // Initialize ICRC3 with your configuration
     init_icrc3(icrc3_config);
+    start_default_archive_job();
 }
 ```
 
@@ -221,6 +222,8 @@ fn post_upgrade() {
     
     // Restore ICRC3 state
     replace_icrc3(icrc3);
+    start_default_archive_job();
+
     
     // Continue with other initialization steps
     // ...

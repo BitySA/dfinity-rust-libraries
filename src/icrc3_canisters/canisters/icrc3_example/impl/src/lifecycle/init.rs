@@ -1,5 +1,5 @@
 use crate::lifecycle::init_canister;
-use crate::state::init_icrc3;
+use crate::state::{init_icrc3, start_default_archive_job};
 use crate::state::{Data, RuntimeState};
 use bity_ic_canister_tracing_macros::trace;
 use bity_ic_utils::env::{CanisterEnv, Environment};
@@ -31,6 +31,8 @@ fn init(args: Args) {
 
             init_canister(runtime_state);
             init_icrc3(init_args.icrc3_config);
+
+            start_default_archive_job();
 
             info!("Init complete.")
         }

@@ -1,4 +1,3 @@
-use crate::wasms::ICRC3;
 use candid::encode_one;
 use candid::Principal;
 use pocket_ic::PocketIc;

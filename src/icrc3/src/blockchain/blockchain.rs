@@ -10,11 +10,10 @@ use bity_ic_icrc3_archive_api::types::{
 use candid::Principal;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::sync::{Arc, RwLock};
+use std::time::Duration;
 
-/// The threshold at which blocks are automatically archived
-const ARCHIVE_THRESHOLD: usize = 50;
 /// The maximum number of transactions to keep in local storage
-const MAX_LOCAL_TRANSACTIONS: usize = 100;
+const MAX_LOCAL_TRANSACTIONS: usize = 1000;
 
 /// The core blockchain implementation for ICRC3.
 ///
@@ -33,9 +32,28 @@ pub struct Blockchain {
     /// Number of blocks that have been archived
     pub chain_length: u64,
     /// Local transactions waiting to be archived
-    pub local_transactions: VecDeque<EncodedBlock>,
-    /// Threshold for triggering archiving
-    pub archive_threshold: usize,
+    pub local_transactions: VecDeque<(u128, EncodedBlock)>, // (timestamp, block)
+    /// Time to live for non-archived transactions
+    pub ttl_for_non_archived_transactions: Duration,
+}
+
+impl Blockchain {
+    pub fn new(
+        archive_canister_manager: ArchiveCanisterManager,
+        last_hash: Option<HashOf<EncodedBlock>>,
+        last_timestamp: u128,
+        chain_length: u64,
+        ttl_for_non_archived_transactions: Duration,
+    ) -> Self {
+        Self {
+            archive_canister_manager: Arc::new(RwLock::new(archive_canister_manager)),
+            last_hash,
+            last_timestamp,
+            chain_length,
+            local_transactions: VecDeque::new(),
+            ttl_for_non_archived_transactions,
+        }
+    }
 }
 
 impl Default for Blockchain {
@@ -47,7 +65,7 @@ impl Default for Blockchain {
             last_timestamp: 0,
             chain_length: 0,
             local_transactions: VecDeque::new(),
-            archive_threshold: ARCHIVE_THRESHOLD,
+            ttl_for_non_archived_transactions: Duration::from_secs(120),
         }
     }
 }
@@ -68,7 +86,7 @@ impl Serialize for Blockchain {
             &self.last_timestamp,
             &self.chain_length,
             &self.local_transactions,
-            &self.archive_threshold,
+            &self.ttl_for_non_archived_transactions,
         )
             .serialize(serializer)
     }
@@ -85,14 +103,14 @@ impl<'de> Deserialize<'de> for Blockchain {
             last_timestamp,
             chain_length,
             local_transactions,
-            archive_threshold,
+            ttl_for_non_archived_transactions,
         ) = <(
             ArchiveCanisterManager,
             Option<HashOf<EncodedBlock>>,
             u128,
             u64,
-            VecDeque<EncodedBlock>,
-            usize,
+            VecDeque<(u128, EncodedBlock)>,
+            Duration,
         )>::deserialize(deserializer)?;
 
         Ok(Blockchain {
@@ -101,46 +119,12 @@ impl<'de> Deserialize<'de> for Blockchain {
             last_timestamp,
             chain_length,
             local_transactions,
-            archive_threshold,
+            ttl_for_non_archived_transactions,
         })
     }
 }
 
 impl Blockchain {
-    /// Archives blocks from local storage to archive canisters.
-    ///
-    /// This method:
-    /// 1. Takes blocks from the front of the local transactions queue
-    /// 2. Attempts to insert them into archive canisters
-    /// 3. Updates the chain length on successful insertion
-    ///
-    /// # Returns
-    ///
-    /// * `Ok(())` if all blocks were successfully archived
-    /// * `Err(String)` if archiving failed
-    async fn archive_blocks(&mut self) -> Result<(), String> {
-        while let Some(block) = self.local_transactions.pop_front() {
-            let block_clone = block.clone();
-
-            match self
-                .archive_canister_manager
-                .write()
-                .map_err(|e| format!("Failed to acquire write lock: {}", e))?
-                .insert_block(self.chain_length(), block_clone)
-                .await
-            {
-                Ok(_) => {
-                    self.chain_length += 1;
-                }
-                Err(e) => {
-                    self.local_transactions.push_front(block);
-                    return Err(e);
-                }
-            }
-        }
-        Ok(())
-    }
-
     /// Adds a new block to the blockchain.
     ///
     /// This method:
@@ -157,7 +141,7 @@ impl Blockchain {
     ///
     /// * `Ok(BlockIndex)` containing the new block's index
     /// * `Err(String)` if the block could not be added
-    pub async fn add_block<B>(&mut self, block: B) -> Result<BlockIndex, String>
+    pub fn add_block<B>(&mut self, block: B) -> Result<BlockIndex, String>
     where
         B: Block + Clone,
     {
@@ -180,28 +164,110 @@ impl Blockchain {
         }
 
         if self.local_transactions.len() >= MAX_LOCAL_TRANSACTIONS {
-            if let Err(e) = self.archive_blocks().await {
-                trace(&format!(
-                    "add_block error: Maximum local transactions reached and archiving failed: {}",
-                    e
-                ));
-                return Err(e);
-            }
+            return Err(format!(
+                "Local transactions limit reached: {}",
+                MAX_LOCAL_TRANSACTIONS
+            ));
         }
 
         self.last_timestamp = block_clone.timestamp();
-        let encoded_block: EncodedBlock = block_clone.encode();
+        let encoded_block: EncodedBlock = block_clone.clone().encode();
         self.last_hash = Some(B::block_hash(&encoded_block));
 
-        self.local_transactions.push_back(encoded_block.clone());
+        self.local_transactions
+            .push_back((block_clone.timestamp(), encoded_block.clone()));
 
-        if self.local_transactions.len() >= self.archive_threshold {
-            if let Err(e) = self.archive_blocks().await {
-                trace(&format!("add_block error: {}", e));
+        trace(&format!(
+            "Added block to local transactions: {}",
+            self.local_transactions.len()
+        ));
+
+        Ok(self.chain_length() + 1)
+    }
+
+    pub async fn archive_blocks_jobs(&mut self) -> Result<u128, String> {
+        trace(&format!("archive_blocks_jobs"));
+
+        trace(&format!(
+            "archive_blocks_jobs: local_transactions: {}",
+            self.local_transactions.len()
+        ));
+
+        if self.local_transactions.is_empty() {
+            return Ok(0);
+        }
+
+        let mut archived_count = 0;
+        let current_time = ic_cdk::api::time() as u128;
+
+        while !self.local_transactions.is_empty() {
+            if let Some((oldest_timestamp, oldest_block)) = self.local_transactions.front().cloned()
+            {
+                trace(&format!(
+                    "oldest_timestamp: {}, current_time: {}",
+                    oldest_timestamp, current_time
+                ));
+
+                if oldest_timestamp + self.ttl_for_non_archived_transactions.as_nanos()
+                    < current_time
+                {
+                    trace(&format!(
+                        "oldest_timestamp + ttl_for_non_archived_transactions: {}",
+                        oldest_timestamp + self.ttl_for_non_archived_transactions.as_nanos()
+                    ));
+
+                    if let Some(tx) = self.local_transactions.pop_front() {
+                        trace(&format!(
+                            "Archiving transaction from timestamp {}",
+                            oldest_timestamp
+                        ));
+
+                        match self
+                            .archive_canister_manager
+                            .write()
+                            .map_err(|e| format!("Failed to acquire write lock: {}", e))
+                        {
+                            Ok(mut archive_manager) => {
+                                match archive_manager
+                                    .insert_block(self.chain_length(), oldest_block.clone())
+                                    .await
+                                {
+                                    Ok(_) => {
+                                        archived_count += 1;
+                                    }
+                                    Err(e) => {
+                                        self.local_transactions.push_front(tx);
+                                        return Err(e);
+                                    }
+                                }
+                            }
+                            Err(e) => {
+                                self.local_transactions.push_front(tx);
+                                return Err(e);
+                            }
+                        }
+                    } else {
+                        trace(&format!(
+                            "oldest_timestamp + ttl_for_non_archived_transactions: {}",
+                            oldest_timestamp + self.ttl_for_non_archived_transactions.as_nanos()
+                        ));
+                        break;
+                    }
+                } else {
+                    trace(&format!(
+                        "oldest_timestamp + ttl_for_non_archived_transactions: {}",
+                        oldest_timestamp + self.ttl_for_non_archived_transactions.as_nanos()
+                    ));
+                    break;
+                }
+            } else {
+                trace(&format!("archive_blocks_jobs: local_transactions is empty"));
+                break;
             }
         }
 
-        Ok(self.chain_length() + 1)
+        trace(&format!("Archived {} transaction(s)", archived_count));
+        Ok(archived_count)
     }
 
     /// Retrieves a block by its index.
@@ -220,10 +286,10 @@ impl Blockchain {
         }
 
         if block_id > self.chain_length() {
-            return Some(
-                self.local_transactions[block_id as usize - self.chain_length() as usize - 1]
-                    .clone(),
-            );
+            return self
+                .local_transactions
+                .get(block_id as usize - self.chain_length() as usize - 1)
+                .map(|(_, block)| block.clone());
         } else {
             return None;
         }
@@ -239,7 +305,7 @@ impl Blockchain {
     ///
     /// * `Ok(Principal)` containing the canister ID
     /// * `Err(String)` if the operation failed
-    pub async fn get_block_canister_id(&self, block_id: BlockIndex) -> Result<Principal, String> {
+    pub fn get_block_canister_id(&self, block_id: BlockIndex) -> Result<Principal, String> {
         self.archive_canister_manager
             .read()
             .map_err(|_| "Failed to read archive_canister_manager")?

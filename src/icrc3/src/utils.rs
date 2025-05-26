@@ -53,10 +53,17 @@ where
 ///
 /// * `msg` - The message to print
 pub fn trace(msg: &str) {
-    unsafe {
-        ic0::debug_print(msg.as_ptr() as i32, msg.len() as i32);
+    #[cfg(feature = "debug-logs")]
+    {
+        unsafe {
+            ic0::debug_print(msg.as_ptr() as i32, msg.len() as i32);
+        }
+        ic_cdk::println!("{}", msg);
     }
-    ic_cdk::println!("{}", msg);
+    #[cfg(not(feature = "debug-logs"))]
+    {
+        let _ = msg;
+    }
 }
 
 use icrc_ledger_types::icrc::generic_value::ICRC3Value;

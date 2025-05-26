@@ -9,7 +9,9 @@ keywords = ["dfinity", "internet-computer", "ic", "canister", "subcanister"]
 authors = ["Bity Team", "Gautier Wojda <gautier.wojda@bity.com>", "Freddie Hands <freddie.hands@bity.com>", "Victoria Horbunova <victoria.horbunova@bity.com>", "Dustin Becker <dustin.becker@bity.com>"]
 documentation = "https://docs.rs/bity-ic-icrc3"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[features]
+default = []
+debug-logs = []
 
 [dependencies]
 candid = { workspace = true }
@@ -31,6 +33,7 @@ serde_bytes = { workspace = true }
 hex = { workspace = true }
 sha2 = { workspace = true }
 
+bity-ic-canister-time = { workspace = true }
 bity-ic-types = { workspace = true }
 bity-ic-utils = { workspace = true }
 bity-ic-subcanister-manager = { workspace = true }

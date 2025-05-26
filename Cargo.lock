@@ -268,6 +268,7 @@ dependencies = [
 name = "bity-ic-icrc3"
 version = "0.1.6"
 dependencies = [
+ "bity-ic-canister-time 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "bity-ic-icrc3-archive-api 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "bity-ic-icrc3-archive-c2c-client 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "bity-ic-subcanister-manager 0.2.4 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -351,8 +352,9 @@ dependencies = [
 
 [[package]]
 name = "bity-ic-icrc3-macros"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
+ "bity-ic-canister-time 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "lazy_static",
  "proc-macro2",
  "quote",
@@ -1462,7 +1464,7 @@ dependencies = [
  "icrc3-example-api",
  "lazy_static",
  "pocket-ic",
- "rand 0.8.5",
+ "rand 0.9.1",
  "serde",
  "serde_bytes",
 ]
@@ -1858,7 +1860,7 @@ checksum = "b820744eb4dc9b57a3398183639c511b5a26d2ed702cedd3febaa1393caa22cc"
 dependencies = [
  "bytes",
  "getrandom 0.3.2",
- "rand 0.9.0",
+ "rand 0.9.1",
  "ring",
  "rustc-hash",
  "rustls",
@@ -1912,13 +1914,12 @@ dependencies = [
 
 [[package]]
 name = "rand"
-version = "0.9.0"
+version = "0.9.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3779b94aeb87e8bd4e834cee3650289ee9e0d5677f976ecdb6d219e5f4f6cd94"
+checksum = "9fbfd9d094a40bf3ae768db9361049ace4c0e04a4fd6b359518bd7b73a73dd97"
 dependencies = [
  "rand_chacha 0.9.0",
  "rand_core 0.9.3",
- "zerocopy",
 ]
 
 [[package]]

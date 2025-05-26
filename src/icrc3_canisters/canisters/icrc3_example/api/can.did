@@ -28,6 +28,7 @@ type ICRC3Properties = record {
   tx_window : Duration;
   max_transactions_to_purge : nat;
   max_memory_size_bytes : nat;
+  max_transactions_to_archive : nat;
   max_transactions_in_window : nat;
   reserved_cycles : nat;
 };

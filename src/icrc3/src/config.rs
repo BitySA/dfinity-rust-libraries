@@ -64,6 +64,8 @@ pub struct ICRC3Properties {
     pub reserved_cycles: u128,
     /// Maximum number of transactions to purge at once
     pub max_transactions_to_purge: u128,
+    /// Maximum number of transactions to archive at once
+    pub max_transactions_to_archive: u128,
 }
 
 impl ICRC3Properties {
@@ -75,6 +77,8 @@ impl ICRC3Properties {
         initial_cycles: u128,
         reserved_cycles: u128,
         max_transactions_to_purge: u128,
+        max_transactions_to_archive: u128,
+        ttl_for_non_archived_transactions: Duration,
     ) -> Self {
         Self {
             tx_window,
@@ -84,6 +88,7 @@ impl ICRC3Properties {
             initial_cycles,
             reserved_cycles,
             max_transactions_to_purge,
+            max_transactions_to_archive,
         }
     }
 }
@@ -98,6 +103,7 @@ impl Default for ICRC3Properties {
             initial_cycles: 0_u64.into(),
             reserved_cycles: 0_u64.into(),
             max_transactions_to_purge: 0_u64.into(),
+            max_transactions_to_archive: 0_u64.into(),
         }
     }
 }

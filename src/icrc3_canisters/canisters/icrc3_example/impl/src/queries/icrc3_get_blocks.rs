@@ -8,6 +8,6 @@ pub use icrc3_example_api::queries::icrc3_get_blocks::{
 pub use icrc_ledger_types::icrc3::blocks::GetBlocksResult;
 
 #[query]
-async fn icrc3_get_blocks(args: GetBlocksArg) -> GetBlocksResult {
-    icrc3_get_blocks_impl::<FakeTransaction>(args).await
+fn icrc3_get_blocks(args: GetBlocksArg) -> GetBlocksResult {
+    icrc3_get_blocks_impl::<FakeTransaction>(args)
 }

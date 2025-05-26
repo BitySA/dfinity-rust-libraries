@@ -12,7 +12,7 @@ bity-ic-icrc3 = { path = "../../icrc3" }
 bity-ic-types = { workspace = true }
 bity-ic-utils = { workspace = true }
 bity-ic-canister-time = { workspace = true }
-rand = "0.8.5"
+rand = "0.9.1"
 lazy_static = "1.4.0"
 icrc3-example-api = { path = "../canisters/icrc3_example/api" }
 bity-ic-icrc3-archive-api = { path = "../canisters/icrc3_archive/api" }

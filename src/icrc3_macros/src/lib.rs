@@ -24,8 +24,8 @@
 ///
 /// icrc3_state!();
 ///
-/// async fn add_transaction(transaction: MyTransaction) -> Result<u64, Icrc3Error> {
-///     add_transaction(transaction).await
+/// fn add_transaction(transaction: MyTransaction) -> Result<u64, Icrc3Error> {
+///     add_transaction(transaction)
 /// }
 ///
 /// fn get_archives() -> Vec<ICRC3ArchiveInfo> {
@@ -48,6 +48,8 @@ pub fn icrc3_state(_input: TokenStream) -> TokenStream {
         use icrc_ledger_types::icrc3::blocks::{GetBlocksResult, GetBlocksRequest, ICRC3DataCertificate, SupportedBlockType};
         use icrc_ledger_types::icrc3::archive::ICRC3ArchiveInfo;
         use bity_ic_icrc3::{config::{ICRC3Config, ICRC3Properties}, icrc3::ICRC3, interface::ICRC3Interface, types::Icrc3Error};
+        use bity_ic_canister_time::{run_interval, MINUTE_IN_MS};
+        use std::time::Duration;
 
         lazy_static! {
             pub static ref ICRC3_INSTANCE: Arc<RwLock<Option<ICRC3>>> = Arc::new(RwLock::new(None));
@@ -75,12 +77,12 @@ pub fn icrc3_state(_input: TokenStream) -> TokenStream {
             *lock = Some(icrc3);
         }
 
-        pub async fn icrc3_add_transaction<T: TransactionType>(
+        pub fn icrc3_add_transaction<T: TransactionType>(
             transaction: T,
         ) -> Result<u64, Icrc3Error> {
             let mut lock = ICRC3_INSTANCE.write().unwrap();
             let icrc3 = lock.as_mut().expect(__ICRC3_NOT_INITIALIZED);
-            <ICRC3 as ICRC3Interface<T>>::add_transaction(icrc3, transaction).await
+            <ICRC3 as ICRC3Interface<T>>::add_transaction(icrc3, transaction)
         }
 
         pub fn icrc3_get_archives<T: TransactionType>() -> Vec<ICRC3ArchiveInfo> {
@@ -89,12 +91,12 @@ pub fn icrc3_state(_input: TokenStream) -> TokenStream {
             <ICRC3 as ICRC3Interface<T>>::icrc3_get_archives(&icrc3)
         }
 
-        pub async fn icrc3_get_blocks<T: TransactionType>(
+        pub fn icrc3_get_blocks<T: TransactionType>(
             args: Vec<GetBlocksRequest>,
         ) -> GetBlocksResult {
             let lock = ICRC3_INSTANCE.read().unwrap();
             let icrc3 = lock.as_ref().expect(__ICRC3_NOT_INITIALIZED);
-            <ICRC3 as ICRC3Interface<T>>::icrc3_get_blocks(icrc3, args).await
+            <ICRC3 as ICRC3Interface<T>>::icrc3_get_blocks(icrc3, args)
         }
 
         pub fn icrc3_get_properties<T: TransactionType>() -> ICRC3Properties {
@@ -113,6 +115,34 @@ pub fn icrc3_state(_input: TokenStream) -> TokenStream {
             let lock = ICRC3_INSTANCE.read().unwrap();
             let icrc3 = lock.as_ref().expect(__ICRC3_NOT_INITIALIZED);
             <ICRC3 as ICRC3Interface<T>>::icrc3_supported_block_types(icrc3)
+        }
+
+        pub fn start_archive_job(interval_ms: u64) {
+            run_interval(Duration::from_millis(interval_ms), || {
+                ic_cdk::spawn(async {
+                    match ICRC3_INSTANCE.write() {
+                        Ok(mut lock) => {
+                            if let Some(icrc3) = lock.as_mut() {
+                                if let Err(e) = icrc3.archive_job().await {
+                                    bity_ic_icrc3::utils::trace(&format!("Archive job failed: {}", e));
+                                } else {
+                                    bity_ic_icrc3::utils::trace(&format!("Archive job completed successfully"));
+                                }
+                            } else {
+                                bity_ic_icrc3::utils::trace("ICRC3 instance not initialized");
+                            }
+                        },
+                        Err(e) => {
+                            bity_ic_icrc3::utils::trace(&format!("Failed to acquire ICRC3 lock: {}", e));
+                        }
+                    }
+                });
+            });
+        }
+
+        // by default you can use this method, to run archive 10mins
+        pub fn start_default_archive_job() {
+            start_archive_job(10 * MINUTE_IN_MS);
         }
     };
 

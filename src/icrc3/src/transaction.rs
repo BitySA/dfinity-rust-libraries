@@ -101,16 +101,11 @@ impl BasicTransaction {
     /// * Contain a "phash" field that is a blob
     /// * Contain a "btype" field that is a string
     pub fn validate_transaction_fields(&self) -> Result<TransactionKind, String> {
-        trace(&format!("validate_transaction_fields {:?}", self.0));
         match &self.0 {
             ICRC3Value::Map(map) => {
-                trace(&format!("validate_transaction_fields {:?}", map));
-
                 match map.get("phash") {
                     Some(phash) => match phash {
-                        ICRC3Value::Blob(_) => {
-                            trace(&format!("phash is a blob"));
-                        }
+                        ICRC3Value::Blob(_) => {}
                         _ => return Err("phash is supposed to be a blob".to_string()),
                     },
                     None => return Err("phash field is required".to_string()),
@@ -118,10 +113,7 @@ impl BasicTransaction {
 
                 match map.get("btype") {
                     Some(btype) => match btype {
-                        ICRC3Value::Text(_) => {
-                            trace(&format!("btype is a text"));
-                            Ok(TransactionKind::CustomTransaction)
-                        }
+                        ICRC3Value::Text(_) => Ok(TransactionKind::CustomTransaction),
                         _ => Err("btype is supposed to be a string".to_string()),
                     },
                     None => Err("btype field is required".to_string()),

@@ -80,46 +80,6 @@ fn test_multiple_transactions() {
 }
 
 #[test]
-fn test_multiple_transactions_archive() {
-    let mut test_env = default_test_setup();
-
-    for _ in 0..99 {
-        add_random_transaction(
-            &mut test_env.pic,
-            test_env.controller,
-            test_env.icrc3_id,
-            &(),
-        );
-
-        test_env.pic.advance_time(Duration::from_secs(2));
-        tick_n_blocks(&mut test_env.pic, 50);
-    }
-
-    let get_blocks_args = vec![GetBlocksRequest {
-        start: Nat::from(0u64),
-        length: Nat::from(100u64),
-    }];
-
-    let get_blocks_result = icrc3_get_blocks(
-        &mut test_env.pic,
-        test_env.controller,
-        test_env.icrc3_id,
-        &get_blocks_args,
-    );
-
-    assert_eq!(get_blocks_result.blocks.len(), 49);
-    assert_eq!(get_blocks_result.archived_blocks.len(), 1);
-    assert_eq!(
-        get_blocks_result.archived_blocks[0].args[0].start,
-        Nat::from(0u64)
-    );
-    assert_eq!(
-        get_blocks_result.archived_blocks[0].args[0].length,
-        Nat::from(50u64)
-    );
-}
-
-#[test]
 fn test_throttling() {
     let mut test_env = default_test_setup();
 
@@ -173,6 +133,8 @@ fn test_concurrent_transactions() {
         test_env.icrc3_id,
         &get_blocks_args,
     );
+
+    println!("get_blocks_result: {:?}", get_blocks_result);
 
     assert_eq!(get_blocks_result.blocks.len(), 1);
     assert_eq!(get_blocks_result.archived_blocks.len(), 0);
@@ -228,9 +190,12 @@ fn test_get_archives() {
             &(),
         );
 
-        test_env.pic.advance_time(Duration::from_secs(2));
+        test_env.pic.advance_time(Duration::from_secs(2 * 60));
         tick_n_blocks(&mut test_env.pic, 50);
     }
+
+    test_env.pic.advance_time(Duration::from_secs(10 * 60));
+    tick_n_blocks(&mut test_env.pic, 50);
 
     let archives = icrc3_get_archives(
         &mut test_env.pic,
@@ -239,11 +204,13 @@ fn test_get_archives() {
         &(),
     );
 
-    assert_eq!(archives.len(), 0);
-
     println!("archives: {:?}", archives);
 
-    for _ in 0..41 {
+    assert_eq!(archives.len(), 1);
+    assert_eq!(archives[0].start, Nat::from(0u64));
+    assert_eq!(archives[0].end, Nat::from(9u64));
+
+    for _ in 0..21 {
         add_random_transaction(
             &mut test_env.pic,
             test_env.controller,
@@ -251,7 +218,7 @@ fn test_get_archives() {
             &(),
         );
 
-        test_env.pic.advance_time(Duration::from_secs(2));
+        test_env.pic.advance_time(Duration::from_secs(2 * 60));
         tick_n_blocks(&mut test_env.pic, 50);
     }
 
@@ -264,4 +231,21 @@ fn test_get_archives() {
 
     println!("archives: {:?}", archives);
     assert_eq!(archives.len(), 1);
+    assert_eq!(archives[0].start, Nat::from(0u64));
+    assert_eq!(archives[0].end, Nat::from(28u64));
+
+    test_env.pic.advance_time(Duration::from_secs(100 * 60));
+    tick_n_blocks(&mut test_env.pic, 50);
+
+    let archives = icrc3_get_archives(
+        &mut test_env.pic,
+        test_env.controller,
+        test_env.icrc3_id,
+        &(),
+    );
+
+    println!("archives: {:?}", archives);
+    assert_eq!(archives.len(), 1);
+    assert_eq!(archives[0].start, Nat::from(0u64));
+    assert_eq!(archives[0].end, Nat::from(30u64));
 }

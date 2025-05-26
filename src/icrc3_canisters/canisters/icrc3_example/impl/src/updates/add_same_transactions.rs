@@ -8,7 +8,7 @@ pub use icrc3_example_api::updates::add_random_transaction::{
 };
 
 #[update]
-async fn add_same_transactions(_: RandomTransactionArgs) -> RandomTransactionResponse {
+fn add_same_transactions(_: RandomTransactionArgs) -> RandomTransactionResponse {
     trace(&format!("add_same_transactions"));
     let transaction = read_state(|state| state.data.create_fake_transaction());
 
@@ -20,7 +20,6 @@ async fn add_same_transactions(_: RandomTransactionArgs) -> RandomTransactionRes
     for i in 0..2 {
         trace(&format!("adding transaction: {}", i));
         match icrc3_add_transaction(transaction.clone())
-            .await
             .map_err(|e| format!("Error adding transaction: {}", e))
         {
             Ok(_) => {

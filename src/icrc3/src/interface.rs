@@ -1,5 +1,5 @@
 use crate::icrc3::ICRC3;
-use crate::transaction::{self, BasicTransaction, TransactionKind, TransactionType};
+use crate::transaction::{BasicTransaction, TransactionKind, TransactionType};
 use crate::types::Icrc3Error;
 use crate::utils::trace;
 
@@ -51,7 +51,7 @@ where
     /// * The transaction is invalid
     /// * The transaction is a duplicate
     /// * The system is throttling transactions
-    async fn add_transaction(&mut self, transaction: T) -> Result<u64, Icrc3Error>;
+    fn add_transaction(&mut self, transaction: T) -> Result<u64, Icrc3Error>;
 
     /// Retrieves information about all archives.
     ///
@@ -69,7 +69,7 @@ where
     /// # Returns
     ///
     /// A `Response` containing the requested blocks and any archived blocks.
-    async fn icrc3_get_blocks(
+    fn icrc3_get_blocks(
         &self,
         args: Vec<GetBlocksRequest>,
     ) -> crate::types::icrc3_get_blocks::Response;
@@ -97,13 +97,13 @@ where
 }
 
 impl<T: TransactionType> ICRC3Interface<T> for ICRC3 {
-    async fn add_transaction(&mut self, transaction: T) -> Result<u64, Icrc3Error> {
+    fn add_transaction(&mut self, transaction: T) -> Result<u64, Icrc3Error> {
         let now = ic_cdk::api::time() as u128;
 
-        let timestamp = if transaction.timestamp().is_none() {
-            now
+        let timestamp: u128 = if let Some(timestamp) = transaction.timestamp() {
+            timestamp.try_into().unwrap()
         } else {
-            transaction.timestamp().unwrap() as u128
+            now
         };
 
         let num_pruned = self.purge_old_transactions(now);
@@ -190,7 +190,7 @@ impl<T: TransactionType> ICRC3Interface<T> for ICRC3 {
             timestamp,
         );
 
-        match self.blockchain.add_block(block).await {
+        match self.blockchain.add_block(block) {
             Ok(_) => (),
             Err(e) => {
                 return Err(Icrc3Error::Icrc3Error(e));
@@ -214,7 +214,7 @@ impl<T: TransactionType> ICRC3Interface<T> for ICRC3 {
             .collect()
     }
 
-    async fn icrc3_get_blocks(
+    fn icrc3_get_blocks(
         &self,
         args: Vec<GetBlocksRequest>,
     ) -> crate::types::icrc3_get_blocks::Response {
@@ -248,7 +248,7 @@ impl<T: TransactionType> ICRC3Interface<T> for ICRC3 {
                         None => {}
                     }
                 }
-                let block_canister_id = self.blockchain.get_block_canister_id(i).await;
+                let block_canister_id = self.blockchain.get_block_canister_id(i);
 
                 match block_canister_id {
                     Ok(canister_id) => match current_canister {

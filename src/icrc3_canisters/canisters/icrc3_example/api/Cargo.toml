@@ -13,4 +13,4 @@ icrc-ledger-types = { workspace = true }
 ic-cdk = { workspace = true }
 
 bity-ic-icrc3-archive-api = { path = "../../icrc3_archive/api" }
-bity-ic-icrc3 = { path = "../../../../icrc3" }
+bity-ic-icrc3 = { path = "../../../../icrc3", features = ["debug-logs"] }
