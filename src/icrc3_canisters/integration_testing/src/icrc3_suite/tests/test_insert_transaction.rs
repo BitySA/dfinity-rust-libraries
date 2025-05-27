@@ -249,3 +249,63 @@ fn test_get_archives() {
     assert_eq!(archives[0].start, Nat::from(0u64));
     assert_eq!(archives[0].end, Nat::from(30u64));
 }
+
+#[test]
+fn test_get_blocks_after_multiple_operations() {
+    let mut test_env = default_test_setup();
+
+    for _ in 0..5 {
+        add_random_transaction(
+            &mut test_env.pic,
+            test_env.controller,
+            test_env.icrc3_id,
+            &(),
+        );
+
+        test_env.pic.advance_time(Duration::from_secs(2 * 120));
+        tick_n_blocks(&mut test_env.pic, 5);
+    }
+
+    let get_blocks_args = vec![GetBlocksRequest {
+        start: Nat::from(0u64),
+        length: Nat::from(10u64),
+    }];
+
+    test_env.pic.advance_time(Duration::from_secs(2 * 120));
+    tick_n_blocks(&mut test_env.pic, 5);
+
+    let get_blocks_result = icrc3_get_blocks(
+        &mut test_env.pic,
+        test_env.controller,
+        test_env.icrc3_id,
+        &get_blocks_args,
+    );
+
+    println!("get_blocks_result: {:?}", get_blocks_result);
+
+    assert_eq!(get_blocks_result.log_length, Nat::from(5u64));
+    assert_eq!(get_blocks_result.archived_blocks.len(), 1);
+    assert_eq!(get_blocks_result.archived_blocks[0].args.len(), 1);
+    assert_eq!(
+        get_blocks_result.archived_blocks[0].args[0],
+        GetBlocksRequest {
+            start: Nat::from(0u64),
+            length: Nat::from(5u64),
+        }
+    );
+
+    tick_n_blocks(&mut test_env.pic, 5);
+
+    let get_blocks_result = icrc3_get_blocks(
+        &mut test_env.pic,
+        test_env.controller,
+        get_blocks_result.archived_blocks[0].callback.canister_id,
+        &get_blocks_result.archived_blocks[0].args,
+    );
+
+    println!("get_blocks_result: {:?}", get_blocks_result);
+
+    assert_eq!(get_blocks_result.log_length, Nat::from(5u64));
+    assert_eq!(get_blocks_result.blocks.len(), 5);
+    assert_eq!(get_blocks_result.archived_blocks.len(), 0);
+}

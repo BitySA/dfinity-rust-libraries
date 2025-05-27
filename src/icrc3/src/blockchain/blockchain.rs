@@ -182,7 +182,7 @@ impl Blockchain {
             self.local_transactions.len()
         ));
 
-        Ok(self.chain_length() + 1)
+        Ok(self.chain_length() + self.local_transactions.len() as u64)
     }
 
     pub async fn archive_blocks_jobs(&mut self) -> Result<u128, String> {
@@ -234,6 +234,7 @@ impl Blockchain {
                                 {
                                     Ok(_) => {
                                         archived_count += 1;
+                                        self.chain_length += 1;
                                     }
                                     Err(e) => {
                                         self.local_transactions.push_front(tx);
@@ -306,6 +307,18 @@ impl Blockchain {
     /// * `Ok(Principal)` containing the canister ID
     /// * `Err(String)` if the operation failed
     pub fn get_block_canister_id(&self, block_id: BlockIndex) -> Result<Principal, String> {
+        if block_id >= self.chain_length() {
+            trace(&format!(
+                "get_block_canister_id: Block id is after the end of the chain: {}, chain_length: {}",
+                block_id,
+                self.chain_length()
+            ));
+            return Err(format!(
+                "Block id is after the end of the chain: {}",
+                block_id
+            ));
+        }
+
         self.archive_canister_manager
             .read()
             .map_err(|_| "Failed to read archive_canister_manager")?

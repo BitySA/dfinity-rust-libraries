@@ -250,6 +250,8 @@ impl<T: TransactionType> ICRC3Interface<T> for ICRC3 {
                 }
                 let block_canister_id = self.blockchain.get_block_canister_id(i);
 
+                trace(&format!("block_canister_id: {:?}", block_canister_id));
+
                 match block_canister_id {
                     Ok(canister_id) => match current_canister {
                         Some(current_id) if current_id == canister_id => {
@@ -285,7 +287,7 @@ impl<T: TransactionType> ICRC3Interface<T> for ICRC3 {
                 response.archived_blocks.push(ArchivedBlocks {
                     args: vec![GetBlocksRequest {
                         start: Nat::from(current_start),
-                        length: Nat::from(current_length - 1),
+                        length: Nat::from(current_length),
                     }],
                     callback: QueryArchiveFn::new(current_id, "icrc3_get_blocks".to_string()),
                 });

@@ -1,4 +1,5 @@
 use crate::blockchain::archive_canister::ArchiveCanister;
+use crate::utils::trace;
 
 use bity_ic_icrc3_archive_api::{
     archive_config::ArchiveConfig, lifecycle::BlockType, types::encoded_blocks::EncodedBlock,
@@ -11,7 +12,6 @@ use ic_ledger_types::BlockIndex;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::collections::HashMap;
-use tracing::trace;
 
 const ARCHIVE_WASM: &[u8] = include_bytes!("../../wasm/icrc3_archive_canister.wasm.gz");
 const DEFAULT_INITIAL_CYCLES: u128 = 100_000_000_000_000_000;
@@ -162,13 +162,14 @@ impl ArchiveCanisterManager {
         block_id: BlockIndex,
         block: EncodedBlock,
     ) -> Result<(), String> {
-        trace!("Starting to insert single block");
+        trace(&format!("Starting to insert single block"));
+        trace(&format!("insert_block: block_id: {}", block_id));
 
         for (_, canister) in self.sub_canister_manager.sub_canisters.iter_mut() {
-            trace!(
+            trace(&format!(
                 "Checking available space in canister {:?}...",
                 canister.canister_id()
-            );
+            ));
 
             match canister.insert_blocks(vec![block.clone()]).await {
                 Ok(_) => {
@@ -194,19 +195,23 @@ impl ArchiveCanisterManager {
             .await
         {
             Ok(mut new_canister) => {
-                trace!("Creating new canister to store block.");
+                trace(&format!("Creating new canister to store block."));
+                trace(&format!(
+                    "Creating new canister to store block. block_id: {}",
+                    block_id
+                ));
                 let canister_id = new_canister.canister_id();
                 self.canisters_by_block_id.push((block_id, canister_id));
 
                 if let Err(e) = new_canister.insert_blocks(vec![block.clone()]).await {
-                    trace!("Failed to insert block into new canister: {}", e);
+                    trace(&format!("Failed to insert block into new canister: {}", e));
                     return Err(format!("Failed to insert block into new canister: {}", e));
                 }
 
                 Ok(())
             }
             Err(e) => {
-                trace!("Failed to create a new canister: {:?}", e);
+                trace(&format!("Failed to create a new canister: {:?}", e));
                 Err(format!("Failed to create a new canister: {:?}", e))
             }
         }
@@ -238,6 +243,15 @@ impl ArchiveCanisterManager {
     /// * `Ok(Principal)` containing the canister ID
     /// * `Err(String)` if no canister is found for the block ID
     pub fn get_canister_id_by_block_id(&self, block_id: BlockIndex) -> Result<Principal, String> {
+        trace(&format!(
+            "get_canister_id_by_block_id: block_id: {}, canisters_by_block_id: {:?}",
+            block_id, self.canisters_by_block_id
+        ));
+        trace(&format!(
+            "get_canister_id_by_block_id: canisters_by_block_id: {:?}",
+            self.canisters_by_block_id
+        ));
+
         match self
             .canisters_by_block_id
             .iter()
