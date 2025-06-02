@@ -11,6 +11,7 @@ type Args = variant { Upgrade : UpgradeArgs; Init : InitArgs };
 type BlockType = variant { ICRC1; Default };
 type BlockWithId = record { id : nat; block : ICRC3Value };
 type BuildVersion = record { major : nat32; minor : nat32; patch : nat32 };
+type EncodedBlock = record { block : blob };
 type GetBlocksRequest = record { start : nat; length : nat };
 type GetBlocksResult = record {
   log_length : nat;
@@ -43,7 +44,7 @@ type UpgradeArgs = record {
 service : (Args) -> {
   get_version : (null) -> (BuildVersion) query;
   icrc3_get_blocks : (vec GetBlocksRequest) -> (GetBlocksResult) query;
-  insert_blocks : (vec blob) -> (Response);
+  insert_blocks : (vec EncodedBlock) -> (Response);
   remaining_capacity : (null) -> (nat) query;
   total_transactions : (null) -> (nat64) query;
 }

@@ -1,6 +1,6 @@
 [package]
 name = "bity-ic-icrc3"
-version = "0.2.3"
+version = "0.2.4"
 edition = "2021"
 license = "MIT"
 description = "bity icrc3 library"
@@ -24,7 +24,6 @@ serde_cbor = { workspace = true }
 canfund = { workspace = true }
 ic-certification = { workspace = true }
 leb128 = { workspace = true }
-minicbor = { workspace = true }
 ic-stable-structures = { workspace = true }
 syn = { workspace = true }
 ic0 = { workspace = true }

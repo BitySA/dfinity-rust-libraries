@@ -43,7 +43,7 @@ impl ArchiveCanister {
         }
 
         let res = retry_async(
-            || bity_ic_icrc3_archive_c2c_client::insert_blocks(self.canister_id(), &blocks),
+            || bity_ic_icrc3_archive_c2c_client::insert_blocks(self.canister_id(), blocks.clone()),
             3,
         )
         .await;

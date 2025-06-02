@@ -62,7 +62,9 @@ impl Block for DefaultBlock {
 
     fn block_hash(encoded: &EncodedBlock) -> HashOf<EncodedBlock> {
         let mut state = sha256::Sha256::new();
-        state.write(&serde_cbor::ser::to_vec_packed(encoded).unwrap());
+        let mut buffer = Vec::new();
+        minicbor::encode(encoded, &mut buffer).expect("failed to encode EncodedBlock");
+        state.write(&buffer);
         HashOf::new(state.finish())
     }
 

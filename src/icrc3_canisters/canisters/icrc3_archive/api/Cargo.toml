@@ -1,6 +1,6 @@
 [package]
 name = "bity-ic-icrc3-archive-api"
-version = "0.1.0"
+version = "0.2.0"
 description = "bity icrc3 archive api"
 edition = "2021"
 license = "MIT"
@@ -22,3 +22,4 @@ ic-stable-structures = { workspace = true }
 sha2 = { workspace = true }
 hex = { workspace = true }
 serde_cbor = { workspace = true }
+minicbor = { workspace = true }
