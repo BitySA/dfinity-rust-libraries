@@ -78,7 +78,7 @@ canfund = "0.8.2"
 ic-asset-certification = "3.0.3"
 ic-http-certification = "3.0.3"
 sha256 = "1.6.0"
-pocket-ic = "7.0.0"
+pocket-ic = "9.0.1"
 ic-certification = "3.0.3"
 leb128 = "0.2.5"
 num-traits = { version = "0.2.12", features = ["libm"] }

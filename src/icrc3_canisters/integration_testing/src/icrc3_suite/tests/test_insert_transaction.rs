@@ -3,7 +3,6 @@ use crate::icrc3_suite::setup::default_test_setup;
 use crate::utils::tick_n_blocks;
 
 use candid::Nat;
-use icrc3_example_api::add_same_transactions;
 use icrc_ledger_types::icrc3::blocks::GetBlocksRequest;
 use std::time::Duration;
 
@@ -307,5 +306,34 @@ fn test_get_blocks_after_multiple_operations() {
 
     assert_eq!(get_blocks_result.log_length, Nat::from(5u64));
     assert_eq!(get_blocks_result.blocks.len(), 5);
+    assert_eq!(get_blocks_result.archived_blocks.len(), 0);
+}
+
+#[test]
+fn test_add_same_transactions() {
+    let mut test_env = default_test_setup();
+
+    add_same_transactions(
+        &mut test_env.pic,
+        test_env.controller,
+        test_env.icrc3_id,
+        &(),
+    );
+
+    let get_blocks_args = vec![GetBlocksRequest {
+        start: Nat::from(0u64),
+        length: Nat::from(10u64),
+    }];
+
+    let get_blocks_result = icrc3_get_blocks(
+        &mut test_env.pic,
+        test_env.controller,
+        test_env.icrc3_id,
+        &get_blocks_args,
+    );
+
+    println!("get_blocks_result: {:?}", get_blocks_result);
+
+    assert_eq!(get_blocks_result.blocks.len(), 1);
     assert_eq!(get_blocks_result.archived_blocks.len(), 0);
 }

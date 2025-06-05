@@ -13,6 +13,8 @@ pub enum Icrc3Error {
     Icrc3Error(String),
     /// An error occurred during block creation
     BlockCreationError(String),
+    /// A duplicate transaction occurred
+    DuplicateTransaction { duplicate_of: u64 },
 }
 
 impl std::fmt::Display for Icrc3Error {

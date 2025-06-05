@@ -167,14 +167,13 @@ impl<T: TransactionType> ICRC3Interface<T> for ICRC3 {
         });
 
         // Check if transaction already exists in ledger
-        for existing_tx in &self.ledger {
+        for (i, existing_tx) in self.ledger.iter().enumerate() {
             if let ICRC3Value::Map(ref existing_map) = existing_tx {
                 if let Some(ICRC3Value::Blob(existing_thash)) = existing_map.get("thash") {
                     if existing_thash.as_slice() == transaction_hash {
-                        return Err(Icrc3Error::Icrc3Error(
-                            "Duplicate transaction happend in tx window. Transaction not added."
-                                .to_string(),
-                        ));
+                        return Err(Icrc3Error::DuplicateTransaction {
+                            duplicate_of: self.last_index - i as u64,
+                        });
                     }
                 }
             }

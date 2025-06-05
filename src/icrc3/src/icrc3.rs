@@ -2,8 +2,6 @@ use crate::blockchain::blockchain::Blockchain;
 use crate::config::ICRC3Config;
 use crate::utils::{get_timestamp, last_block_hash_tree, trace};
 
-use bity_ic_icrc3_archive_api::types::block_interface::Block;
-use bity_ic_icrc3_archive_api::types::defaultblock::DefaultBlock;
 use bity_ic_icrc3_archive_api::types::hash::HashOf;
 use candid::Nat;
 use ic_certification::AsHashTree;
