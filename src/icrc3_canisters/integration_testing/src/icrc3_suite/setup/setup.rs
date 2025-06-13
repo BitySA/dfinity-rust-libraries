@@ -55,6 +55,8 @@ impl TestEnvBuilder {
         constants.tx_window = Duration::from_millis(500);
         constants.max_transactions_in_window = 10;
         constants.max_transactions_to_purge = 5;
+        constants.ttl_for_non_archived_transactions = Duration::from_secs(120);
+        constants.max_unarchived_transactions = 1000;
 
         let icrc3_init_args = Args::Init(icrc3_example_api::init::InitArgs {
             test_mode: true,

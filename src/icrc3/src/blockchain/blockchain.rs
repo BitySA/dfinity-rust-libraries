@@ -13,7 +13,7 @@ use std::sync::{Arc, RwLock};
 use std::time::Duration;
 
 /// The maximum number of transactions to keep in local storage
-const MAX_LOCAL_TRANSACTIONS: usize = 1000;
+const MAX_LOCAL_TRANSACTIONS: u128 = 1000;
 
 /// The core blockchain implementation for ICRC3.
 ///
@@ -35,6 +35,8 @@ pub struct Blockchain {
     pub local_transactions: VecDeque<(u128, EncodedBlock)>, // (timestamp, block)
     /// Time to live for non-archived transactions
     pub ttl_for_non_archived_transactions: Duration,
+    /// maximum number of unarchived transactions
+    pub max_unarchived_transactions: u128,
 }
 
 impl Blockchain {
@@ -44,6 +46,7 @@ impl Blockchain {
         last_timestamp: u128,
         chain_length: u64,
         ttl_for_non_archived_transactions: Duration,
+        max_unarchived_transactions: u128,
     ) -> Self {
         Self {
             archive_canister_manager: Arc::new(RwLock::new(archive_canister_manager)),
@@ -52,6 +55,7 @@ impl Blockchain {
             chain_length,
             local_transactions: VecDeque::new(),
             ttl_for_non_archived_transactions,
+            max_unarchived_transactions,
         }
     }
 }
@@ -66,6 +70,7 @@ impl Default for Blockchain {
             chain_length: 0,
             local_transactions: VecDeque::new(),
             ttl_for_non_archived_transactions: Duration::from_secs(120),
+            max_unarchived_transactions: MAX_LOCAL_TRANSACTIONS as u128,
         }
     }
 }
@@ -87,6 +92,7 @@ impl Serialize for Blockchain {
             &self.chain_length,
             &self.local_transactions,
             &self.ttl_for_non_archived_transactions,
+            &self.max_unarchived_transactions,
         )
             .serialize(serializer)
     }
@@ -104,6 +110,7 @@ impl<'de> Deserialize<'de> for Blockchain {
             chain_length,
             local_transactions,
             ttl_for_non_archived_transactions,
+            max_unarchived_transactions,
         ) = <(
             ArchiveCanisterManager,
             Option<HashOf<EncodedBlock>>,
@@ -111,6 +118,7 @@ impl<'de> Deserialize<'de> for Blockchain {
             u64,
             VecDeque<(u128, EncodedBlock)>,
             Duration,
+            u128,
         )>::deserialize(deserializer)?;
 
         Ok(Blockchain {
@@ -120,6 +128,7 @@ impl<'de> Deserialize<'de> for Blockchain {
             chain_length,
             local_transactions,
             ttl_for_non_archived_transactions,
+            max_unarchived_transactions,
         })
     }
 }
@@ -163,7 +172,7 @@ impl Blockchain {
             );
         }
 
-        if self.local_transactions.len() >= MAX_LOCAL_TRANSACTIONS {
+        if self.local_transactions.len() >= self.max_unarchived_transactions as usize {
             return Err(format!(
                 "Local transactions limit reached: {}",
                 MAX_LOCAL_TRANSACTIONS

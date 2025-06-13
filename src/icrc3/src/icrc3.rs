@@ -1,3 +1,4 @@
+use crate::blockchain::archive_canister_manager::ArchiveCanisterManager;
 use crate::blockchain::blockchain::Blockchain;
 use crate::config::ICRC3Config;
 use crate::utils::{get_timestamp, last_block_hash_tree, trace};
@@ -49,7 +50,14 @@ impl ICRC3 {
     /// A new ICRC3 instance with an empty blockchain and ledger
     pub fn new(icrc3_config: ICRC3Config) -> Self {
         Self {
-            blockchain: Blockchain::default(),
+            blockchain: Blockchain::new(
+                ArchiveCanisterManager::default(),
+                None,
+                0,
+                0,
+                icrc3_config.constants.ttl_for_non_archived_transactions,
+                icrc3_config.constants.max_unarchived_transactions,
+            ),
             ledger: VecDeque::new(),
             last_index: 0,
             last_phash: None,
