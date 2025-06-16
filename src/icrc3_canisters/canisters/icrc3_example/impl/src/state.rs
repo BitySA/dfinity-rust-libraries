@@ -11,7 +11,6 @@ use candid::Nat;
 use candid::{CandidType, Principal};
 use icrc_ledger_types::icrc::generic_value::ICRC3Value;
 use serde::{Deserialize, Serialize};
-use serde_bytes::ByteBuf;
 use sha2::{Digest, Sha256};
 use std::collections::{BTreeMap, HashSet};
 

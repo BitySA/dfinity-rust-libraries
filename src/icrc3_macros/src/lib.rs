@@ -82,39 +82,39 @@ pub fn icrc3_state(_input: TokenStream) -> TokenStream {
         ) -> Result<u64, Icrc3Error> {
             let mut lock = ICRC3_INSTANCE.write().unwrap();
             let icrc3 = lock.as_mut().expect(__ICRC3_NOT_INITIALIZED);
-            <ICRC3 as ICRC3Interface<T>>::add_transaction(icrc3, transaction)
+            <ICRC3 as ICRC3Interface>::add_transaction(icrc3, transaction)
         }
 
-        pub fn icrc3_get_archives<T: TransactionType>() -> Vec<ICRC3ArchiveInfo> {
+        pub fn icrc3_get_archives() -> Vec<ICRC3ArchiveInfo> {
             let lock = ICRC3_INSTANCE.read().unwrap();
             let icrc3 = lock.as_ref().expect(__ICRC3_NOT_INITIALIZED);
-            <ICRC3 as ICRC3Interface<T>>::icrc3_get_archives(&icrc3)
+            <ICRC3 as ICRC3Interface>::icrc3_get_archives(icrc3)
         }
 
-        pub fn icrc3_get_blocks<T: TransactionType>(
+        pub fn icrc3_get_blocks(
             args: Vec<GetBlocksRequest>,
         ) -> GetBlocksResult {
             let lock = ICRC3_INSTANCE.read().unwrap();
             let icrc3 = lock.as_ref().expect(__ICRC3_NOT_INITIALIZED);
-            <ICRC3 as ICRC3Interface<T>>::icrc3_get_blocks(icrc3, args)
+            <ICRC3 as ICRC3Interface>::icrc3_get_blocks(icrc3, args)
         }
 
-        pub fn icrc3_get_properties<T: TransactionType>() -> ICRC3Properties {
+        pub fn icrc3_get_properties() -> ICRC3Properties {
             let lock = ICRC3_INSTANCE.read().unwrap();
             let icrc3 = lock.as_ref().expect(__ICRC3_NOT_INITIALIZED);
-            <ICRC3 as ICRC3Interface<T>>::icrc3_get_properties(&icrc3)
+            <ICRC3 as ICRC3Interface>::icrc3_get_properties(icrc3)
         }
 
-        pub fn icrc3_get_tip_certificate<T: TransactionType>() -> ICRC3DataCertificate {
+        pub fn icrc3_get_tip_certificate() -> ICRC3DataCertificate {
             let lock = ICRC3_INSTANCE.read().unwrap();
             let icrc3 = lock.as_ref().expect(__ICRC3_NOT_INITIALIZED);
-            <ICRC3 as ICRC3Interface<T>>::icrc3_get_tip_certificate(icrc3)
+            <ICRC3 as ICRC3Interface>::icrc3_get_tip_certificate(icrc3)
         }
 
-        pub fn icrc3_supported_block_types<T: TransactionType>() -> Vec<SupportedBlockType> {
+        pub fn icrc3_supported_block_types() -> Vec<SupportedBlockType> {
             let lock = ICRC3_INSTANCE.read().unwrap();
             let icrc3 = lock.as_ref().expect(__ICRC3_NOT_INITIALIZED);
-            <ICRC3 as ICRC3Interface<T>>::icrc3_supported_block_types(icrc3)
+            <ICRC3 as ICRC3Interface>::icrc3_supported_block_types(icrc3)
         }
 
         pub fn start_archive_job(interval_ms: u64) {

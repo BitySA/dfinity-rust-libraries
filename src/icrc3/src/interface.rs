@@ -31,10 +31,7 @@ use serde_bytes::ByteBuf;
 /// let icrc3 = ICRC3::new(config);
 /// let archives = icrc3.icrc3_get_archives();
 /// ```
-pub trait ICRC3Interface<T: TransactionType>
-where
-    T: TransactionType,
-{
+pub trait ICRC3Interface {
     /// Adds a new transaction to the ledger.
     ///
     /// # Arguments
@@ -51,7 +48,7 @@ where
     /// * The transaction is invalid
     /// * The transaction is a duplicate
     /// * The system is throttling transactions
-    fn add_transaction(&mut self, transaction: T) -> Result<u64, Icrc3Error>;
+    fn add_transaction<T: TransactionType>(&mut self, transaction: T) -> Result<u64, Icrc3Error>;
 
     /// Retrieves information about all archives.
     ///
@@ -96,8 +93,8 @@ where
     fn icrc3_supported_block_types(&self) -> Vec<SupportedBlockType>;
 }
 
-impl<T: TransactionType> ICRC3Interface<T> for ICRC3 {
-    fn add_transaction(&mut self, transaction: T) -> Result<u64, Icrc3Error> {
+impl ICRC3Interface for ICRC3 {
+    fn add_transaction<T: TransactionType>(&mut self, transaction: T) -> Result<u64, Icrc3Error> {
         let now = ic_cdk::api::time() as u128;
 
         let timestamp: u128 = if let Some(timestamp) = transaction.timestamp() {

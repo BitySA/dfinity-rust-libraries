@@ -1,6 +1,6 @@
 [package]
 name = "icrc3_archive"
-version = "0.2.0"
+version = "0.3.0"
 description = "icrc3 archive"
 edition = "2021"
 
@@ -25,7 +25,7 @@ bity-ic-serializer ={ workspace = true }
 bity-ic-stable-memory ={ workspace = true }
 bity-ic-types = { workspace = true }
 bity-ic-utils = { workspace = true }
-bity-ic-icrc3-archive-api = { path = "../api" }
+bity-ic-icrc3-archive-api = { workspace = true }
 bity-ic-canister-logger = { workspace = true }
 bity-ic-canister-state-macros ={ workspace = true }
 bity-ic-canister-tracing-macros = { workspace = true }

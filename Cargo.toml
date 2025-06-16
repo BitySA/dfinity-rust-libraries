@@ -17,12 +17,12 @@ members = [
 
     "src/icrc3_canisters/canisters/icrc3_example/api",
     "src/icrc3_canisters/canisters/icrc3_example/impl",
-    "src/icrc3_canisters/canisters/icrc3_archive/api",
-    "src/icrc3_canisters/canisters/icrc3_archive/c2c_client",
     "src/icrc3_canisters/canisters/icrc3_archive/impl",
     "src/icrc3_canisters/integration_testing",
     "src/icrc3_macros",
     "src/icrc3",
+    "src/icrc3_archive_api",
+    "src/icrc3_archive_c2c_client",
 ]
 
 [profile.release]
@@ -31,19 +31,19 @@ panic = "abort"
 
 
 [workspace.dependencies]
-candid = { version = "0.10.13", features = ["value"] }
+candid = { version = "0.10.14", features = ["value"] }
 ciborium = "0.2.2"
 futures = "0.3.29"
 # Enable `custom` feature of k256's getrandom dependency. See icp_neuron/impl/src/ecdsa.rs for more details.
 getrandom = { version = "0.3.1", features = ["custom"] }
 hex = "0.4.3"
-ic-cdk = "0.17.1"
-ic-cdk-macros = "0.17.1"
-ic-cdk-timers = "0.11.0"
-ic-ledger-types = "0.14.0"
-ic-stable-structures = "0.6.7"
+ic-cdk = "0.18.3"
+ic-cdk-macros = "0.18.3"
+ic-cdk-timers = "0.12.0"
+ic-ledger-types = "0.15.0"
+ic-stable-structures = "0.6.9"
 ic-transport-types = "0.39.3"
-ic0 = "0.23.0"
+ic0 = "0.25.1"
 icrc-ledger-types = "0.1.8"
 k256 = "0.13.1"
 proc-macro2 = "1.0.93"
@@ -54,14 +54,14 @@ serde_bytes = "0.11.12"
 serde_cbor = "0.11.2"
 serde_json = "1.0.138"
 serde_with = "3.7.0"
-serde_yaml = "0.9.29"
+serde_yaml = "0.9.33"
 serde_tokenstream = "0.2.2"
 sha2 = "0.10.8"
-syn = { version = "2.0.100", features = [
+syn = { version = "2.0.103", features = [
   "full",
 ] }
 tracing = "0.1.41"
-tracing-attributes = "0.1.27"
+tracing-attributes = "0.1.29"
 tracing-subscriber = "0.3.18"
 num-bigint = "0.4.4"
 time = { version = "0.3.36", features = [
@@ -74,27 +74,27 @@ async-trait = "0.1.86"
 enum_dispatch = "0.3.13"
 typetag = "0.2.18"
 minicbor = { version = "1.0.0", features = ["alloc", "derive"] }
-canfund = "0.8.2"
+canfund = "0.8.4"
 ic-asset-certification = "3.0.3"
 ic-http-certification = "3.0.3"
 sha256 = "1.6.0"
-pocket-ic = "9.0.1"
+pocket-ic = "9.0.2"
 ic-certification = "3.0.3"
 leb128 = "0.2.5"
 num-traits = { version = "0.2.12", features = ["libm"] }
 deluxe = "0.5.0"
 lazy_static = "1.4.0"
 
-bity-ic-canister-client = "0.1.3"
-bity-ic-canister-logger = "0.1.0"
-bity-ic-canister-state-macros = "0.1.0"
-bity-ic-canister-tracing-macros = "0.1.0"
-bity-ic-canister-time = "0.1.0"
-bity-ic-serializer = "0.1.0"
-bity-ic-stable-memory = "0.1.0"
-bity-ic-types = "0.1.0"
-bity-ic-utils = "0.1.0"
-bity-ic-subcanister-manager = "0.2.4"
-bity-ic-icrc3-archive-api = "0.2.0"
-bity-ic-icrc3-archive-c2c-client = "0.2.0"
-bity-ic-icrc3 = "0.2.3"
+bity-ic-canister-client = { path = "src/canister_client" }
+bity-ic-canister-logger = { path = "src/canister_logger" }
+bity-ic-canister-state-macros = { path = "src/canister_state_macros" }
+bity-ic-canister-tracing-macros = { path = "src/canister_tracing_macros" }
+bity-ic-canister-time = { path = "src/canister_time" }
+bity-ic-serializer = { path = "src/serializer" }
+bity-ic-stable-memory = { path = "src/stable_memory" }
+bity-ic-types = { path = "src/types" }
+bity-ic-utils = { path = "src/utils" }
+bity-ic-subcanister-manager = { path = "src/subcanister_manager" }
+bity-ic-icrc3-archive-api = { path = "src/icrc3_archive_api" }
+bity-ic-icrc3-archive-c2c-client = { path = "src/icrc3_archive_c2c_client" }
+bity-ic-icrc3 = { path = "src/icrc3" }
