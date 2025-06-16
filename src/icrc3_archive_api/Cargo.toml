@@ -1,6 +1,6 @@
 [package]
 name = "bity-ic-icrc3-archive-api"
-version = "0.2.0"
+version = "0.3.0"
 description = "bity icrc3 archive api"
 edition = "2021"
 license = "MIT"
@@ -13,7 +13,7 @@ documentation = "https://docs.rs/bity-ic-icrc3-archive-api"
 inttest = []
 
 [dependencies]
-bity-ic-types = { workspace = true }
+bity-ic-types = "0.1.0"
 candid = { workspace = true }
 icrc-ledger-types = { workspace = true }
 serde = { workspace = true, features = ["derive"] }

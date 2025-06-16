@@ -13,7 +13,7 @@ documentation = "https://docs.rs/bity-ic-utils"
 
 [dependencies]
 candid = { workspace = true }
-bity-ic-canister-time = "0.1.0"
+bity-ic-canister-time = "0.2.0"
 icrc-ledger-types = { workspace = true }
 ic-cdk = { workspace = true }
 hex = { workspace = true }
