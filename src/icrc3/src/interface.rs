@@ -1,5 +1,5 @@
 use crate::icrc3::ICRC3;
-use crate::transaction::{BasicTransaction, TransactionKind, TransactionType};
+use crate::transaction::{GlobalTransaction, TransactionType};
 use crate::types::Icrc3Error;
 use crate::utils::trace;
 
@@ -125,16 +125,10 @@ impl<T: TransactionType> ICRC3Interface<T> for ICRC3 {
 
         self.add_phash(&mut transaction_as_icrc3);
 
-        let basic_transaction = BasicTransaction::new(transaction_as_icrc3);
+        let basic_transaction = GlobalTransaction::new(transaction_as_icrc3);
 
         let mut checked_transaction = match basic_transaction.validate_transaction_fields() {
-            Ok(transaction_kind) => match transaction_kind {
-                TransactionKind::Icrc1Transaction => {
-                    // todo add check here to verify icrc1 transaction format
-                    ICRC3Value::from(basic_transaction)
-                }
-                TransactionKind::CustomTransaction => ICRC3Value::from(basic_transaction),
-            },
+            Ok(_) => ICRC3Value::from(basic_transaction),
             Err(e) => {
                 return Err(Icrc3Error::Icrc3Error(e));
             }

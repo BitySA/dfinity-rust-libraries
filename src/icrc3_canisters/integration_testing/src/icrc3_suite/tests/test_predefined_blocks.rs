@@ -13,7 +13,6 @@ use icrc_ledger_types::icrc::generic_value::ICRC3Value;
 fn test_icrc1_transaction_validation() {
     // Test mint transaction
     let mint_tx = ICRC1Transaction::new(
-        [0u8; 32],
         "1mint".to_string(),
         1234567890,
         Nat::from(1000u64),
@@ -34,7 +33,6 @@ fn test_icrc1_transaction_validation() {
 
     // Test burn transaction
     let burn_tx = ICRC1Transaction::new(
-        [0u8; 32],
         "1burn".to_string(),
         1234567890,
         Nat::from(1000u64),
@@ -55,7 +53,6 @@ fn test_icrc1_transaction_validation() {
 
     // Test transfer transaction
     let transfer_tx = ICRC1Transaction::new(
-        [0u8; 32],
         "1xfer".to_string(),
         1234567890,
         Nat::from(1000u64),
@@ -82,7 +79,6 @@ fn test_icrc1_transaction_validation() {
 fn test_icrc2_transaction_validation() {
     // Test transfer transaction
     let transfer_tx = ICRC2Transaction::new(
-        [0u8; 32],
         "2xfer".to_string(),
         1234567890,
         Some(Nat::from(1000u64)),
@@ -107,7 +103,6 @@ fn test_icrc2_transaction_validation() {
 
     // Test approve transaction
     let approve_tx = ICRC2Transaction::new(
-        [0u8; 32],
         "2approve".to_string(),
         1234567890,
         Some(Nat::from(1000u64)),
@@ -135,7 +130,6 @@ fn test_icrc2_transaction_validation() {
 fn test_icrc7_transaction_validation() {
     // Test mint transaction
     let mint_tx = ICRC7Transaction::new(
-        [0u8; 32],
         "7mint".to_string(),
         1234567890,
         ICRC7TransactionData {
@@ -154,7 +148,6 @@ fn test_icrc7_transaction_validation() {
 
     // Test burn transaction
     let burn_tx = ICRC7Transaction::new(
-        [0u8; 32],
         "7burn".to_string(),
         1234567890,
         ICRC7TransactionData {
@@ -173,7 +166,6 @@ fn test_icrc7_transaction_validation() {
 
     // Test transfer transaction
     let transfer_tx = ICRC7Transaction::new(
-        [0u8; 32],
         "7xfer".to_string(),
         1234567890,
         ICRC7TransactionData {
@@ -198,7 +190,6 @@ fn test_icrc7_transaction_validation() {
 fn test_icrc37_transaction_validation() {
     // Test token approval transaction
     let approve_tx = ICRC37Transaction::new(
-        [0u8; 32],
         "37approve".to_string(),
         1234567890,
         ICRC37TransactionData {
@@ -221,7 +212,6 @@ fn test_icrc37_transaction_validation() {
 
     // Test collection approval transaction
     let approve_coll_tx = ICRC37Transaction::new(
-        [0u8; 32],
         "37approve_coll".to_string(),
         1234567890,
         ICRC37TransactionData {
@@ -244,7 +234,6 @@ fn test_icrc37_transaction_validation() {
 
     // Test token transfer transaction
     let transfer_tx = ICRC37Transaction::new(
-        [0u8; 32],
         "37xfer".to_string(),
         1234567890,
         ICRC37TransactionData {
@@ -273,7 +262,6 @@ fn test_icrc37_transaction_validation() {
 fn test_invalid_transactions() {
     // Test invalid ICRC1 mint transaction (with from field)
     let invalid_mint_tx = ICRC1Transaction::new(
-        [0u8; 32],
         "1mint".to_string(),
         1234567890,
         Nat::from(1000u64),
@@ -297,7 +285,6 @@ fn test_invalid_transactions() {
 
     // Test invalid ICRC1 mint transaction (without to field)
     let invalid_mint_tx_no_to = ICRC1Transaction::new(
-        [0u8; 32],
         "1mint".to_string(),
         1234567890,
         Nat::from(1000u64),
@@ -315,7 +302,6 @@ fn test_invalid_transactions() {
 
     // Test invalid ICRC1 burn transaction (with to field)
     let invalid_burn_tx = ICRC1Transaction::new(
-        [0u8; 32],
         "1burn".to_string(),
         1234567890,
         Nat::from(1000u64),
@@ -339,7 +325,6 @@ fn test_invalid_transactions() {
 
     // Test invalid ICRC1 burn transaction (without from field)
     let invalid_burn_tx_no_from = ICRC1Transaction::new(
-        [0u8; 32],
         "1burn".to_string(),
         1234567890,
         Nat::from(1000u64),
@@ -359,7 +344,6 @@ fn test_invalid_transactions() {
 
     // Test invalid ICRC1 transfer transaction (without from field)
     let invalid_transfer_tx_no_from = ICRC1Transaction::new(
-        [0u8; 32],
         "1xfer".to_string(),
         1234567890,
         Nat::from(1000u64),
@@ -382,7 +366,6 @@ fn test_invalid_transactions() {
 
     // Test invalid ICRC1 transfer transaction (without to field)
     let invalid_transfer_tx_no_to = ICRC1Transaction::new(
-        [0u8; 32],
         "1xfer".to_string(),
         1234567890,
         Nat::from(1000u64),
@@ -405,7 +388,6 @@ fn test_invalid_transactions() {
 
     // Test invalid ICRC2 approve transaction (with to field)
     let invalid_approve_tx = ICRC2Transaction::new(
-        [0u8; 32],
         "2approve".to_string(),
         1234567890,
         Some(Nat::from(1000u64)),
@@ -433,7 +415,6 @@ fn test_invalid_transactions() {
 
     // Test invalid ICRC2 approve transaction (without spender)
     let invalid_approve_tx_no_spender = ICRC2Transaction::new(
-        [0u8; 32],
         "2approve".to_string(),
         1234567890,
         Some(Nat::from(1000u64)),
@@ -457,7 +438,6 @@ fn test_invalid_transactions() {
 
     // Test invalid ICRC2 transfer transaction (without from field)
     let invalid_transfer_tx_no_from = ICRC2Transaction::new(
-        [0u8; 32],
         "2xfer".to_string(),
         1234567890,
         Some(Nat::from(1000u64)),
@@ -481,7 +461,6 @@ fn test_invalid_transactions() {
 
     // Test invalid ICRC7 mint transaction (with meta field)
     let invalid_mint_tx = ICRC7Transaction::new(
-        [0u8; 32],
         "7mint".to_string(),
         1234567890,
         ICRC7TransactionData {
@@ -500,7 +479,6 @@ fn test_invalid_transactions() {
 
     // Test invalid ICRC7 mint transaction (without tid)
     let invalid_mint_tx_no_tid = ICRC7Transaction::new(
-        [0u8; 32],
         "7mint".to_string(),
         1234567890,
         ICRC7TransactionData {
@@ -521,7 +499,6 @@ fn test_invalid_transactions() {
 
     // Test invalid ICRC7 burn transaction (with to field)
     let invalid_burn_tx = ICRC7Transaction::new(
-        [0u8; 32],
         "7burn".to_string(),
         1234567890,
         ICRC7TransactionData {
@@ -543,7 +520,6 @@ fn test_invalid_transactions() {
 
     // Test invalid ICRC7 update_token transaction (without meta)
     let invalid_update_tx_no_meta = ICRC7Transaction::new(
-        [0u8; 32],
         "7update_token".to_string(),
         1234567890,
         ICRC7TransactionData {
@@ -564,7 +540,6 @@ fn test_invalid_transactions() {
 
     // Test invalid ICRC37 token approval transaction (with to field)
     let invalid_approve_tx = ICRC37Transaction::new(
-        [0u8; 32],
         "37approve".to_string(),
         1234567890,
         ICRC37TransactionData {
@@ -590,7 +565,6 @@ fn test_invalid_transactions() {
 
     // Test invalid ICRC37 token approval transaction (without spender)
     let invalid_approve_tx_no_spender = ICRC37Transaction::new(
-        [0u8; 32],
         "37approve".to_string(),
         1234567890,
         ICRC37TransactionData {
@@ -612,7 +586,6 @@ fn test_invalid_transactions() {
 
     // Test invalid ICRC37 collection approval transaction (with tid)
     let invalid_coll_approve_tx = ICRC37Transaction::new(
-        [0u8; 32],
         "37approve_coll".to_string(),
         1234567890,
         ICRC37TransactionData {
@@ -637,7 +610,6 @@ fn test_invalid_transactions() {
 
     // Test invalid ICRC37 token transfer transaction (without spender)
     let invalid_transfer_tx_no_spender = ICRC37Transaction::new(
-        [0u8; 32],
         "37xfer".to_string(),
         1234567890,
         ICRC37TransactionData {
@@ -662,7 +634,6 @@ fn test_invalid_transactions() {
 
     // Test invalid ICRC37 token transfer transaction (with exp)
     let invalid_transfer_tx_with_exp = ICRC37Transaction::new(
-        [0u8; 32],
         "37xfer".to_string(),
         1234567890,
         ICRC37TransactionData {

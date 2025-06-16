@@ -66,23 +66,14 @@ pub trait TransactionType: Sized + Clone + Into<ICRC3Value> {
     fn block_type(&self) -> String;
 }
 
-/// Enum representing different kinds of transactions supported by the system.
-#[derive(Debug)]
-pub enum TransactionKind {
-    /// A standard ICRC1 transaction
-    Icrc1Transaction,
-    /// A custom transaction type
-    CustomTransaction,
-}
-
 /// A basic transaction type that wraps ICRC3Value.
 ///
 /// This struct provides a simple implementation of a transaction that can be
 /// used as a base for more complex transaction types.
 #[derive(Clone, Debug)]
-pub struct BasicTransaction(ICRC3Value);
+pub struct GlobalTransaction(ICRC3Value);
 
-impl BasicTransaction {
+impl GlobalTransaction {
     /// Creates a new basic transaction from an ICRC3Value.
     ///
     /// # Arguments
@@ -105,7 +96,7 @@ impl BasicTransaction {
     /// * Be a map
     /// * Contain a "phash" field that is a blob
     /// * Contain a "btype" field that is a string
-    pub fn validate_transaction_fields(&self) -> Result<TransactionKind, String> {
+    pub fn validate_transaction_fields(&self) -> Result<(), String> {
         match &self.0 {
             ICRC3Value::Map(map) => {
                 match map.get("phash") {
@@ -118,7 +109,7 @@ impl BasicTransaction {
 
                 match map.get("btype") {
                     Some(btype) => match btype {
-                        ICRC3Value::Text(_) => Ok(TransactionKind::CustomTransaction),
+                        ICRC3Value::Text(_) => Ok(()),
                         _ => Err("btype is supposed to be a string".to_string()),
                     },
                     None => Err("btype field is required".to_string()),
@@ -129,8 +120,8 @@ impl BasicTransaction {
     }
 }
 
-impl From<BasicTransaction> for ICRC3Value {
-    fn from(tx: BasicTransaction) -> Self {
+impl From<GlobalTransaction> for ICRC3Value {
+    fn from(tx: GlobalTransaction) -> Self {
         trace(&format!("from {:?}", tx.0));
         tx.0
     }
@@ -138,7 +129,6 @@ impl From<BasicTransaction> for ICRC3Value {
 
 #[derive(Clone, Debug)]
 pub struct ICRC1Transaction {
-    pub phash: Hash,
     pub btype: String,
     pub timestamp: u64,
     pub fee: Nat,
@@ -157,15 +147,8 @@ pub struct ICRC1TransactionData {
 }
 
 impl ICRC1Transaction {
-    pub fn new(
-        phash: Hash,
-        btype: String,
-        timestamp: u64,
-        fee: Nat,
-        tx: ICRC1TransactionData,
-    ) -> Self {
+    pub fn new(btype: String, timestamp: u64, fee: Nat, tx: ICRC1TransactionData) -> Self {
         Self {
-            phash,
             btype,
             timestamp,
             fee,
@@ -291,7 +274,6 @@ impl From<ICRC1Transaction> for ICRC3Value {
 
 #[derive(Clone, Debug)]
 pub struct ICRC2Transaction {
-    pub phash: Hash,
     pub btype: String,
     pub timestamp: u64,
     pub fee: Option<Nat>,
@@ -311,15 +293,8 @@ pub struct ICRC2TransactionData {
 }
 
 impl ICRC2Transaction {
-    pub fn new(
-        phash: Hash,
-        btype: String,
-        timestamp: u64,
-        fee: Option<Nat>,
-        tx: ICRC2TransactionData,
-    ) -> Self {
+    pub fn new(btype: String, timestamp: u64, fee: Option<Nat>, tx: ICRC2TransactionData) -> Self {
         Self {
-            phash,
             btype,
             timestamp,
             fee,
@@ -457,7 +432,6 @@ impl From<ICRC2Transaction> for ICRC3Value {
 
 #[derive(Clone, Debug)]
 pub struct ICRC7Transaction {
-    pub phash: Hash,
     pub btype: String,
     pub timestamp: u64,
     pub tx: ICRC7TransactionData,
@@ -474,9 +448,8 @@ pub struct ICRC7TransactionData {
 }
 
 impl ICRC7Transaction {
-    pub fn new(phash: Hash, btype: String, timestamp: u64, tx: ICRC7TransactionData) -> Self {
+    pub fn new(btype: String, timestamp: u64, tx: ICRC7TransactionData) -> Self {
         Self {
-            phash,
             btype,
             timestamp,
             tx,
@@ -614,7 +587,6 @@ impl From<ICRC7Transaction> for ICRC3Value {
 
 #[derive(Clone, Debug)]
 pub struct ICRC37Transaction {
-    pub phash: Hash,
     pub btype: String,
     pub timestamp: u64,
     pub tx: ICRC37TransactionData,
@@ -632,9 +604,8 @@ pub struct ICRC37TransactionData {
 }
 
 impl ICRC37Transaction {
-    pub fn new(phash: Hash, btype: String, timestamp: u64, tx: ICRC37TransactionData) -> Self {
+    pub fn new(btype: String, timestamp: u64, tx: ICRC37TransactionData) -> Self {
         Self {
-            phash,
             btype,
             timestamp,
             tx,
