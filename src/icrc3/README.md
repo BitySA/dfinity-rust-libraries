@@ -420,21 +420,47 @@ let icrc3_config = ICRC3Config {
 };
 ```
 
-Each transaction type has specific validation rules:
+## Supported Predefined Transaction Types
+
+ICRC3 now supports several standardized transaction types from Dfinity:
+
+### ICRC1 Transactions (Fungible Tokens)
+- `1mint`: Minting new tokens
+- `1burn`: Burning (destroying) tokens
+- `1xfer`: Transferring tokens between accounts
+
+### ICRC2 Transactions (Token Approvals)
+- `2xfer`: Transferring tokens on behalf of another account
+- `2approve`: Approving another account to spend tokens
+
+### ICRC7 Transactions (NFTs)
+- `7mint`: Minting new NFTs
+- `7burn`: Burning (destroying) NFTs
+- `7xfer`: Transferring NFTs between accounts
+- `7update_token`: Updating NFT metadata
+
+### ICRC37 Transactions (NFT Approvals)
+- `37approve`: Approving a specific NFT for transfer
+- `37approve_coll`: Approving all NFTs in a collection
+- `37revoke`: Revoking approval for a specific NFT
+- `37revoke_coll`: Revoking approval for all NFTs in a collection
+- `37xfer`: Transferring an NFT on behalf of another account
+
+Each transaction type has specific validation rules and required fields. For example:
 
 ```rust
-impl TransactionType for Icrc3Transaction {
+impl TransactionType for ICRC1Transaction {
     fn validate_transaction_fields(&self) -> Result<(), String> {
         match self.btype.as_str() {
-            "7mint" => {
-                if self.tx.from.is_some() {
-                    return Err("From is not allowed for mint".to_string());
-                }
+            "1mint" => {
                 if self.tx.to.is_none() {
                     return Err("To is required for mint".to_string());
                 }
+                if self.tx.from.is_some() {
+                    return Err("From is not allowed for mint".to_string());
+                }
             },
-            "7burn" => {
+            "1burn" => {
                 if self.tx.from.is_none() {
                     return Err("From is required for burn".to_string());
                 }
@@ -442,7 +468,7 @@ impl TransactionType for Icrc3Transaction {
                     return Err("To is not allowed for burn".to_string());
                 }
             },
-            "7xfer" => {
+            "1xfer" => {
                 if self.tx.from.is_none() {
                     return Err("From is required for transfer".to_string());
                 }
@@ -450,13 +476,7 @@ impl TransactionType for Icrc3Transaction {
                     return Err("To is required for transfer".to_string());
                 }
             },
-            "7update_token" => {
-                if self.tx.meta.is_none() {
-                    return Err("Meta is required for update_token".to_string());
-                }
-            },
-            // Add validation for other types
-            _ => {}
+            _ => return Err("Invalid ICRC1 transaction type".to_string()),
         }
         Ok(())
     }
@@ -532,4 +552,119 @@ const archives = await canister.icrc3_get_archives();
 
 ICRC3 is an essential library for any developer wishing to implement efficient and standardized transaction management on the Internet Computer. By following this guide, you can quickly integrate ICRC3 into your canisters and benefit from its advanced transaction management features.
 
-The implementation is flexible enough to accommodate various transaction types while providing a standardized interface for clients to interact with. This makes it particularly valuable for token standards like ICRC1 and ICRC7, as well as any other canister that needs to maintain an auditable history of operations. 
+The implementation is flexible enough to accommodate various transaction types while providing a standardized interface for clients to interact with. This makes it particularly valuable for token standards like ICRC1 and ICRC7, as well as any other canister that needs to maintain an auditable history of operations.
+
+## Transaction Data Structures
+
+Each transaction type has its own specific data structure to handle its unique requirements:
+
+### ICRC1 Transaction Structure
+```rust
+pub struct ICRC1Transaction {
+    pub btype: String,
+    pub timestamp: u64,
+    pub fee: Nat,
+    pub tx: ICRC1TransactionData,
+}
+
+pub struct ICRC1TransactionData {
+    pub op: Option<String>,
+    pub amount: Nat,
+    pub from: Option<Account>,
+    pub to: Option<Account>,
+    pub memo: Option<ByteBuf>,
+    pub created_at_time: Option<Nat>,
+    pub fee: Option<Nat>,
+}
+```
+
+### ICRC2 Transaction Structure
+```rust
+pub struct ICRC2Transaction {
+    pub btype: String,
+    pub timestamp: u64,
+    pub fee: Option<Nat>,
+    pub tx: ICRC2TransactionData,
+}
+
+pub struct ICRC2TransactionData {
+    pub op: Option<String>,
+    pub amount: Nat,
+    pub from: Option<Account>,
+    pub to: Option<Account>,
+    pub spender: Option<Account>,
+    pub memo: Option<ByteBuf>,
+    pub expected_allowance: Option<Nat>,
+    pub expires_at: Option<Nat>,
+}
+```
+
+### ICRC7 Transaction Structure
+```rust
+pub struct ICRC7Transaction {
+    pub btype: String,
+    pub timestamp: u64,
+    pub tx: ICRC7TransactionData,
+}
+
+pub struct ICRC7TransactionData {
+    pub tid: Option<Nat>,
+    pub from: Option<Account>,
+    pub to: Option<Account>,
+    pub meta: Option<ICRC3Value>,
+    pub memo: Option<ByteBuf>,
+    pub created_at_time: Option<Nat>,
+}
+```
+
+### ICRC37 Transaction Structure
+```rust
+pub struct ICRC37Transaction {
+    pub btype: String,
+    pub timestamp: u64,
+    pub tx: ICRC37TransactionData,
+}
+
+pub struct ICRC37TransactionData {
+    pub tid: Option<Nat>,
+    pub from: Option<Account>,
+    pub to: Option<Account>,
+    pub memo: Option<ByteBuf>,
+    pub created_at_time: Option<Nat>,
+    pub spender: Option<Account>,
+    pub exp: Option<Nat>,
+}
+```
+
+Each structure implements the `TransactionType` trait, providing:
+- Validation of transaction fields
+- Timestamp handling
+- Hash generation for transaction uniqueness
+- Block type identification 
+
+## Practical Examples of ICRC3 Transactions
+
+Here are real-world examples of how to use ICRC3 transactions in your canister:
+
+### ICRC7 NFT Transactions
+
+#### Minting an NFT
+```rust
+let transaction = ICRC7Transaction::new(
+    "7mint".to_string(),
+    ic_cdk::api::time(),
+    ICRC7TransactionData {
+        tid: Some(token_id.clone()),
+        from: None,  // No sender for minting
+        to: Some(req.token_owner.clone()),
+        meta: None,
+        memo: req.memo.clone(),
+        created_at_time: Some(Nat::from(ic_cdk::api::time())),
+    },
+);
+
+match icrc3_add_transaction(transaction) {
+    Ok(_) => {},
+    Err(e) => {}
+}
+```
