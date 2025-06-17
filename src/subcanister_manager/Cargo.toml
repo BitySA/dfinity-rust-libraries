@@ -15,6 +15,6 @@ documentation = "https://docs.rs/bity-ic-subcanister-manager"
 ic-cdk = { workspace = true }
 candid = { workspace = true }
 serde = { workspace = true }
-bity-ic-utils = "0.1.0"
+bity-ic-utils = "0.2.0"
 canfund = "0.8.2"
 ic0 = { workspace = true }
