@@ -85,16 +85,16 @@ num-traits = { version = "0.2.12", features = ["libm"] }
 deluxe = "0.5.0"
 lazy_static = "1.4.0"
 
-bity-ic-canister-client = { path = "src/canister_client" }
-bity-ic-canister-logger = { path = "src/canister_logger" }
-bity-ic-canister-state-macros = { path = "src/canister_state_macros" }
-bity-ic-canister-tracing-macros = { path = "src/canister_tracing_macros" }
-bity-ic-canister-time = { path = "src/canister_time" }
-bity-ic-serializer = { path = "src/serializer" }
-bity-ic-stable-memory = { path = "src/stable_memory" }
-bity-ic-types = { path = "src/types" }
-bity-ic-utils = { path = "src/utils" }
-bity-ic-subcanister-manager = { path = "src/subcanister_manager" }
-bity-ic-icrc3-archive-api = { path = "src/icrc3_archive_api" }
-bity-ic-icrc3-archive-c2c-client = { path = "src/icrc3_archive_c2c_client" }
-bity-ic-icrc3 = { path = "src/icrc3" }
+bity-ic-canister-client = "0.2.0"
+bity-ic-canister-logger = "0.2.0"
+bity-ic-canister-state-macros = "0.1.0"
+bity-ic-canister-tracing-macros = "0.1.0"
+bity-ic-canister-time = "0.2.0"
+bity-ic-serializer = "0.1.0"
+bity-ic-stable-memory = "0.2.0"
+bity-ic-types = "0.1.0"
+bity-ic-utils = "0.2.0"
+bity-ic-subcanister-manager = "0.3.0"
+bity-ic-icrc3-archive-api = "0.3.0"
+bity-ic-icrc3-archive-c2c-client = "0.3.0"
+bity-ic-icrc3 = "0.3.1"
