@@ -136,7 +136,7 @@ macro_rules! generate_c2c_call {
         pub async fn $method_name(
             canister_id: bity_ic_types::CanisterId,
             args: &$method_name::Args,
-        ) -> ic_cdk::api::call::CallResult<$method_name::Response> {
+        ) -> ic_cdk::call::CallResult<$method_name::Response> {
             let method_name = concat!(stringify!($method_name), "_msgpack");
 
             bity_ic_canister_client::make_c2c_call(
@@ -179,7 +179,7 @@ macro_rules! generate_candid_c2c_call {
         pub async fn $method_name<A>(
             canister_id: bity_ic_types::CanisterId,
             args: A,
-        ) -> ic_cdk::api::call::CallResult<$method_name::Response>
+        ) -> ic_cdk::call::CallResult<$method_name::Response>
         where
             A: std::borrow::Borrow<$method_name::Args>,
         {
@@ -222,7 +222,7 @@ macro_rules! generate_candid_c2c_call_with_payment {
             canister_id: bity_ic_types::CanisterId,
             args: &$method_name::Args,
             cycles: ::types::Cycles,
-        ) -> ::ic_cdk::api::call::CallResult<$method_name::Response> {
+        ) -> ::ic_cdk::call::CallResult<$method_name::Response> {
             let method_name = stringify!($method_name);
 
             bity_ic_canister_client::make_c2c_call_with_payment(
@@ -266,7 +266,7 @@ macro_rules! generate_candid_c2c_call_tuple_args {
         pub async fn $method_name(
             canister_id: bity_ic_types::CanisterId,
             args: $method_name::Args,
-        ) -> ::ic_cdk::api::call::CallResult<$method_name::Response> {
+        ) -> ::ic_cdk::call::CallResult<$method_name::Response> {
             let method_name = stringify!($external_canister_method_name);
 
             bity_ic_canister_client::make_c2c_call(
@@ -308,7 +308,7 @@ macro_rules! generate_candid_c2c_call_no_args {
     ($method_name:ident, $external_canister_method_name:ident) => {
         pub async fn $method_name(
             canister_id: bity_ic_types::CanisterId,
-        ) -> ic_cdk::api::call::CallResult<$method_name::Response> {
+        ) -> ic_cdk::call::CallResult<$method_name::Response> {
             let method_name = stringify!($external_canister_method_name);
 
             bity_ic_canister_client::make_c2c_call(
