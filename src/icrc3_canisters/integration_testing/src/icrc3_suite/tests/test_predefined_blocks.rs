@@ -133,6 +133,7 @@ fn test_icrc7_transaction_validation() {
         "7mint".to_string(),
         1234567890,
         ICRC7TransactionData {
+            op: "7mint".to_string(),
             tid: Some(Nat::from(1u64)),
             from: None,
             to: Some(Account {
@@ -151,6 +152,7 @@ fn test_icrc7_transaction_validation() {
         "7burn".to_string(),
         1234567890,
         ICRC7TransactionData {
+            op: "7burn".to_string(),
             tid: Some(Nat::from(1u64)),
             from: Some(Account {
                 owner: candid::Principal::from_str("aaaaa-aa").unwrap(),
@@ -169,6 +171,7 @@ fn test_icrc7_transaction_validation() {
         "7xfer".to_string(),
         1234567890,
         ICRC7TransactionData {
+            op: "7xfer".to_string(),
             tid: Some(Nat::from(1u64)),
             from: Some(Account {
                 owner: candid::Principal::from_str("aaaaa-aa").unwrap(),
@@ -193,6 +196,7 @@ fn test_icrc37_transaction_validation() {
         "37approve".to_string(),
         1234567890,
         ICRC37TransactionData {
+            op: "37approve".to_string(),
             tid: Some(Nat::from(1u64)),
             from: Some(Account {
                 owner: candid::Principal::from_str("aaaaa-aa").unwrap(),
@@ -215,6 +219,7 @@ fn test_icrc37_transaction_validation() {
         "37approve_coll".to_string(),
         1234567890,
         ICRC37TransactionData {
+            op: "37approve_coll".to_string(),
             tid: None,
             from: Some(Account {
                 owner: candid::Principal::from_str("aaaaa-aa").unwrap(),
@@ -237,6 +242,7 @@ fn test_icrc37_transaction_validation() {
         "37xfer".to_string(),
         1234567890,
         ICRC37TransactionData {
+            op: "37xfer".to_string(),
             tid: Some(Nat::from(1u64)),
             from: Some(Account {
                 owner: candid::Principal::from_str("aaaaa-aa").unwrap(),
@@ -464,6 +470,7 @@ fn test_invalid_transactions() {
         "7mint".to_string(),
         1234567890,
         ICRC7TransactionData {
+            op: "7mint".to_string(),
             tid: Some(Nat::from(1u64)),
             from: None,
             to: Some(Account {
@@ -482,6 +489,7 @@ fn test_invalid_transactions() {
         "7mint".to_string(),
         1234567890,
         ICRC7TransactionData {
+            op: "7mint".to_string(),
             tid: None,
             from: None,
             to: Some(Account {
@@ -502,6 +510,7 @@ fn test_invalid_transactions() {
         "7burn".to_string(),
         1234567890,
         ICRC7TransactionData {
+            op: "7burn".to_string(),
             tid: Some(Nat::from(1u64)),
             from: Some(Account {
                 owner: candid::Principal::from_str("aaaaa-aa").unwrap(),
@@ -523,6 +532,7 @@ fn test_invalid_transactions() {
         "7update_token".to_string(),
         1234567890,
         ICRC7TransactionData {
+            op: "7update_token".to_string(),
             tid: Some(Nat::from(1u64)),
             from: Some(Account {
                 owner: candid::Principal::from_str("aaaaa-aa").unwrap(),
@@ -543,6 +553,7 @@ fn test_invalid_transactions() {
         "37approve".to_string(),
         1234567890,
         ICRC37TransactionData {
+            op: "37approve".to_string(),
             tid: Some(Nat::from(1u64)),
             from: Some(Account {
                 owner: candid::Principal::from_str("aaaaa-aa").unwrap(),
@@ -568,6 +579,7 @@ fn test_invalid_transactions() {
         "37approve".to_string(),
         1234567890,
         ICRC37TransactionData {
+            op: "37approve".to_string(),
             tid: Some(Nat::from(1u64)),
             from: Some(Account {
                 owner: candid::Principal::from_str("aaaaa-aa").unwrap(),
@@ -589,6 +601,7 @@ fn test_invalid_transactions() {
         "37approve_coll".to_string(),
         1234567890,
         ICRC37TransactionData {
+            op: "37approve_coll".to_string(),
             tid: Some(Nat::from(1u64)),
             from: Some(Account {
                 owner: candid::Principal::from_str("aaaaa-aa").unwrap(),
@@ -613,6 +626,7 @@ fn test_invalid_transactions() {
         "37xfer".to_string(),
         1234567890,
         ICRC37TransactionData {
+            op: "37xfer".to_string(),
             tid: Some(Nat::from(1u64)),
             from: Some(Account {
                 owner: candid::Principal::from_str("aaaaa-aa").unwrap(),
@@ -637,6 +651,7 @@ fn test_invalid_transactions() {
         "37xfer".to_string(),
         1234567890,
         ICRC37TransactionData {
+            op: "37xfer".to_string(),
             tid: Some(Nat::from(1u64)),
             from: Some(Account {
                 owner: candid::Principal::from_str("aaaaa-aa").unwrap(),

@@ -230,7 +230,7 @@ impl From<ICRC3> for Certificate {
         let leaf2 = leaf(last_block_hash.as_slice());
 
         let hash_tree = fork(leaf1, leaf2);
-        ic_cdk::api::set_certified_data(&hash_tree.digest());
+        ic_cdk::api::certified_data_set(&hash_tree.digest());
         let certificate = ic_cdk::api::data_certificate().expect("No data certificate available");
         Certificate {
             tree: hash_tree,

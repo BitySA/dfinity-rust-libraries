@@ -119,7 +119,7 @@ pub fn icrc3_state(_input: TokenStream) -> TokenStream {
 
         pub fn start_archive_job(interval_ms: u64) {
             run_interval(Duration::from_millis(interval_ms), || {
-                ic_cdk::spawn(async {
+                ic_cdk::futures::spawn(async {
                     match ICRC3_INSTANCE.write() {
                         Ok(mut lock) => {
                             if let Some(icrc3) = lock.as_mut() {

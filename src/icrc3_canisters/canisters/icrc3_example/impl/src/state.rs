@@ -82,6 +82,11 @@ impl Data {
 pub struct FakeTransaction {
     pub btype: String,
     pub timestamp: u64,
+    pub tx: FakeTransactionData,
+}
+
+#[derive(CandidType, Serialize, Deserialize, Clone, Debug)]
+pub struct FakeTransactionData {
     pub sender: Principal,
     pub recipient: Principal,
 }
@@ -91,8 +96,10 @@ impl Default for FakeTransaction {
         Self {
             btype: "".to_string(),
             timestamp: 0,
-            sender: Principal::anonymous(),
-            recipient: Principal::anonymous(),
+            tx: FakeTransactionData {
+                sender: Principal::anonymous(),
+                recipient: Principal::anonymous(),
+            },
         }
     }
 }
@@ -108,8 +115,10 @@ impl FakeTransaction {
         Self {
             btype: "btype_test".to_string(),
             timestamp: now,
-            sender: Principal::anonymous(),
-            recipient: Principal::anonymous(),
+            tx: FakeTransactionData {
+                sender: Principal::anonymous(),
+                recipient: Principal::anonymous(),
+            },
         }
     }
 }
@@ -123,17 +132,27 @@ impl TransactionType for FakeTransaction {
         Some(self.timestamp)
     }
 
-    fn hash(&self) -> Hash {
-        let mut hasher = Sha256::new();
-        hasher.update(self.btype.as_bytes());
-        hasher.update(self.timestamp.to_le_bytes().as_slice());
-        hasher.update(self.sender.as_slice());
-        hasher.update(self.recipient.as_slice());
-        hasher.finalize().into()
-    }
-
     fn block_type(&self) -> String {
         self.btype.clone()
+    }
+
+    fn tx(&self) -> ICRC3Value {
+        self.clone().into()
+    }
+}
+
+impl From<FakeTransactionData> for ICRC3Value {
+    fn from(tx: FakeTransactionData) -> Self {
+        let mut map = BTreeMap::new();
+        map.insert(
+            "sender".to_string(),
+            ICRC3Value::Text(tx.sender.to_string()),
+        );
+        map.insert(
+            "recipient".to_string(),
+            ICRC3Value::Text(tx.recipient.to_string()),
+        );
+        ICRC3Value::Map(map)
     }
 }
 
@@ -145,14 +164,7 @@ impl From<FakeTransaction> for ICRC3Value {
             "timestamp".to_string(),
             ICRC3Value::Nat(Nat::from(tx.timestamp)),
         );
-        map.insert(
-            "sender".to_string(),
-            ICRC3Value::Text(tx.sender.to_string()),
-        );
-        map.insert(
-            "recipient".to_string(),
-            ICRC3Value::Text(tx.recipient.to_string()),
-        );
+        map.insert("tx".to_string(), tx.tx.into());
         ICRC3Value::Map(map)
     }
 }

@@ -3,7 +3,6 @@ use candid::Nat;
 use icrc_ledger_types::icrc::generic_value::ICRC3Value;
 use icrc_ledger_types::icrc1::account::Account;
 use serde_bytes::ByteBuf;
-use sha2::{Digest, Sha256};
 use std::collections::BTreeMap;
 
 use crate::utils::trace;
@@ -38,11 +37,6 @@ pub type Hash = [u8; HASH_LENGTH];
 ///         // timestamp logic
 ///         None
 ///     }
-///     
-///     fn hash(&self) -> Hash {
-///         // hashing logic
-///         [0u8; 32]
-///     }
 /// }
 /// ```
 pub trait TransactionType: Sized + Clone + Into<ICRC3Value> {
@@ -60,8 +54,8 @@ pub trait TransactionType: Sized + Clone + Into<ICRC3Value> {
     /// Returns the timestamp of the transaction if available.
     fn timestamp(&self) -> Option<TimestampSeconds>;
 
-    /// Computes and returns the hash of the transaction.
-    fn hash(&self) -> Hash;
+    /// Returns the transaction data.
+    fn tx(&self) -> ICRC3Value;
 
     fn block_type(&self) -> String;
 }
@@ -209,32 +203,38 @@ impl TransactionType for ICRC1Transaction {
         Some(self.timestamp)
     }
 
-    fn hash(&self) -> Hash {
-        let mut hasher = Sha256::new();
-        hasher.update(self.btype.as_bytes());
-        hasher.update(self.timestamp.to_le_bytes().as_slice());
-        hasher.update(self.fee.0.to_bytes_le());
-        if let Some(op) = &self.tx.op {
-            hasher.update(op.as_bytes());
-        }
-        hasher.update(self.tx.amount.0.to_bytes_le());
-        if let Some(from) = &self.tx.from {
-            hasher.update(from.owner.as_slice());
-        }
-        if let Some(to) = &self.tx.to {
-            hasher.update(to.owner.as_slice());
-        }
-        if let Some(memo) = &self.tx.memo {
-            hasher.update(memo.as_slice());
-        }
-        if let Some(time) = &self.tx.created_at_time {
-            hasher.update(time.0.to_bytes_le());
-        }
-        hasher.finalize().into()
+    fn tx(&self) -> ICRC3Value {
+        self.tx.clone().into()
     }
 
     fn block_type(&self) -> String {
         self.btype.clone()
+    }
+}
+
+impl From<ICRC1TransactionData> for ICRC3Value {
+    fn from(tx: ICRC1TransactionData) -> Self {
+        let mut tx_map = BTreeMap::new();
+        if let Some(fee) = tx.fee {
+            tx_map.insert("fee".to_string(), ICRC3Value::Nat(fee));
+        }
+        if let Some(op) = tx.op {
+            tx_map.insert("op".to_string(), ICRC3Value::Text(op));
+        }
+        tx_map.insert("amt".to_string(), ICRC3Value::Nat(tx.amount));
+        if let Some(from) = tx.from {
+            tx_map.insert("from".to_string(), ICRC3Value::Text(from.owner.to_string()));
+        }
+        if let Some(to) = tx.to {
+            tx_map.insert("to".to_string(), ICRC3Value::Text(to.owner.to_string()));
+        }
+        if let Some(memo) = tx.memo {
+            tx_map.insert("memo".to_string(), ICRC3Value::Blob(memo));
+        }
+        if let Some(time) = tx.created_at_time {
+            tx_map.insert("ts".to_string(), ICRC3Value::Nat(time));
+        }
+        ICRC3Value::Map(tx_map)
     }
 }
 
@@ -244,29 +244,8 @@ impl From<ICRC1Transaction> for ICRC3Value {
         map.insert("btype".to_string(), ICRC3Value::Text(tx.btype));
         map.insert("ts".to_string(), ICRC3Value::Nat(Nat::from(tx.timestamp)));
 
-        let mut tx_map = BTreeMap::new();
-        if let Some(fee) = tx.tx.fee {
-            tx_map.insert("fee".to_string(), ICRC3Value::Nat(fee));
-        } else {
-            map.insert("fee".to_string(), ICRC3Value::Nat(tx.fee));
-        }
-        if let Some(op) = tx.tx.op {
-            tx_map.insert("op".to_string(), ICRC3Value::Text(op));
-        }
-        tx_map.insert("amt".to_string(), ICRC3Value::Nat(tx.tx.amount));
-        if let Some(from) = tx.tx.from {
-            tx_map.insert("from".to_string(), ICRC3Value::Text(from.owner.to_string()));
-        }
-        if let Some(to) = tx.tx.to {
-            tx_map.insert("to".to_string(), ICRC3Value::Text(to.owner.to_string()));
-        }
-        if let Some(memo) = tx.tx.memo {
-            tx_map.insert("memo".to_string(), ICRC3Value::Blob(memo));
-        }
-        if let Some(time) = tx.tx.created_at_time {
-            tx_map.insert("ts".to_string(), ICRC3Value::Nat(time));
-        }
-        map.insert("tx".to_string(), ICRC3Value::Map(tx_map));
+        let tx_value = tx.tx.into();
+        map.insert("tx".to_string(), tx_value);
 
         ICRC3Value::Map(map)
     }
@@ -346,40 +325,47 @@ impl TransactionType for ICRC2Transaction {
         Some(self.timestamp)
     }
 
-    fn hash(&self) -> Hash {
-        let mut hasher = Sha256::new();
-        hasher.update(self.btype.as_bytes());
-        hasher.update(self.timestamp.to_le_bytes().as_slice());
-        if let Some(fee) = &self.fee {
-            hasher.update(fee.0.to_bytes_le());
-        }
-        if let Some(op) = &self.tx.op {
-            hasher.update(op.as_bytes());
-        }
-        hasher.update(self.tx.amount.0.to_bytes_le());
-        if let Some(from) = &self.tx.from {
-            hasher.update(from.owner.as_slice());
-        }
-        if let Some(to) = &self.tx.to {
-            hasher.update(to.owner.as_slice());
-        }
-        if let Some(spender) = &self.tx.spender {
-            hasher.update(spender.owner.as_slice());
-        }
-        if let Some(memo) = &self.tx.memo {
-            hasher.update(memo.as_slice());
-        }
-        if let Some(expected_allowance) = &self.tx.expected_allowance {
-            hasher.update(expected_allowance.0.to_bytes_le());
-        }
-        if let Some(expires_at) = &self.tx.expires_at {
-            hasher.update(expires_at.0.to_bytes_le());
-        }
-        hasher.finalize().into()
+    fn tx(&self) -> ICRC3Value {
+        self.tx.clone().into()
     }
 
     fn block_type(&self) -> String {
         self.btype.clone()
+    }
+}
+
+impl From<ICRC2TransactionData> for ICRC3Value {
+    fn from(tx: ICRC2TransactionData) -> Self {
+        let mut tx_map = BTreeMap::new();
+        if let Some(op) = tx.op {
+            tx_map.insert("op".to_string(), ICRC3Value::Text(op));
+        }
+        tx_map.insert("amt".to_string(), ICRC3Value::Nat(tx.amount));
+        if let Some(from) = tx.from {
+            tx_map.insert("from".to_string(), ICRC3Value::Text(from.owner.to_string()));
+        }
+        if let Some(to) = tx.to {
+            tx_map.insert("to".to_string(), ICRC3Value::Text(to.owner.to_string()));
+        }
+        if let Some(spender) = tx.spender {
+            tx_map.insert(
+                "spender".to_string(),
+                ICRC3Value::Text(spender.owner.to_string()),
+            );
+        }
+        if let Some(memo) = tx.memo {
+            tx_map.insert("memo".to_string(), ICRC3Value::Blob(memo));
+        }
+        if let Some(expected_allowance) = tx.expected_allowance {
+            tx_map.insert(
+                "expected_allowance".to_string(),
+                ICRC3Value::Nat(expected_allowance),
+            );
+        }
+        if let Some(expires_at) = tx.expires_at {
+            tx_map.insert("expires_at".to_string(), ICRC3Value::Nat(expires_at));
+        }
+        ICRC3Value::Map(tx_map)
     }
 }
 
@@ -395,36 +381,8 @@ impl From<ICRC2Transaction> for ICRC3Value {
             map.insert("fee".to_string(), ICRC3Value::Nat(fee));
         }
 
-        let mut tx_map = BTreeMap::new();
-        if let Some(op) = tx.tx.op {
-            tx_map.insert("op".to_string(), ICRC3Value::Text(op));
-        }
-        tx_map.insert("amt".to_string(), ICRC3Value::Nat(tx.tx.amount));
-        if let Some(from) = tx.tx.from {
-            tx_map.insert("from".to_string(), ICRC3Value::Text(from.owner.to_string()));
-        }
-        if let Some(to) = tx.tx.to {
-            tx_map.insert("to".to_string(), ICRC3Value::Text(to.owner.to_string()));
-        }
-        if let Some(spender) = tx.tx.spender {
-            tx_map.insert(
-                "spender".to_string(),
-                ICRC3Value::Text(spender.owner.to_string()),
-            );
-        }
-        if let Some(memo) = tx.tx.memo {
-            tx_map.insert("memo".to_string(), ICRC3Value::Blob(memo));
-        }
-        if let Some(expected_allowance) = tx.tx.expected_allowance {
-            tx_map.insert(
-                "expected_allowance".to_string(),
-                ICRC3Value::Nat(expected_allowance),
-            );
-        }
-        if let Some(expires_at) = tx.tx.expires_at {
-            tx_map.insert("expires_at".to_string(), ICRC3Value::Nat(expires_at));
-        }
-        map.insert("tx".to_string(), ICRC3Value::Map(tx_map));
+        let tx_value = tx.tx.into();
+        map.insert("tx".to_string(), tx_value);
 
         ICRC3Value::Map(map)
     }
@@ -439,6 +397,7 @@ pub struct ICRC7Transaction {
 
 #[derive(Clone, Debug)]
 pub struct ICRC7TransactionData {
+    pub op: String, // need to be == to btype
     pub tid: Option<Nat>,
     pub from: Option<Account>,
     pub to: Option<Account>,
@@ -459,6 +418,9 @@ impl ICRC7Transaction {
 
 impl TransactionType for ICRC7Transaction {
     fn validate_transaction_fields(&self) -> Result<(), String> {
+        if self.btype != self.tx.op {
+            return Err("btype and op must be the same".to_string());
+        }
         match self.btype.as_str() {
             "7mint" => {
                 if self.tx.tid.is_none() {
@@ -525,33 +487,37 @@ impl TransactionType for ICRC7Transaction {
         Some(self.timestamp)
     }
 
-    fn hash(&self) -> Hash {
-        let mut hasher = Sha256::new();
-        hasher.update(self.btype.as_bytes());
-        hasher.update(self.timestamp.to_le_bytes().as_slice());
-        if let Some(tid) = &self.tx.tid {
-            hasher.update(tid.0.to_bytes_le());
-        }
-        if let Some(from) = &self.tx.from {
-            hasher.update(from.owner.as_slice());
-        }
-        if let Some(to) = &self.tx.to {
-            hasher.update(to.owner.as_slice());
-        }
-        if let Some(meta) = &self.tx.meta {
-            hasher.update(serde_cbor::to_vec(meta).unwrap_or_default());
-        }
-        if let Some(memo) = &self.tx.memo {
-            hasher.update(memo.as_slice());
-        }
-        if let Some(time) = &self.tx.created_at_time {
-            hasher.update(time.0.to_bytes_le());
-        }
-        hasher.finalize().into()
-    }
-
     fn block_type(&self) -> String {
         self.btype.clone()
+    }
+
+    fn tx(&self) -> ICRC3Value {
+        self.tx.clone().into()
+    }
+}
+
+impl From<ICRC7TransactionData> for ICRC3Value {
+    fn from(tx: ICRC7TransactionData) -> Self {
+        let mut tx_map = BTreeMap::new();
+        if let Some(tid) = tx.tid {
+            tx_map.insert("tid".to_string(), ICRC3Value::Nat(tid));
+        }
+        if let Some(from) = tx.from {
+            tx_map.insert("from".to_string(), ICRC3Value::Text(from.owner.to_string()));
+        }
+        if let Some(to) = tx.to {
+            tx_map.insert("to".to_string(), ICRC3Value::Text(to.owner.to_string()));
+        }
+        if let Some(meta) = tx.meta {
+            tx_map.insert("meta".to_string(), meta);
+        }
+        if let Some(memo) = tx.memo {
+            tx_map.insert("memo".to_string(), ICRC3Value::Blob(memo));
+        }
+        if let Some(time) = tx.created_at_time {
+            tx_map.insert("created_at_time".to_string(), ICRC3Value::Nat(time));
+        }
+        ICRC3Value::Map(tx_map)
     }
 }
 
@@ -563,24 +529,10 @@ impl From<ICRC7Transaction> for ICRC3Value {
             "timestamp".to_string(),
             ICRC3Value::Nat(Nat::from(tx.timestamp)),
         );
-        if let Some(tid) = tx.tx.tid {
-            map.insert("tid".to_string(), ICRC3Value::Nat(tid));
-        }
-        if let Some(from) = tx.tx.from {
-            map.insert("from".to_string(), ICRC3Value::Text(from.owner.to_string()));
-        }
-        if let Some(to) = tx.tx.to {
-            map.insert("to".to_string(), ICRC3Value::Text(to.owner.to_string()));
-        }
-        if let Some(meta) = tx.tx.meta {
-            map.insert("meta".to_string(), meta);
-        }
-        if let Some(memo) = tx.tx.memo {
-            map.insert("memo".to_string(), ICRC3Value::Blob(memo));
-        }
-        if let Some(time) = tx.tx.created_at_time {
-            map.insert("created_at_time".to_string(), ICRC3Value::Nat(time));
-        }
+
+        let tx_value = tx.tx.into();
+        map.insert("tx".to_string(), tx_value);
+
         ICRC3Value::Map(map)
     }
 }
@@ -594,6 +546,7 @@ pub struct ICRC37Transaction {
 
 #[derive(Clone, Debug)]
 pub struct ICRC37TransactionData {
+    pub op: String, // need to be == to btype
     pub tid: Option<Nat>,
     pub from: Option<Account>,
     pub to: Option<Account>,
@@ -615,6 +568,9 @@ impl ICRC37Transaction {
 
 impl TransactionType for ICRC37Transaction {
     fn validate_transaction_fields(&self) -> Result<(), String> {
+        if self.btype != self.tx.op {
+            return Err("btype and op must be the same".to_string());
+        }
         match self.btype.as_str() {
             "37approve" => {
                 if self.tx.tid.is_none() {
@@ -698,36 +654,43 @@ impl TransactionType for ICRC37Transaction {
         Some(self.timestamp)
     }
 
-    fn hash(&self) -> Hash {
-        let mut hasher = Sha256::new();
-        hasher.update(self.btype.as_bytes());
-        hasher.update(self.timestamp.to_le_bytes().as_slice());
-        if let Some(tid) = &self.tx.tid {
-            hasher.update(tid.0.to_bytes_le());
-        }
-        if let Some(from) = &self.tx.from {
-            hasher.update(from.owner.as_slice());
-        }
-        if let Some(to) = &self.tx.to {
-            hasher.update(to.owner.as_slice());
-        }
-        if let Some(spender) = &self.tx.spender {
-            hasher.update(spender.owner.as_slice());
-        }
-        if let Some(exp) = &self.tx.exp {
-            hasher.update(exp.0.to_bytes_le());
-        }
-        if let Some(memo) = &self.tx.memo {
-            hasher.update(memo.as_slice());
-        }
-        if let Some(time) = &self.tx.created_at_time {
-            hasher.update(time.0.to_bytes_le());
-        }
-        hasher.finalize().into()
-    }
-
     fn block_type(&self) -> String {
         self.btype.clone()
+    }
+
+    fn tx(&self) -> ICRC3Value {
+        self.tx.clone().into()
+    }
+}
+
+impl From<ICRC37TransactionData> for ICRC3Value {
+    fn from(tx: ICRC37TransactionData) -> Self {
+        let mut tx_map = BTreeMap::new();
+        if let Some(tid) = tx.tid {
+            tx_map.insert("tid".to_string(), ICRC3Value::Nat(tid));
+        }
+        if let Some(from) = tx.from {
+            tx_map.insert("from".to_string(), ICRC3Value::Text(from.owner.to_string()));
+        }
+        if let Some(spender) = tx.spender {
+            tx_map.insert(
+                "spender".to_string(),
+                ICRC3Value::Text(spender.owner.to_string()),
+            );
+        }
+        if let Some(exp) = tx.exp {
+            tx_map.insert("exp".to_string(), ICRC3Value::Nat(exp));
+        }
+        if let Some(to) = tx.to {
+            tx_map.insert("to".to_string(), ICRC3Value::Text(to.owner.to_string()));
+        }
+        if let Some(memo) = tx.memo {
+            tx_map.insert("memo".to_string(), ICRC3Value::Blob(memo));
+        }
+        if let Some(time) = tx.created_at_time {
+            tx_map.insert("created_at_time".to_string(), ICRC3Value::Nat(time));
+        }
+        ICRC3Value::Map(tx_map)
     }
 }
 
@@ -739,30 +702,10 @@ impl From<ICRC37Transaction> for ICRC3Value {
             "timestamp".to_string(),
             ICRC3Value::Nat(Nat::from(tx.timestamp)),
         );
-        if let Some(tid) = tx.tx.tid {
-            map.insert("tid".to_string(), ICRC3Value::Nat(tid));
-        }
-        if let Some(from) = tx.tx.from {
-            map.insert("from".to_string(), ICRC3Value::Text(from.owner.to_string()));
-        }
-        if let Some(spender) = tx.tx.spender {
-            map.insert(
-                "spender".to_string(),
-                ICRC3Value::Text(spender.owner.to_string()),
-            );
-        }
-        if let Some(exp) = tx.tx.exp {
-            map.insert("exp".to_string(), ICRC3Value::Nat(exp));
-        }
-        if let Some(to) = tx.tx.to {
-            map.insert("to".to_string(), ICRC3Value::Text(to.owner.to_string()));
-        }
-        if let Some(memo) = tx.tx.memo {
-            map.insert("memo".to_string(), ICRC3Value::Blob(memo));
-        }
-        if let Some(time) = tx.tx.created_at_time {
-            map.insert("created_at_time".to_string(), ICRC3Value::Nat(time));
-        }
+
+        let tx_value = tx.tx.into();
+        map.insert("tx".to_string(), tx_value);
+
         ICRC3Value::Map(map)
     }
 }

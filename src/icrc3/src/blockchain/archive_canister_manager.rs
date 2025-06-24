@@ -39,7 +39,7 @@ pub struct ArchiveCanisterManager {
 impl Default for ArchiveCanisterManager {
     /// Creates a default ArchiveCanisterManager with default settings.
     fn default() -> Self {
-        let this_canister_id = ic_cdk::api::id();
+        let this_canister_id = ic_cdk::api::canister_self();
         let version = bity_ic_icrc3_archive_api::VERSION.to_string();
         let mut hasher = Sha256::new();
         hasher.update(version.as_bytes());
@@ -47,10 +47,10 @@ impl Default for ArchiveCanisterManager {
 
         Self {
             sub_canister_manager: SubCanisterManager::new(
-                ic_cdk::api::id(),
+                ic_cdk::api::canister_self(),
                 HashMap::new(),
-                vec![ic_cdk::api::id()],
-                vec![ic_cdk::api::id()],
+                vec![ic_cdk::api::canister_self()],
+                vec![ic_cdk::api::canister_self()],
                 DEFAULT_INITIAL_CYCLES,
                 DEFAULT_RESERVED_CYCLES,
                 false,
@@ -119,7 +119,7 @@ impl ArchiveCanisterManager {
 
         Self {
             sub_canister_manager: SubCanisterManager::new(
-                ic_cdk::api::id(),
+                ic_cdk::api::canister_self(),
                 sub_canisters,
                 controllers,
                 authorized_principal,

@@ -140,7 +140,7 @@ impl ICRC3Interface for ICRC3 {
             return Err(Icrc3Error::Icrc3Error("Unsupported block type".to_string()));
         }
 
-        let transaction_hash = transaction.hash();
+        let transaction_hash = transaction.tx().hash();
 
         checked_transaction = ICRC3Value::Map(match checked_transaction {
             ICRC3Value::Map(mut map) => {
