@@ -499,6 +499,7 @@ impl TransactionType for ICRC7Transaction {
 impl From<ICRC7TransactionData> for ICRC3Value {
     fn from(tx: ICRC7TransactionData) -> Self {
         let mut tx_map = BTreeMap::new();
+        tx_map.insert("op".to_string(), ICRC3Value::Text(tx.op));
         if let Some(tid) = tx.tid {
             tx_map.insert("tid".to_string(), ICRC3Value::Nat(tid));
         }
@@ -666,6 +667,7 @@ impl TransactionType for ICRC37Transaction {
 impl From<ICRC37TransactionData> for ICRC3Value {
     fn from(tx: ICRC37TransactionData) -> Self {
         let mut tx_map = BTreeMap::new();
+        tx_map.insert("op".to_string(), ICRC3Value::Text(tx.op));
         if let Some(tid) = tx.tid {
             tx_map.insert("tid".to_string(), ICRC3Value::Nat(tid));
         }
