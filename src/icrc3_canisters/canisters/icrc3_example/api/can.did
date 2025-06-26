@@ -6,6 +6,12 @@ type Args = variant { Upgrade : UpgradeArgs; Init : InitArgs };
 type BlockWithId = record { id : nat; block : ICRC3Value };
 type BuildVersion = record { major : nat32; minor : nat32; patch : nat32 };
 type Duration = record { secs : nat64; nanos : nat32 };
+type FakeTransaction = record {
+  tx : FakeTransactionData;
+  timestamp : nat64;
+  btype : text;
+};
+type FakeTransactionData = record { recipient : principal; sender : principal };
 type GetBlocksRequest = record { start : nat; length : nat };
 type GetBlocksResult = record {
   log_length : nat;
@@ -48,11 +54,14 @@ type InitArgs = record {
   icrc3_config : ICRC3Config;
   commit_hash : text;
 };
+type Result = variant { Ok; Err : text };
 type SupportedBlockType = record { url : text; block_type : text };
 type UpgradeArgs = record { version : BuildVersion; commit_hash : text };
 service : (Args) -> {
+  add_created_transaction : (FakeTransaction) -> (Result);
   add_random_transaction : (null) -> (null);
   add_same_transactions : (null) -> (null);
+  create_transactions : (null) -> (FakeTransaction) query;
   icrc3_get_archives : (null) -> (vec ICRC3ArchiveInfo) query;
   icrc3_get_blocks : (vec GetBlocksRequest) -> (GetBlocksResult) query;
   icrc3_get_properties : (null) -> (ICRC3Properties) query;

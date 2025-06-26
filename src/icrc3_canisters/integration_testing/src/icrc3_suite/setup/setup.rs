@@ -51,7 +51,7 @@ impl TestEnvBuilder {
         let mut constants = ICRC3Properties::default();
 
         // constants.max_memory_size_bytes = 1000;
-        constants.max_memory_size_bytes = 60000;
+        constants.max_memory_size_bytes = 600000;
         constants.tx_window = Duration::from_millis(500);
         constants.max_transactions_in_window = 10;
         constants.max_transactions_to_purge = 5;
