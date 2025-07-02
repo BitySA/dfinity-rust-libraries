@@ -4,6 +4,7 @@ use crate::config::ICRC3Config;
 use crate::utils::{get_timestamp, last_block_hash_tree, trace};
 
 use bity_ic_icrc3_archive_api::types::hash::HashOf;
+use bity_ic_types::TimestampNanos;
 use candid::Nat;
 use ic_certification::AsHashTree;
 use icrc_ledger_types::icrc::generic_value::ICRC3Value;
@@ -24,12 +25,14 @@ pub const PERMITTED_DRIFT: Duration = Duration::from_millis(100);
 ///
 /// * `blockchain` - The blockchain implementation
 /// * `ledger` - A queue of recent transactions
+/// * `prepared_transactions` - A FIFO queue of prepared transaction hashes
 /// * `last_index` - The index of the last transaction
 /// * `icrc3_config` - Configuration parameters
 #[derive(Serialize, Deserialize)]
 pub struct ICRC3 {
     pub blockchain: Blockchain,
     pub ledger: VecDeque<ICRC3Value>,
+    pub prepared_transactions: VecDeque<(String, TimestampNanos)>,
     pub last_index: u64,
     pub last_phash: Option<ByteBuf>,
     pub icrc3_config: ICRC3Config,
@@ -59,6 +62,7 @@ impl ICRC3 {
                 icrc3_config.constants.max_unarchived_transactions,
             ),
             ledger: VecDeque::new(),
+            prepared_transactions: VecDeque::new(),
             last_index: 0,
             last_phash: None,
             icrc3_config,
@@ -106,6 +110,7 @@ impl ICRC3 {
     ///
     /// Removes transactions older than `now - transaction_window` up to
     /// the maximum number of transactions specified in the configuration.
+    /// Only removes committed transactions, not prepared ones.
     ///
     /// # Arguments
     ///
@@ -148,6 +153,48 @@ impl ICRC3 {
         ));
 
         num_tx_purged
+    }
+
+    /// Cleans up expired prepared transactions.
+    ///
+    /// Removes prepared transactions that have been in the ledger for more than 24 hours.
+    /// This is a separate cleanup mechanism for prepared transactions that were never committed.
+    ///
+    /// # Arguments
+    ///
+    /// * `now` - The current timestamp in nanoseconds
+    ///
+    /// # Returns
+    ///
+    /// The number of expired prepared transactions that were removed
+    pub fn cleanup_expired_prepared_transactions(&mut self, now: u128) -> usize {
+        let one_day_nanos = 24 * 60 * 60 * 1_000_000_000u128;
+        let expired_threshold = now.saturating_sub(one_day_nanos);
+        let mut removed_count = 0;
+
+        // Remove expired prepared transactions from the front of the ledger
+        while let Some((_, tx_timestamp)) = self.prepared_transactions.front() {
+            if *tx_timestamp >= expired_threshold as u64 {
+                break;
+            }
+
+            self.prepared_transactions.pop_front();
+            removed_count += 1;
+        }
+
+        if removed_count > 0 {
+            trace(&format!(
+                "cleanup_expired_prepared_transactions: removed {} expired prepared transactions",
+                removed_count
+            ));
+        }
+
+        removed_count
+    }
+
+    pub fn cleanup_job(&mut self) -> Result<(), String> {
+        self.cleanup_expired_prepared_transactions(ic_cdk::api::time() as u128);
+        Ok(())
     }
 
     /// Returns the current size of the blockchain.
@@ -207,6 +254,24 @@ impl ICRC3 {
 
     pub async fn archive_job(&mut self) -> Result<u128, String> {
         self.blockchain.archive_blocks_jobs().await
+    }
+
+    /// Adds a transaction hash to the prepared transactions queue.
+    ///
+    /// # Arguments
+    ///
+    /// * `transaction_hash` - The hash of the prepared transaction
+    pub fn add_prepared_transaction(
+        &mut self,
+        transaction_hash: String,
+        timestamp: TimestampNanos,
+    ) {
+        self.prepared_transactions
+            .push_back((transaction_hash, timestamp));
+    }
+
+    pub fn prepared_transactions_count(&self) -> usize {
+        self.prepared_transactions.len()
     }
 }
 

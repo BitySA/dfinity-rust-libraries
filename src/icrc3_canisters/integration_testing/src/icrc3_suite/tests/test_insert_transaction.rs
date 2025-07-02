@@ -402,3 +402,209 @@ fn test_add_same_transaction_with_delay() {
     assert_eq!(get_blocks_result.blocks.len(), 2);
     assert_eq!(get_blocks_result.archived_blocks.len(), 0);
 }
+
+#[test]
+fn test_add_transactions_with_async() {
+    let mut test_env = default_test_setup();
+
+    // Create a transaction
+    let transaction = create_transactions(
+        &mut test_env.pic,
+        test_env.controller,
+        test_env.icrc3_id,
+        &(),
+    );
+
+    println!("transaction: {:?}", transaction);
+
+    // Add transaction using async method
+    let result = add_transactions_with_async(
+        &mut test_env.pic,
+        test_env.controller,
+        test_env.icrc3_id,
+        &transaction,
+    );
+
+    assert!(result.is_ok());
+
+    test_env.pic.advance_time(Duration::from_secs(2));
+    tick_n_blocks(&mut test_env.pic, 50);
+
+    for _ in 0..3 {
+        let result = add_transactions_with_async(
+            &mut test_env.pic,
+            test_env.controller,
+            test_env.icrc3_id,
+            &transaction,
+        );
+        println!("result: {:?}", result);
+        assert!(result.is_ok());
+    }
+
+    let get_blocks_args = vec![GetBlocksRequest {
+        start: Nat::from(0u64),
+        length: Nat::from(10u64),
+    }];
+
+    let get_blocks_result = icrc3_get_blocks(
+        &mut test_env.pic,
+        test_env.controller,
+        test_env.icrc3_id,
+        &get_blocks_args,
+    );
+
+    println!("get_blocks_result: {:?}", get_blocks_result);
+
+    // Should have 1 block from the async transaction
+    assert_eq!(get_blocks_result.blocks.len(), 4);
+    assert_eq!(get_blocks_result.archived_blocks.len(), 0);
+}
+
+#[test]
+fn test_prepare_transaction_duplicate_immediate() {
+    let mut test_env = default_test_setup();
+
+    // Create a transaction
+    let transaction = create_transactions(
+        &mut test_env.pic,
+        test_env.controller,
+        test_env.icrc3_id,
+        &(),
+    );
+
+    println!("transaction: {:?}", transaction);
+
+    // First prepare should succeed
+    let result1 = prepare_transaction(
+        &mut test_env.pic,
+        test_env.controller,
+        test_env.icrc3_id,
+        &transaction,
+    );
+
+    assert!(result1.is_ok());
+    println!("First prepare result: {:?}", result1);
+
+    // Second prepare with same transaction should fail (duplicate)
+    let result2 = prepare_transaction(
+        &mut test_env.pic,
+        test_env.controller,
+        test_env.icrc3_id,
+        &transaction,
+    );
+
+    assert!(result2.is_err());
+    println!("Second prepare result: {:?}", result2);
+
+    // Verify that the error message indicates a duplicate transaction
+    let error_msg = result2.unwrap_err();
+    assert!(error_msg.contains("duplicate") || error_msg.contains("Duplicate"));
+}
+
+#[test]
+fn test_prepare_transaction_cleanup_after_long_delay() {
+    let mut test_env = default_test_setup();
+
+    // Create a transaction
+    let transaction = create_transactions(
+        &mut test_env.pic,
+        test_env.controller,
+        test_env.icrc3_id,
+        &(),
+    );
+
+    println!("transaction: {:?}", transaction);
+
+    // First prepare should succeed
+    let result1 = prepare_transaction(
+        &mut test_env.pic,
+        test_env.controller,
+        test_env.icrc3_id,
+        &transaction,
+    );
+
+    assert!(result1.is_ok());
+    println!("First prepare result: {:?}", result1);
+
+    // Advance time by 1.1 days (26.4 hours) to trigger cleanup
+    // 1.1 days = 1.1 * 24 * 60 * 60 = 95,040 seconds
+    test_env.pic.advance_time(Duration::from_secs(95_040));
+    tick_n_blocks(&mut test_env.pic, 50);
+
+    // Second prepare with same transaction should now succeed because the first one was cleaned up
+    let result2 = prepare_transaction(
+        &mut test_env.pic,
+        test_env.controller,
+        test_env.icrc3_id,
+        &transaction,
+    );
+
+    assert!(result2.is_ok());
+    println!("Second prepare result after cleanup: {:?}", result2);
+
+    // Verify that both prepares returned the same hash (same transaction)
+    let hash1 = result1.unwrap();
+    let hash2 = result2.unwrap();
+    assert_eq!(hash1, hash2);
+}
+
+#[test]
+fn test_prepare_and_commit_workflow() {
+    let mut test_env = default_test_setup();
+
+    // Create a transaction
+    let transaction = create_transactions(
+        &mut test_env.pic,
+        test_env.controller,
+        test_env.icrc3_id,
+        &(),
+    );
+
+    println!("transaction: {:?}", transaction);
+
+    // Prepare the transaction
+    let prepare_result = prepare_transaction(
+        &mut test_env.pic,
+        test_env.controller,
+        test_env.icrc3_id,
+        &transaction,
+    );
+
+    assert!(prepare_result.is_ok());
+    let transaction_result = prepare_result.unwrap().clone();
+    println!("Prepare result: {:?}", transaction_result);
+
+    // Commit the prepared transaction
+    let commit_result = commit_prepared_transaction(
+        &mut test_env.pic,
+        test_env.controller,
+        test_env.icrc3_id,
+        &(transaction, transaction_result.1.clone()),
+    );
+
+    assert!(commit_result.is_ok());
+    let tx_index = commit_result.unwrap();
+    println!("Commit result: {}", tx_index);
+
+    // Verify the transaction was added to the blockchain
+    test_env.pic.advance_time(Duration::from_secs(2));
+    tick_n_blocks(&mut test_env.pic, 50);
+
+    let get_blocks_args = vec![GetBlocksRequest {
+        start: Nat::from(0u64),
+        length: Nat::from(10u64),
+    }];
+
+    let get_blocks_result = icrc3_get_blocks(
+        &mut test_env.pic,
+        test_env.controller,
+        test_env.icrc3_id,
+        &get_blocks_args,
+    );
+
+    println!("get_blocks_result: {:?}", get_blocks_result);
+
+    // Should have 1 block from the committed transaction
+    assert_eq!(get_blocks_result.blocks.len(), 1);
+    assert_eq!(get_blocks_result.archived_blocks.len(), 0);
+}

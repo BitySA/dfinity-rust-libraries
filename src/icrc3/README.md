@@ -32,6 +32,230 @@ Examples of integration:
 - **ICRC37**: Log approval operations for NFTs
 - **Custom Ledgers**: Maintain a standardized transaction history for any custom token implementation
 
+## Advanced Transaction Management: Prepare/Commit Pattern
+
+ICRC3 now supports a **prepare/commit pattern** for handling transactions that require asynchronous operations. This pattern is particularly useful when you need to perform external calls or complex operations between transaction validation and final commitment.
+
+### When to use Prepare/Commit Pattern
+
+Use this pattern when your transaction flow involves:
+- **External canister calls** that might fail
+- **Complex validation logic** that requires async operations
+- **Cross-canister operations** that need to be atomic
+- **Operations that depend on external state** that might change
+
+### ⚠️ Important Security Considerations
+
+**The prepare/commit pattern is ONLY for ICRC3 transaction logging. It does NOT replace business logic validation.**
+
+You MUST continue to implement proper business logic checks like for example:
+- ✅ **Balance validation** (sufficient funds)
+- ✅ **Authorization checks** (user permissions)
+- ✅ **Business rule validation** (transfer limits, etc.)
+- ✅ **State consistency checks**
+- ✅ **External dependency validation**
+
+### How Prepare/Commit Works
+
+```rust
+// 1. PREPARE: Validate and prepare the transaction
+let prepared_tx = icrc3_prepare_transaction(transaction)?;
+
+// 2. ASYNC OPERATION: Perform your business logic
+let async_result = perform_complex_async_operation().await?;
+
+// 3. COMMIT: Commit the transaction to ICRC3
+let tx_index = icrc3_commit_prepared_transaction(transaction, prepared_tx.timestamp)?;
+```
+
+### Implementation Example
+
+```rust
+#[update]
+async fn transfer_with_external_validation(args: TransferArgs) -> Result<TransferResponse, TransferError> {
+    // 1. BUSINESS LOGIC VALIDATION (ALWAYS REQUIRED)
+    let from_balance = get_balance(args.from.clone());
+    if from_balance < args.amount {
+        return Err(TransferError::InsufficientBalance);
+    }
+    
+    // Check user permissions
+    if !is_authorized(ic_cdk::caller(), args.from.clone()) {
+        return Err(TransferError::Unauthorized);
+    }
+    
+    // 2. CREATE ICRC3 TRANSACTION
+    let transaction = ICRC1Transaction::new(
+        "1xfer".to_string(),
+        ic_cdk::api::time(),
+        ICRC1TransactionData {
+            op: Some("1xfer".to_string()),
+            amount: args.amount.clone(),
+            from: Some(args.from.clone()),
+            to: Some(args.to.clone()),
+            memo: args.memo.clone(),
+            created_at_time: Some(Nat::from(ic_cdk::api::time())),
+            fee: Some(args.fee.clone()),
+        },
+    );
+    
+    // 3. PREPARE ICRC3 TRANSACTION
+    let prepared_tx = match icrc3_prepare_transaction(transaction.clone()) {
+        Ok(prepared) => prepared,
+        Err(e) => return Err(TransferError::TransactionLogError(e.to_string())),
+    };
+    
+    // 4. PERFORM ASYNC OPERATIONS
+    // This could be external calls, complex validation, etc.
+    let external_validation = validate_with_external_service(args.clone()).await?;
+    let cross_canister_call = call_other_canister(args.clone()).await?;
+    
+    // 5. UPDATE INTERNAL STATE
+    update_balances(args.from.clone(), args.to.clone(), args.amount.clone())?;
+    
+    // 6. COMMIT ICRC3 TRANSACTION
+    match icrc3_commit_prepared_transaction(transaction, prepared_tx.timestamp) {
+        Ok(tx_index) => {
+            Ok(TransferResponse {
+                transaction_index: tx_index,
+                // ... other response data
+            })
+        },
+        Err(e) => {
+            // Rollback state changes if needed
+            rollback_balances(args.from.clone(), args.to.clone(), args.amount.clone())?;
+            Err(TransferError::TransactionLogError(e.to_string()))
+        }
+    }
+}
+```
+
+### Available Functions
+
+The `icrc3_state!()` macro provides these functions for prepare/commit:
+
+```rust
+// Prepare a transaction for later commit
+pub fn icrc3_prepare_transaction<T: TransactionType>(
+    transaction: T,
+) -> Result<PreparedTransaction, Icrc3Error>
+
+// Commit a previously prepared transaction
+pub fn icrc3_commit_prepared_transaction<T: TransactionType>(
+    transaction: T,
+    timestamp: u128,
+) -> Result<u64, Icrc3Error>
+
+// Add a transaction directly (synchronous)
+pub fn icrc3_add_transaction<T: TransactionType>(
+    transaction: T,
+) -> Result<u64, Icrc3Error>
+
+// Utility functions for prepared transactions
+pub fn prepared_transactions_count() -> usize
+pub fn cleanup_expired_prepared_transactions() -> usize
+```
+
+### PreparedTransaction Structure
+
+```rust
+pub struct PreparedTransaction {
+    pub transaction_hash: Vec<u8>,  // Hash of the prepared transaction
+    pub timestamp: u128,           // Timestamp when prepared
+}
+```
+
+### Automatic Cleanup
+
+Prepared transactions are automatically cleaned up after **24 hours** to prevent memory leaks. This means:
+
+- ✅ **Immediate duplicate prevention**: You cannot prepare the same transaction twice immediately
+- ✅ **Automatic cleanup**: Old prepared transactions are removed after 24 hours
+- ✅ **Memory efficient**: No accumulation of stale prepared transactions
+
+### Error Handling
+
+Common error scenarios and how to handle them:
+
+```rust
+// 1. Prepare fails (invalid transaction, duplicate, etc.)
+match icrc3_prepare_transaction(transaction.clone()) {
+    Ok(prepared) => { /* continue */ },
+    Err(Icrc3Error::DuplicateTransaction { duplicate_of }) => {
+        return Err(TransferError::DuplicateTransaction(duplicate_of));
+    },
+    Err(Icrc3Error::Icrc3Error(msg)) => {
+        return Err(TransferError::TransactionLogError(msg));
+    },
+}
+
+// 2. Async operation fails
+let async_result = perform_async_operation().await;
+if let Err(e) = async_result {
+    // No need to rollback ICRC3 - it was only prepared, not committed
+    return Err(TransferError::AsyncOperationFailed(e));
+}
+
+// 3. Commit fails (transaction not found, timestamp mismatch, etc.)
+match icrc3_commit_prepared_transaction(transaction, prepared_tx.timestamp) {
+    Ok(tx_index) => { /* success */ },
+    Err(Icrc3Error::Icrc3Error(msg)) => {
+        // Rollback any state changes you made
+        // try again using icrc3_add_transaction
+        // else rollback to recover correct state.
+        // Note that all errors that might happend in icrc3_commit_prepared_transaction are already checked in icrc3_prepare_transaction, meaning you should be safe here. Only bad argument could cause issue.
+        return Err(TransferError::TransactionLogError(msg));
+    },
+}
+```
+
+### Best Practices
+
+1. **Always validate business logic first** - Don't rely on ICRC3 for business validation
+2. **Keep async operations minimal** - Only use async operations that are truly necessary
+3. **Implement proper rollback** - If commit fails, rollback any state changes
+
+### When NOT to use Prepare/Commit
+
+- ❌ **Simple synchronous operations** - Use regular `icrc3_add_transaction`
+- ❌ **Replace business validation** - Always implement proper business logic checks
+- ❌ **Long-running operations** - Keep async operations as short as possible
+
+#### Cross-Canister Token Transfers
+
+```rust
+#[update]
+async fn transfer_to_external_canister(args: CrossCanisterTransferArgs) -> Result<TransferResponse, TransferError> {
+    // Business validation
+    validate_balance_and_permissions(args.from.clone(), args.amount.clone())?;
+    
+    // Create ICRC3 transaction
+    let transaction = ICRC1Transaction::new("1xfer", ic_cdk::api::time(), ICRC1TransactionData {
+        op: Some("1xfer".to_string()),
+        amount: args.amount.clone(),
+        from: Some(args.from.clone()),
+        to: Some(args.to.clone()),
+        memo: args.memo.clone(),
+        created_at_time: Some(Nat::from(ic_cdk::api::time())),
+        fee: Some(args.fee.clone()),
+    });
+    
+    // Prepare transaction
+    let prepared_tx = icrc3_prepare_transaction(transaction.clone())?;
+    
+    // Perform cross-canister transfer
+    let transfer_result = external_canister.transfer(args.clone()).await?;
+    
+    // Update local state
+    update_local_balance(args.from.clone(), args.amount.clone())?;
+    
+    // Commit transaction
+    let tx_index = icrc3_commit_prepared_transaction(transaction, prepared_tx.timestamp)?;
+    
+    Ok(TransferResponse { transaction_index: tx_index })
+}
+```
+
 ## How to implement ICRC3 in your project
 
 ### 1. Initial setup
@@ -668,3 +892,17 @@ match icrc3_add_transaction(transaction) {
     Err(e) => {}
 }
 ```
+
+/// # Generated Functions
+/// * `init_icrc3()` - Initializes the ICRC3 state
+/// * `add_transaction(transaction: T) -> Result<u64, Icrc3Error>` - Adds a new transaction
+/// * `icrc3_prepare_transaction(transaction: T) -> Result<PreparedTransaction, Icrc3Error>` - Prepares a transaction for later commit
+/// * `icrc3_commit_prepared_transaction(transaction: T, timestamp: u128) -> Result<u64, Icrc3Error>` - Commits a previously prepared transaction
+/// * `icrc3_get_archives() -> Vec<ICRC3ArchiveInfo>` - Gets information about archives
+/// * `icrc3_get_blocks(args: Vec<GetBlocksRequest>) -> Response` - Gets blocks
+/// * `icrc3_get_properties() -> Response` - Gets blockchain properties
+/// * `icrc3_get_tip_certificate() -> ICRC3DataCertificate` - Gets the tip certificate
+/// * `icrc3_supported_block_types() -> Vec<SupportedBlockType>` - Gets supported block types
+/// * `prepared_transactions_count() -> usize` - Gets the number of prepared transactions
+/// * `cleanup_expired_prepared_transactions() -> usize` - Cleans up expired prepared transactions
+/// * `upgrade_archive_wasm(wasm_module: Vec<u8>)` - Upgrades the archive canister WASM

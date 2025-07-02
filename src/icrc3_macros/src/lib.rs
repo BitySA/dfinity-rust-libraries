@@ -48,7 +48,7 @@ pub fn icrc3_state(_input: TokenStream) -> TokenStream {
         use icrc_ledger_types::icrc3::blocks::{GetBlocksResult, GetBlocksRequest, ICRC3DataCertificate, SupportedBlockType};
         use icrc_ledger_types::icrc3::archive::ICRC3ArchiveInfo;
         use bity_ic_icrc3::{config::{ICRC3Config, ICRC3Properties}, icrc3::ICRC3, interface::ICRC3Interface, types::Icrc3Error};
-        use bity_ic_canister_time::{run_interval, MINUTE_IN_MS};
+        use bity_ic_canister_time::{run_interval, MINUTE_IN_MS, HOUR_IN_MS};
         use std::time::Duration;
 
         lazy_static! {
@@ -83,6 +83,23 @@ pub fn icrc3_state(_input: TokenStream) -> TokenStream {
             let mut lock = ICRC3_INSTANCE.write().unwrap();
             let icrc3 = lock.as_mut().expect(__ICRC3_NOT_INITIALIZED);
             <ICRC3 as ICRC3Interface>::add_transaction(icrc3, transaction)
+        }
+
+        pub fn icrc3_prepare_transaction<T: TransactionType>(
+            transaction: T,
+        ) -> Result<bity_ic_icrc3::types::prepare_transaction::PreparedTransaction, Icrc3Error> {
+            let mut lock = ICRC3_INSTANCE.write().unwrap();
+            let icrc3 = lock.as_mut().expect(__ICRC3_NOT_INITIALIZED);
+            <ICRC3 as ICRC3Interface>::prepare_transaction(icrc3, transaction)
+        }
+
+        pub fn icrc3_commit_prepared_transaction<T: TransactionType>(
+            transaction: T,
+            timestamp: u128,
+        ) -> Result<u64, Icrc3Error> {
+            let mut lock = ICRC3_INSTANCE.write().unwrap();
+            let icrc3 = lock.as_mut().expect(__ICRC3_NOT_INITIALIZED);
+            <ICRC3 as ICRC3Interface>::commit_prepared_transaction(icrc3, transaction, timestamp)
         }
 
         pub fn icrc3_get_archives() -> Vec<ICRC3ArchiveInfo> {
@@ -140,9 +157,33 @@ pub fn icrc3_state(_input: TokenStream) -> TokenStream {
             });
         }
 
+        pub fn start_cleanup_job(interval_ms: u64) {
+            run_interval(Duration::from_millis(interval_ms), || {
+                ic_cdk::futures::spawn(async {
+                    match ICRC3_INSTANCE.write() {
+                        Ok(mut lock) => {
+                            if let Some(icrc3) = lock.as_mut() {
+                                if let Err(e) = icrc3.cleanup_job() {
+                                    bity_ic_icrc3::utils::trace(&format!("Cleanup job failed: {}", e));
+                                } else {
+                                    bity_ic_icrc3::utils::trace(&format!("Cleanup job completed successfully"));
+                                }
+                            } else {
+                                bity_ic_icrc3::utils::trace("ICRC3 instance not initialized");
+                            }
+                        },
+                        Err(e) => {
+                            bity_ic_icrc3::utils::trace(&format!("Failed to acquire ICRC3 lock: {}", e));
+                        }
+                    }
+                });
+            });
+        }
+
         // by default you can use this method, to run archive 10mins
         pub fn start_default_archive_job() {
             start_archive_job(10 * MINUTE_IN_MS);
+            start_cleanup_job(1 * HOUR_IN_MS);
         }
     };
 

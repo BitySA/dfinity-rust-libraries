@@ -91,6 +91,36 @@ pub mod add_transaction {
     pub type Response = Result<(u64, Vec<Principal>), Icrc3Error>;
 }
 
+/// Module containing types for the `prepare_transaction` endpoint.
+pub mod prepare_transaction {
+    use crate::types::Icrc3Error;
+    use candid::CandidType;
+    use icrc_ledger_types::icrc::generic_value::ICRC3Value;
+    use serde::{Deserialize, Serialize};
+
+    #[derive(CandidType, Serialize, Deserialize, Debug, Clone)]
+    pub struct PreparedTransaction {
+        pub transaction_hash: Vec<u8>,
+        pub timestamp: u128,
+    }
+
+    /// Arguments for the `prepare_transaction` endpoint
+    pub type Args = ICRC3Value;
+    /// Response type for the `prepare_transaction` endpoint
+    pub type Response = Result<PreparedTransaction, Icrc3Error>;
+}
+
+/// Module containing types for the `commit_transaction` endpoint.
+pub mod commit_transaction {
+    use crate::types::Icrc3Error;
+    use icrc_ledger_types::icrc::generic_value::ICRC3Value;
+
+    /// Arguments for the `commit_transaction` endpoint
+    pub type Args = ICRC3Value;
+    /// Response type for the `commit_transaction` endpoint
+    pub type Response = Result<u64, Icrc3Error>;
+}
+
 /// Module containing types for the `add_batch_transactions` endpoint.
 pub mod add_batch_transactions {
     use candid::Principal;

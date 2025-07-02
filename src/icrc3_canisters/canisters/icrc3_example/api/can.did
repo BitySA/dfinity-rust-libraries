@@ -55,16 +55,21 @@ type InitArgs = record {
   commit_hash : text;
 };
 type Result = variant { Ok; Err : text };
+type Result_1 = variant { Ok : nat64; Err : text };
+type Result_2 = variant { Ok : record { blob; nat }; Err : text };
 type SupportedBlockType = record { url : text; block_type : text };
 type UpgradeArgs = record { version : BuildVersion; commit_hash : text };
 service : (Args) -> {
   add_created_transaction : (FakeTransaction) -> (Result);
   add_random_transaction : (null) -> (null);
   add_same_transactions : (null) -> (null);
+  add_transactions_with_async : (FakeTransaction) -> (Result_1);
+  commit_prepared_transaction : (record { FakeTransaction; nat }) -> (Result_1);
   create_transactions : (null) -> (FakeTransaction) query;
   icrc3_get_archives : (null) -> (vec ICRC3ArchiveInfo) query;
   icrc3_get_blocks : (vec GetBlocksRequest) -> (GetBlocksResult) query;
   icrc3_get_properties : (null) -> (ICRC3Properties) query;
   icrc3_get_tip_certificate : (null) -> (ICRC3DataCertificate) query;
   icrc3_supported_block_types : (null) -> (vec SupportedBlockType) query;
+  prepare_transaction : (FakeTransaction) -> (Result_2);
 }
