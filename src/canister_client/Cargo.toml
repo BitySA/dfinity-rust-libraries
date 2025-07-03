@@ -1,6 +1,6 @@
 [package]
 name = "bity-ic-canister-client"
-version = "0.2.1"
+version = "0.2.2"
 edition = "2021"
 description = "Description spécifique de la crate"
 license = "MIT"
@@ -12,6 +12,8 @@ documentation = "https://docs.rs/bity-ic-canister-client"
 
 [dependencies]
 candid = { workspace = true }
+serde = { workspace = true }
 ic-cdk = { workspace = true }
 tracing = { workspace = true }
 bity-ic-types = "0.1.0"
+anyhow = { workspace = true }

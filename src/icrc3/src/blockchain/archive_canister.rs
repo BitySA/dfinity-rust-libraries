@@ -79,7 +79,7 @@ impl ArchiveCanister {
     /// * `Ok(u128)` containing the available space in bytes
     /// * `Err(String)` if the operation failed
     pub async fn get_available_space(&self) -> Result<u128, String> {
-        let res = retry_async(
+        let res: Result<Nat, anyhow::Error> = retry_async(
             || bity_ic_icrc3_archive_c2c_client::remaining_capacity(self.canister_id(), &()),
             3, // Retry up to 3 times
         )
@@ -103,7 +103,7 @@ impl ArchiveCanister {
         }
     }
 }
-
+use candid::Nat;
 impl bity_ic_subcanister_manager::Canister for ArchiveCanister {
     type ParamType = bity_ic_icrc3_archive_api::Args;
 

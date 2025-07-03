@@ -24,6 +24,7 @@
 //! - Cross-canister call generation with both Candid and MessagePack serialization
 //! - Support for calls with and without arguments
 //! - Support for calls with cycle payments
+
 /// Generates a function for making update calls to a canister.
 ///
 /// This macro creates an async function that handles the serialization, call, and
@@ -133,10 +134,13 @@ macro_rules! generate_query_call {
 #[macro_export]
 macro_rules! generate_c2c_call {
     ($method_name:ident) => {
-        pub async fn $method_name(
+        pub async fn $method_name<R>(
             canister_id: bity_ic_types::CanisterId,
             args: &$method_name::Args,
-        ) -> ic_cdk::call::CallResult<$method_name::Response> {
+        ) -> Result<R>
+        where
+            for<'de> R: ::serde::Deserialize<'de>,
+        {
             let method_name = concat!(stringify!($method_name), "_msgpack");
 
             bity_ic_canister_client::make_c2c_call(
@@ -170,18 +174,25 @@ macro_rules! generate_c2c_call {
 ///
 /// generate_candid_c2c_call!(transfer);
 /// ```
+pub extern crate anyhow;
+pub use anyhow::Result;
+pub extern crate candid;
+pub extern crate serde;
+pub use candid::CandidType;
+
 #[macro_export]
 macro_rules! generate_candid_c2c_call {
     ($method_name:ident) => {
         generate_candid_c2c_call!($method_name, $method_name);
     };
     ($method_name:ident, $external_canister_method_name:ident) => {
-        pub async fn $method_name<A>(
+        pub async fn $method_name<A, R>(
             canister_id: bity_ic_types::CanisterId,
             args: A,
-        ) -> ic_cdk::call::CallResult<$method_name::Response>
+        ) -> $crate::Result<R>
         where
             A: std::borrow::Borrow<$method_name::Args>,
+            for<'de> R: ::serde::Deserialize<'de> + ::candid::CandidType,
         {
             let method_name = stringify!($external_canister_method_name);
 
@@ -218,11 +229,11 @@ macro_rules! generate_candid_c2c_call {
 #[macro_export]
 macro_rules! generate_candid_c2c_call_with_payment {
     ($method_name:ident) => {
-        pub async fn $method_name(
+        pub async fn $method_name<R>(
             canister_id: bity_ic_types::CanisterId,
             args: &$method_name::Args,
             cycles: ::types::Cycles,
-        ) -> ::ic_cdk::call::CallResult<$method_name::Response> {
+        ) -> ::anyhow::Result<R> {
             let method_name = stringify!($method_name);
 
             bity_ic_canister_client::make_c2c_call_with_payment(
@@ -263,10 +274,10 @@ macro_rules! generate_candid_c2c_call_tuple_args {
         ::bity_ic_canister_client::generate_candid_c2c_call_tuple_args!($method_name, $method_name);
     };
     ($method_name:ident, $external_canister_method_name:ident) => {
-        pub async fn $method_name(
+        pub async fn $method_name<R>(
             canister_id: bity_ic_types::CanisterId,
             args: $method_name::Args,
-        ) -> ::ic_cdk::call::CallResult<$method_name::Response> {
+        ) -> ::anyhow::Result<R> {
             let method_name = stringify!($external_canister_method_name);
 
             bity_ic_canister_client::make_c2c_call(
@@ -306,9 +317,9 @@ macro_rules! generate_candid_c2c_call_no_args {
         ::bity_ic_canister_client::generate_candid_c2c_call_no_args!($method_name, $method_name);
     };
     ($method_name:ident, $external_canister_method_name:ident) => {
-        pub async fn $method_name(
+        pub async fn $method_name<R>(
             canister_id: bity_ic_types::CanisterId,
-        ) -> ic_cdk::call::CallResult<$method_name::Response> {
+        ) -> ::anyhow::Result<R> {
             let method_name = stringify!($external_canister_method_name);
 
             bity_ic_canister_client::make_c2c_call(

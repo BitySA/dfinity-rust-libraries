@@ -29,8 +29,9 @@
 //! }
 //! ```
 
+pub use anyhow::{Context, Result};
 use candid::Principal;
-use ic_cdk::api::call::{CallResult, RejectionCode};
+use ic_cdk::call::CallFailed;
 use std::fmt::Debug;
 
 pub mod canister_client_macros;
@@ -81,26 +82,19 @@ pub async fn make_c2c_call<A, R, S, D, SError: Debug, DError: Debug>(
     args: A,
     serializer: S,
     deserializer: D,
-) -> CallResult<R>
+) -> Result<R>
 where
     S: Fn(A) -> Result<Vec<u8>, SError>,
     D: Fn(&[u8]) -> Result<R, DError>,
 {
-    let payload_bytes = serializer(args).map_err(|e| {
-        (
-            RejectionCode::CanisterError,
-            format!("Serialization error: {:?}", e),
-        )
-    })?;
+    let payload_bytes =
+        serializer(args).map_err(|e| anyhow::anyhow!("Serialization error: {:?}", e))?;
 
-    let response_bytes = make_c2c_call_raw(canister_id, method_name, &payload_bytes, 0).await?;
+    let response_bytes = make_c2c_call_raw(canister_id, method_name, &payload_bytes, 0, None)
+        .await
+        .context("Cross-canister call failed")?;
 
-    deserializer(&response_bytes).map_err(|e| {
-        (
-            RejectionCode::CanisterError,
-            format!("Deserialization error: {:?}", e),
-        )
-    })
+    deserializer(&response_bytes).map_err(|e| anyhow::anyhow!("Deserialization error: {:?}", e))
 }
 
 /// Makes a cross-canister call with cycle payment and custom serialization.
@@ -151,27 +145,19 @@ pub async fn make_c2c_call_with_payment<A, R, S, D, SError: Debug, DError: Debug
     serializer: S,
     deserializer: D,
     cycles: u128,
-) -> CallResult<R>
+) -> Result<R>
 where
     S: Fn(A) -> Result<Vec<u8>, SError>,
     D: Fn(&[u8]) -> Result<R, DError>,
 {
-    let payload_bytes = serializer(args).map_err(|e| {
-        (
-            RejectionCode::CanisterError,
-            format!("Serialization error: {:?}", e),
-        )
-    })?;
+    let payload_bytes =
+        serializer(args).map_err(|e| anyhow::anyhow!("Serialization error: {:?}", e))?;
 
-    let response_bytes =
-        make_c2c_call_raw(canister_id, method_name, &payload_bytes, cycles).await?;
+    let response_bytes = make_c2c_call_raw(canister_id, method_name, &payload_bytes, cycles, None)
+        .await
+        .context("Cross-canister call with payment failed")?;
 
-    deserializer(&response_bytes).map_err(|e| {
-        (
-            RejectionCode::CanisterError,
-            format!("Deserialization error: {:?}", e),
-        )
-    })
+    deserializer(&response_bytes).map_err(|e| anyhow::anyhow!("Deserialization error: {:?}", e))
 }
 
 /// Makes a raw cross-canister call with byte-level control.
@@ -196,25 +182,27 @@ where
 ///     make_c2c_call_raw(canister_id, "my_method", payload, 0).await
 /// }
 /// ```
+
 pub async fn make_c2c_call_raw(
     canister_id: Principal,
     method_name: &str,
     payload_bytes: &[u8],
     cycles: u128,
-) -> CallResult<Vec<u8>> {
-    tracing::trace!(method_name, %canister_id, "Starting c2c call");
+    timeout_seconds: Option<u32>,
+) -> Result<Vec<u8>, CallFailed> {
+    let call = if let Some(timeout_seconds) = timeout_seconds {
+        ic_cdk::call::Call::bounded_wait(canister_id, method_name).change_timeout(timeout_seconds)
+    } else {
+        ic_cdk::call::Call::unbounded_wait(canister_id, method_name)
+    };
 
-    let response =
-        ic_cdk::api::call::call_raw128(canister_id, method_name, payload_bytes, cycles).await;
+    let response = call.with_raw_args(payload_bytes).with_cycles(cycles).await;
 
     match response {
         Ok(response_bytes) => {
             tracing::trace!(method_name, %canister_id, "Completed c2c call successfully");
-            Ok(response_bytes)
+            Ok(response_bytes.into_bytes())
         }
-        Err((error_code, error_message)) => {
-            tracing::error!(method_name, %canister_id, ?error_code, error_message, "Error calling c2c");
-            Err((error_code, error_message))
-        }
+        Err(error) => Err(error),
     }
 }
