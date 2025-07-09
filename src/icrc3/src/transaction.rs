@@ -1,7 +1,8 @@
 use bity_ic_types::TimestampSeconds;
-use candid::Nat;
+use candid::{CandidType, Nat};
 use icrc_ledger_types::icrc::generic_value::ICRC3Value;
 use icrc_ledger_types::icrc1::account::Account;
+use serde::{Deserialize, Serialize};
 use serde_bytes::ByteBuf;
 use std::collections::BTreeMap;
 
@@ -121,7 +122,7 @@ impl From<GlobalTransaction> for ICRC3Value {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, CandidType, Serialize, Deserialize)]
 pub struct ICRC1Transaction {
     pub btype: String,
     pub timestamp: u64,
@@ -129,7 +130,7 @@ pub struct ICRC1Transaction {
     pub tx: ICRC1TransactionData,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, CandidType, Serialize, Deserialize)]
 pub struct ICRC1TransactionData {
     pub op: Option<String>,
     pub amount: Nat,
@@ -251,7 +252,7 @@ impl From<ICRC1Transaction> for ICRC3Value {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, CandidType, Serialize, Deserialize)]
 pub struct ICRC2Transaction {
     pub btype: String,
     pub timestamp: u64,
@@ -259,7 +260,7 @@ pub struct ICRC2Transaction {
     pub tx: ICRC2TransactionData,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, CandidType, Serialize, Deserialize)]
 pub struct ICRC2TransactionData {
     pub op: Option<String>,
     pub amount: Nat,
@@ -388,14 +389,14 @@ impl From<ICRC2Transaction> for ICRC3Value {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, CandidType, Serialize, Deserialize)]
 pub struct ICRC7Transaction {
     pub btype: String,
     pub timestamp: u64,
     pub tx: ICRC7TransactionData,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, CandidType, Serialize, Deserialize)]
 pub struct ICRC7TransactionData {
     pub op: String, // need to be == to btype
     pub tid: Option<Nat>,
@@ -538,14 +539,14 @@ impl From<ICRC7Transaction> for ICRC3Value {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, CandidType, Serialize, Deserialize)]
 pub struct ICRC37Transaction {
     pub btype: String,
     pub timestamp: u64,
     pub tx: ICRC37TransactionData,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, CandidType, Serialize, Deserialize)]
 pub struct ICRC37TransactionData {
     pub op: String, // need to be == to btype
     pub tid: Option<Nat>,
