@@ -4,7 +4,8 @@ use bity_ic_icrc3_archive_api::{
     archive_config::ArchiveConfig, types::encoded_blocks::EncodedBlock,
 };
 use candid::Nat;
-use ic_cdk::api::stable::{stable_size, WASM_PAGE_SIZE_IN_BYTES};
+use ic_cdk::stable::stable_size;
+use ic_cdk::stable::WASM_PAGE_SIZE_IN_BYTES;
 use ic_stable_structures::{StableLog, Storable};
 use serde::{Deserialize, Serialize};
 

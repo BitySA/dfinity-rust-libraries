@@ -41,11 +41,12 @@ use canfund::{
     operations::fetch::FetchCyclesBalanceFromCanisterStatus,
     FundManager,
 };
-use ic_cdk::api::management_canister::main::{
-    canister_status, create_canister, install_code, start_canister, stop_canister,
-    CanisterIdRecord, CanisterInstallMode, CanisterSettings, CreateCanisterArgument,
-    InstallCodeArgument, LogVisibility,
+use ic_cdk::management_canister::create_canister_with_extra_cycles;
+use ic_cdk::management_canister::{
+    canister_status, install_code, start_canister, stop_canister, CanisterInstallMode,
+    CanisterSettings, CreateCanisterArgs, InstallCodeArgs, LogVisibility,
 };
+use ic_management_canister_types::CanisterIdRecord;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use std::{any::Any, collections::HashMap, fmt::Debug, future::Future};
@@ -119,16 +120,17 @@ pub trait Canister {
     {
         async {
             match retry_async(
-                || {
-                    canister_status(CanisterIdRecord {
+                async || {
+                    canister_status(&CanisterIdRecord {
                         canister_id: self.canister_id(),
                     })
+                    .await
                 },
                 3,
             )
             .await
             {
-                Ok(res) => Ok(res.0.settings.controllers),
+                Ok(res) => Ok(res.settings.controllers),
                 Err(e) => Err(CanisterError::CantFindControllers(format!("{e:?}"))),
             }
         }
@@ -201,23 +203,21 @@ where
         }
     }
 
-    pub fn create_canister(
+    pub async fn create_canister(
         &mut self,
         init_args: <T as Canister>::ParamType,
-    ) -> impl Future<Output = Result<Box<T>, NewCanisterError>> + '_ {
+    ) -> Result<Box<T>, NewCanisterError> {
         async move {
-            // find in self.sub_canisters if a canister is already created but not installed
             let mut canister_id = Principal::anonymous();
 
             for (_canister_id, canister) in self.sub_canisters.iter() {
                 if canister.state() == CanisterState::Created {
-                    canister_id = _canister_id.clone();
+                    canister_id = *_canister_id;
                     break;
                 }
             }
 
             if canister_id == Principal::anonymous() {
-                // Define the initial settings for the new canister
                 let settings = CanisterSettings {
                     controllers: Some(self.controllers.clone()),
                     compute_allocation: None,
@@ -226,22 +226,24 @@ where
                     reserved_cycles_limit: Some(Nat::from(self.reserved_cycles)),
                     log_visibility: Some(LogVisibility::Public),
                     wasm_memory_limit: None,
+                    wasm_memory_threshold: None,
                 };
-                // Step 1: Create the canister
+
                 canister_id = match retry_async(
-                    || {
-                        create_canister(
-                            CreateCanisterArgument {
+                    async || {
+                        create_canister_with_extra_cycles(
+                            &CreateCanisterArgs {
                                 settings: Some(settings.clone()),
                             },
-                            self.initial_cycles as u128,
+                            self.initial_cycles,
                         )
+                        .await
                     },
                     3,
                 )
                 .await
                 {
-                    Ok(canister) => canister.0.canister_id,
+                    Ok(canister) => canister.canister_id,
                     Err(e) => {
                         return Err(NewCanisterError::CreateCanisterError(format!("{e:?}")));
                     }
@@ -270,18 +272,17 @@ where
                 }
             };
 
-            // Step 2: Install the Wasm module to the newly created canister
-            let install_args = InstallCodeArgument {
+            let install_args = InstallCodeArgs {
                 mode: CanisterInstallMode::Install,
                 canister_id,
                 wasm_module: self.wasm.clone(),
                 arg: encoded_init_args.clone(),
             };
 
-            match install_code(install_args.clone()).await {
+            match install_code(&install_args).await {
                 Ok(_) => {}
                 Err(e) => {
-                    return Err(NewCanisterError::InstallCodeError(format!("{:?}", e.1)));
+                    return Err(NewCanisterError::InstallCodeError(format!("{:?}", e)));
                 }
             }
 
@@ -297,10 +298,10 @@ where
         }
     }
 
-    pub fn update_canisters(
+    pub async fn update_canisters(
         &mut self,
         update_args: <T as Canister>::ParamType,
-    ) -> impl Future<Output = Result<(), Vec<String>>> + '_ {
+    ) -> Result<(), Vec<String>> {
         async move {
             let init_args = match Encode!(&update_args.clone()) {
                 Ok(encoded_init_args) => encoded_init_args,
@@ -313,12 +314,13 @@ where
 
             let mut canister_upgrade_errors = vec![];
 
-            for (canister_id, canister) in self.sub_canisters.clone().iter() {
+            for (canister_id, _canister) in self.sub_canisters.clone().iter() {
                 match retry_async(
-                    || {
-                        stop_canister(CanisterIdRecord {
+                    async || {
+                        stop_canister(&CanisterIdRecord {
                             canister_id: *canister_id,
                         })
+                        .await
                     },
                     3,
                 )
@@ -347,22 +349,23 @@ where
                     let init_args = init_args.clone();
                     let wasm_module = self.wasm.clone();
 
-                    let install_args = InstallCodeArgument {
+                    let install_args = InstallCodeArgs {
                         mode: CanisterInstallMode::Upgrade(None),
                         canister_id: *canister_id,
                         wasm_module,
                         arg: init_args,
                     };
-                    retry_async(|| install_code(install_args.clone()), 3).await
+                    retry_async(|| install_code(&install_args), 3).await
                 };
 
                 match result {
                     Ok(_) => {
                         match retry_async(
-                            || {
-                                start_canister(CanisterIdRecord {
+                            async || {
+                                start_canister(&CanisterIdRecord {
                                     canister_id: *canister_id,
                                 })
+                                .await
                             },
                             3,
                         )
@@ -426,7 +429,7 @@ where
         );
 
         Self {
-            master_canister_id: self.master_canister_id.clone(),
+            master_canister_id: self.master_canister_id,
             sub_canisters: self.sub_canisters.clone(),
             controllers: self.controllers.clone(),
             authorized_principal: self.authorized_principal.clone(),

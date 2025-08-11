@@ -11,9 +11,9 @@
 //! let mut writer = get_writer(&mut memory);
 //! writer.write_all(b"Hello, World!").unwrap();
 //! ```
-
-use ic_cdk::api::stable::stable_size;
-use ic_cdk::api::stable::WASM_PAGE_SIZE_IN_BYTES;
+//!
+use ic_cdk::stable::stable_size;
+use ic_cdk::stable::WASM_PAGE_SIZE_IN_BYTES;
 use ic_stable_structures::reader::{BufferedReader, Reader};
 use ic_stable_structures::writer::{BufferedWriter, Writer};
 use ic_stable_structures::Memory;

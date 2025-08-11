@@ -1,4 +1,4 @@
-use ic_cdk::api::management_canister::main::raw_rand;
+use ic_cdk::management_canister::raw_rand;
 use std::time::Duration;
 
 // Provides random number generation utilities for Internet Computer canisters.
@@ -19,7 +19,7 @@ pub async fn generate_rand_nonce() -> Result<u64, String> {
 /// Returns a Result containing an 8-byte array, or an error message if generation fails.
 pub async fn generate_rand_byte_array() -> Result<[u8; 8], String> {
     match raw_rand().await {
-        Ok((random_bytes,)) => {
+        Ok(random_bytes) => {
             let bytes_array: Result<[u8; 8], _> = random_bytes[0..8].try_into();
 
             match bytes_array {

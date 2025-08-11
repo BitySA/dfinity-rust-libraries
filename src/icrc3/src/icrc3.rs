@@ -86,7 +86,7 @@ impl ICRC3 {
                 / self.transaction_window().as_secs_f64())
             .ceil() as u128;
 
-            trace(&format!(
+            trace(format!(
                 "is_throttling: num_in_window: {}, max_rate: {}",
                 num_in_window, max_rate
             ));
@@ -122,7 +122,7 @@ impl ICRC3 {
     pub fn purge_old_transactions(&mut self, now: u128) -> u128 {
         let max_tx_to_purge = self.icrc3_config.constants.max_transactions_to_purge;
         let mut num_tx_purged = 0;
-        trace(&format!("purge_old_transactions"));
+        trace("purge_old_transactions");
 
         while let Some(tx_info) = self.ledger.front() {
             let tx_timestamp = get_timestamp(tx_info).unwrap_or(Nat::from(0_u64));
@@ -132,7 +132,7 @@ impl ICRC3 {
                 + PERMITTED_DRIFT.as_nanos()
                 >= now
             {
-                trace(&format!(
+                trace(format!(
                     "purge_old_transactions: tx_timestamp: {}, now: {}, tx_window: {}, permitted_drift: {}",
                     Duration::from_nanos(u64::try_from(tx_timestamp.clone().0).unwrap()).as_nanos(), now, self.transaction_window().as_nanos(), PERMITTED_DRIFT.as_nanos()
                 ));
@@ -147,7 +147,7 @@ impl ICRC3 {
                 break;
             }
         }
-        trace(&format!(
+        trace(format!(
             "purge_old_transactions done, num_tx_purged: {}",
             num_tx_purged
         ));
@@ -183,7 +183,7 @@ impl ICRC3 {
         }
 
         if removed_count > 0 {
-            trace(&format!(
+            trace(format!(
                 "cleanup_expired_prepared_transactions: removed {} expired prepared transactions",
                 removed_count
             ));
@@ -295,7 +295,7 @@ impl From<ICRC3> for Certificate {
         let leaf2 = leaf(last_block_hash.as_slice());
 
         let hash_tree = fork(leaf1, leaf2);
-        ic_cdk::api::certified_data_set(&hash_tree.digest());
+        ic_cdk::api::certified_data_set(hash_tree.digest());
         let certificate = ic_cdk::api::data_certificate().expect("No data certificate available");
         Certificate {
             tree: hash_tree,

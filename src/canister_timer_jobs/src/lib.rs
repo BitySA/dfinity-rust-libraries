@@ -6,7 +6,7 @@
 //!
 //! # Example
 //! ```
-//! use bity_dfinity_library::canister_timer_jobs::TimerJobs;
+//! use bity_ic_canister_timer_jobs::TimerJobs;
 //! use std::time::Duration;
 //!
 //! let mut jobs = TimerJobs::new();
@@ -16,14 +16,9 @@
 //! ```
 
 use bity_ic_utils::env::Environment;
-use ic_cdk_timers::TimerId;
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::cell::RefCell;
 use std::collections::BTreeMap;
-use std::ops::Deref;
 use std::rc::Rc;
-use std::time::Duration;
-use tracing::trace;
 
 use crate::timer_manager::TimerManager;
 
@@ -40,7 +35,7 @@ pub mod timer_manager;
 ///
 /// # Examples
 /// ```
-/// use bity_dfinity_library::canister_timer_jobs::TimerJobs;
+/// use bity_ic_canister_timer_jobs::TimerJobs;
 /// use std::time::Duration;
 ///
 /// let jobs = TimerJobs::new();
@@ -92,7 +87,7 @@ where
 ///
 /// # Examples
 /// ```
-/// use bity_dfinity_library::canister_timer_jobs::Job;
+/// use bity_ic_canister_timer_jobs::Job;
 ///
 /// struct MyJob;
 ///

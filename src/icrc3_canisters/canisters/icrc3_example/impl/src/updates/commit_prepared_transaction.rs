@@ -11,7 +11,7 @@ fn commit_prepared_transaction(
     args: CommitPreparedTransactionArgs,
 ) -> CommitPreparedTransactionResponse {
     let (transaction, timestamp) = args;
-    trace(&format!(
+    trace(format!(
         "commit_prepared_transaction: starting with timestamp: {}",
         timestamp
     ));
@@ -21,14 +21,14 @@ fn commit_prepared_transaction(
 
     match commit_result {
         Ok(tx_index) => {
-            trace(&format!(
+            trace(format!(
                 "commit_prepared_transaction: transaction committed successfully with index: {}",
                 tx_index
             ));
             Ok(tx_index)
         }
         Err(e) => {
-            trace(&format!(
+            trace(format!(
                 "commit_prepared_transaction: error committing transaction: {}",
                 e
             ));

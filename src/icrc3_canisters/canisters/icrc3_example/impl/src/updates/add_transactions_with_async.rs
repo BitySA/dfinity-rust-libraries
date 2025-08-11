@@ -10,18 +10,16 @@ pub use icrc3_example_api::updates::add_transactions_with_async::{
 async fn add_transactions_with_async(
     transaction: AddTransactionsWithAsyncArgs,
 ) -> AddTransactionsWithAsyncResponse {
-    trace(&format!("add_transactions_with_async: starting"));
+    trace("add_transactions_with_async: starting");
 
     // Step 1: Prepare the transaction
     let prepared_tx = match icrc3_prepare_transaction(transaction.clone()) {
         Ok(prepared) => {
-            trace(&format!(
-                "add_transactions_with_async: transaction prepared successfully"
-            ));
+            trace("add_transactions_with_async: transaction prepared successfully");
             prepared
         }
         Err(e) => {
-            trace(&format!(
+            trace(format!(
                 "add_transactions_with_async: error preparing transaction: {}",
                 e
             ));
@@ -30,9 +28,7 @@ async fn add_transactions_with_async(
     };
 
     // Step 2: Simulate async operation (e.g., external API call, database operation, etc.)
-    trace(&format!(
-        "add_transactions_with_async: performing async operation"
-    ));
+    trace("add_transactions_with_async: performing async operation");
 
     // Simulate some async work
     perform_async_operation().await.unwrap();
@@ -42,14 +38,14 @@ async fn add_transactions_with_async(
 
     match commit_result {
         Ok(tx_index) => {
-            trace(&format!(
+            trace(format!(
                 "add_transactions_with_async: transaction committed successfully with index: {}",
                 tx_index
             ));
             Ok(tx_index)
         }
         Err(e) => {
-            trace(&format!(
+            trace(format!(
                 "add_transactions_with_async: error committing transaction: {}",
                 e
             ));
@@ -66,5 +62,5 @@ async fn perform_async_operation() -> Result<(), String> {
     .await
     .unwrap();
 
-    return Ok(());
+    Ok(())
 }

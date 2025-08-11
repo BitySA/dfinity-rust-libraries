@@ -52,17 +52,22 @@ where
 /// # Arguments
 ///
 /// * `msg` - The message to print
-pub fn trace(msg: &str) {
+use std::borrow::Cow;
+
+pub fn trace<'a>(msg: impl Into<Cow<'a, str>>) {
+    let msg: Cow<'a, str> = msg.into();
+
     #[cfg(feature = "debug-logs")]
     {
-        unsafe {
-            ic0::debug_print(msg.as_ptr() as usize, msg.len() as usize);
-        }
+        // unsafe {
+        //     ic0::debug_print(msg.as_ptr() as usize, msg.len());
+        // }
         ic_cdk::println!("{}", msg);
     }
+
     #[cfg(not(feature = "debug-logs"))]
     {
-        let _ = msg;
+        let _ = msg; // prevent unused variable warning
     }
 }
 

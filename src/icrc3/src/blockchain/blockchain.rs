@@ -70,7 +70,7 @@ impl Default for Blockchain {
             chain_length: 0,
             local_transactions: VecDeque::new(),
             ttl_for_non_archived_transactions: Duration::from_secs(120),
-            max_unarchived_transactions: MAX_LOCAL_TRANSACTIONS as u128,
+            max_unarchived_transactions: MAX_LOCAL_TRANSACTIONS,
         }
     }
 }
@@ -156,16 +156,14 @@ impl Blockchain {
     {
         let block_clone = block.clone();
         if block_clone.parent_hash() != self.last_hash {
-            trace(&format!(
-                "add_block error: Cannot apply block because its parent hash doesn't match."
-            ));
+            trace("add_block error: Cannot apply block because its parent hash doesn't match.");
             return Err("Cannot apply block because its parent hash doesn't match.".to_string());
         }
 
         if block_clone.timestamp() < self.last_timestamp {
-            trace(&format!(
+            trace(
                 "add_block error: Cannot apply block because its timestamp is older than the previous tip."
-            ));
+            );
             return Err(
                 "Cannot apply block because its timestamp is older than the previous tip."
                     .to_owned(),
@@ -186,7 +184,7 @@ impl Blockchain {
         self.local_transactions
             .push_back((block_clone.timestamp(), encoded_block.clone()));
 
-        trace(&format!(
+        trace(format!(
             "Added block to local transactions: {}",
             self.local_transactions.len()
         ));
@@ -195,9 +193,9 @@ impl Blockchain {
     }
 
     pub async fn archive_blocks_jobs(&mut self) -> Result<u128, String> {
-        trace(&format!("archive_blocks_jobs"));
+        trace("archive_blocks_jobs");
 
-        trace(&format!(
+        trace(format!(
             "archive_blocks_jobs: local_transactions: {}",
             self.local_transactions.len()
         ));
@@ -212,7 +210,7 @@ impl Blockchain {
         while !self.local_transactions.is_empty() {
             if let Some((oldest_timestamp, oldest_block)) = self.local_transactions.front().cloned()
             {
-                trace(&format!(
+                trace(format!(
                     "oldest_timestamp: {}, current_time: {}",
                     oldest_timestamp, current_time
                 ));
@@ -220,13 +218,13 @@ impl Blockchain {
                 if oldest_timestamp + self.ttl_for_non_archived_transactions.as_nanos()
                     < current_time
                 {
-                    trace(&format!(
+                    trace(format!(
                         "oldest_timestamp + ttl_for_non_archived_transactions: {}",
                         oldest_timestamp + self.ttl_for_non_archived_transactions.as_nanos()
                     ));
 
                     if let Some(tx) = self.local_transactions.pop_front() {
-                        trace(&format!(
+                        trace(format!(
                             "Archiving transaction from timestamp {}",
                             oldest_timestamp
                         ));
@@ -257,26 +255,26 @@ impl Blockchain {
                             }
                         }
                     } else {
-                        trace(&format!(
+                        trace(format!(
                             "oldest_timestamp + ttl_for_non_archived_transactions: {}",
                             oldest_timestamp + self.ttl_for_non_archived_transactions.as_nanos()
                         ));
                         break;
                     }
                 } else {
-                    trace(&format!(
+                    trace(format!(
                         "oldest_timestamp + ttl_for_non_archived_transactions: {}",
                         oldest_timestamp + self.ttl_for_non_archived_transactions.as_nanos()
                     ));
                     break;
                 }
             } else {
-                trace(&format!("archive_blocks_jobs: local_transactions is empty"));
+                trace("archive_blocks_jobs: local_transactions is empty");
                 break;
             }
         }
 
-        trace(&format!("Archived {} transaction(s)", archived_count));
+        trace(format!("Archived {} transaction(s)", archived_count));
         Ok(archived_count)
     }
 
@@ -296,12 +294,11 @@ impl Blockchain {
         }
 
         if block_id > self.chain_length() {
-            return self
-                .local_transactions
+            self.local_transactions
                 .get(block_id as usize - self.chain_length() as usize - 1)
-                .map(|(_, block)| block.clone());
+                .map(|(_, block)| block.clone())
         } else {
-            return None;
+            None
         }
     }
 
@@ -317,7 +314,7 @@ impl Blockchain {
     /// * `Err(String)` if the operation failed
     pub fn get_block_canister_id(&self, block_id: BlockIndex) -> Result<Principal, String> {
         if block_id >= self.chain_length() {
-            trace(&format!(
+            trace(format!(
                 "get_block_canister_id: Block id is after the end of the chain: {}, chain_length: {}",
                 block_id,
                 self.chain_length()

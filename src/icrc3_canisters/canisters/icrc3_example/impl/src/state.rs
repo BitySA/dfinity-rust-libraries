@@ -70,7 +70,7 @@ impl Data {
     }
 
     pub fn create_fake_transaction(&self) -> FakeTransaction {
-        trace(&format!("create_fake_transaction"));
+        trace("create_fake_transaction");
         FakeTransaction::random()
     }
 }

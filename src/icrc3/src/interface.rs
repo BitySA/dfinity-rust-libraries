@@ -174,7 +174,7 @@ impl ICRC3Interface for ICRC3 {
         let now = ic_cdk::api::time() as u128;
 
         let timestamp: u128 = if let Some(timestamp) = transaction.timestamp() {
-            timestamp.try_into().unwrap()
+            timestamp.into()
         } else {
             now
         };
@@ -273,7 +273,7 @@ impl ICRC3Interface for ICRC3 {
         let now = ic_cdk::api::time() as u128;
 
         let timestamp: u128 = if let Some(timestamp) = transaction.timestamp() {
-            timestamp.try_into().unwrap()
+            timestamp.into()
         } else {
             now
         };
@@ -460,21 +460,18 @@ impl ICRC3Interface for ICRC3 {
                 if i > self.blockchain.chain_length() {
                     let block = self.blockchain.get_block(i);
 
-                    match block {
-                        Some(block) => {
-                            let default_block = DefaultBlock::decode(block).unwrap();
-                            response.blocks.push(BlockWithId {
-                                id: Nat::from(i),
-                                block: default_block.transaction,
-                            });
-                            continue;
-                        }
-                        None => {}
+                    if let Some(block) = block {
+                        let default_block = DefaultBlock::decode(block).unwrap();
+                        response.blocks.push(BlockWithId {
+                            id: Nat::from(i),
+                            block: default_block.transaction,
+                        });
+                        continue;
                     }
                 }
                 let block_canister_id = self.blockchain.get_block_canister_id(i);
 
-                trace(&format!("block_canister_id: {:?}", block_canister_id));
+                trace(format!("block_canister_id: {:?}", block_canister_id));
 
                 match block_canister_id {
                     Ok(canister_id) => match current_canister {
@@ -502,7 +499,7 @@ impl ICRC3Interface for ICRC3 {
                     },
                     Err(e) => {
                         // should never happen, but we can not trap or return error. we just skip the block
-                        trace(&format!("icrc3_get_blocks error: {:?}", e));
+                        trace(format!("icrc3_get_blocks error: {:?}", e));
                     }
                 }
             }

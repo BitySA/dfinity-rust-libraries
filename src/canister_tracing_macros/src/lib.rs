@@ -6,7 +6,7 @@
 //!
 //! # Example
 //! ```
-//! use bity_dfinity_library::canister_tracing_macros::trace;
+//! use bity_ic_canister_tracing_macros::trace;
 //!
 //! #[trace]
 //! async fn my_function(arg1: u64, arg2: String) -> Result<(), String> {

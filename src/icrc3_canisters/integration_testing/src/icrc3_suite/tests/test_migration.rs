@@ -12,7 +12,7 @@ use std::time::Duration;
 fn test_migration() {
     let mut test_env = default_test_setup();
 
-    let result = add_random_transaction(
+    let _result = add_random_transaction(
         &mut test_env.pic,
         test_env.controller,
         test_env.icrc3_id,

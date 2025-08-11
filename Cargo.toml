@@ -85,6 +85,7 @@ num-traits = { version = "0.2.12", features = ["libm"] }
 deluxe = "0.5.0"
 lazy_static = "1.4.0"
 anyhow = "1.0.98"
+ic-management-canister-types = "0.3.1"
 
 bity-ic-canister-client = "0.2.1"
 bity-ic-canister-logger = "0.2.0"

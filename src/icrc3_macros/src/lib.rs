@@ -141,16 +141,16 @@ pub fn icrc3_state(_input: TokenStream) -> TokenStream {
                         Ok(mut lock) => {
                             if let Some(icrc3) = lock.as_mut() {
                                 if let Err(e) = icrc3.archive_job().await {
-                                    bity_ic_icrc3::utils::trace(&format!("Archive job failed: {}", e));
+                                    bity_ic_icrc3::utils::trace(format!("Archive job failed: {}", e));
                                 } else {
-                                    bity_ic_icrc3::utils::trace(&format!("Archive job completed successfully"));
+                                    bity_ic_icrc3::utils::trace(format!("Archive job completed successfully"));
                                 }
                             } else {
                                 bity_ic_icrc3::utils::trace("ICRC3 instance not initialized");
                             }
                         },
                         Err(e) => {
-                            bity_ic_icrc3::utils::trace(&format!("Failed to acquire ICRC3 lock: {}", e));
+                            bity_ic_icrc3::utils::trace(format!("Failed to acquire ICRC3 lock: {}", e));
                         }
                     }
                 });
@@ -164,16 +164,16 @@ pub fn icrc3_state(_input: TokenStream) -> TokenStream {
                         Ok(mut lock) => {
                             if let Some(icrc3) = lock.as_mut() {
                                 if let Err(e) = icrc3.cleanup_job() {
-                                    bity_ic_icrc3::utils::trace(&format!("Cleanup job failed: {}", e));
+                                    bity_ic_icrc3::utils::trace(format!("Cleanup job failed: {}", e));
                                 } else {
-                                    bity_ic_icrc3::utils::trace(&format!("Cleanup job completed successfully"));
+                                    bity_ic_icrc3::utils::trace(format!("Cleanup job completed successfully"));
                                 }
                             } else {
                                 bity_ic_icrc3::utils::trace("ICRC3 instance not initialized");
                             }
                         },
                         Err(e) => {
-                            bity_ic_icrc3::utils::trace(&format!("Failed to acquire ICRC3 lock: {}", e));
+                            bity_ic_icrc3::utils::trace(format!("Failed to acquire ICRC3 lock: {}", e));
                         }
                     }
                 });

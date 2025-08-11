@@ -5,7 +5,7 @@
 //!
 //! # Example
 //! ```
-//! use bity_dfinity_library::canister_state_macros::canister_state;
+//! use bity_ic_canister_state_macros::canister_state;
 //!
 //! struct MyState {
 //!     counter: u64,
@@ -40,7 +40,7 @@
 ///
 /// # Example
 /// ```
-/// use bity_dfinity_library::canister_state_macros::canister_state;
+/// use bity_ic_canister_state_macros::canister_state;
 ///
 /// struct AppState {
 ///     users: Vec<String>,

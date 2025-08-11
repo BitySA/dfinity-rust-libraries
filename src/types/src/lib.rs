@@ -38,3 +38,5 @@ pub type TimestampSeconds = u64;
 pub type TimestampMillis = u64;
 /// Type alias for Unix timestamps in nanoseconds
 pub type TimestampNanos = u64;
+/// Type alias for seconds
+pub type Second = u64;

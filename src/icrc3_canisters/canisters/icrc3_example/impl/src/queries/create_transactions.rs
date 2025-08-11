@@ -8,8 +8,8 @@ pub use icrc3_example_api::updates::create_transactions::{
 
 #[query]
 fn create_transactions(_: CreateTransactionsArgs) -> CreateTransactionsResponse {
-    trace(&format!("create_transactions"));
+    trace("create_transactions");
     let transaction = read_state(|state| state.data.create_fake_transaction());
 
-    return transaction;
+    transaction
 }

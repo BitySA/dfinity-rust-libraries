@@ -40,13 +40,13 @@ fn icrc3_get_blocks(req: GetBlocksArg) -> GetBlockseResponse {
                             });
                         }
                         Err(e) => {
-                            trace(&format!("Error decoding block: {}", e));
+                            trace(format!("Error decoding block: {}", e));
                         }
                     }
                 }
                 _ => {
                     // TODO: handle other block types
-                    trace(&format!("TODO: handle other block types"));
+                    trace(format!("TODO: handle other block types"));
                 }
             }
         }

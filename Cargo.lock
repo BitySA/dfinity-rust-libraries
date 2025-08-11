@@ -215,10 +215,12 @@ version = "0.2.1"
 name = "bity-ic-canister-time"
 version = "0.2.0"
 dependencies = [
- "bity-ic-types 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "bity-ic-types 0.1.0",
  "ic-cdk",
  "ic-cdk-timers",
  "ic0 0.25.1",
+ "time",
+ "tracing",
 ]
 
 [[package]]
@@ -425,6 +427,7 @@ dependencies = [
  "candid",
  "canfund",
  "ic-cdk",
+ "ic-management-canister-types",
  "ic0 0.25.1",
  "serde",
 ]
@@ -478,6 +481,7 @@ dependencies = [
  "hex",
  "ic-cdk",
  "ic-cdk-timers",
+ "ic-management-canister-types",
  "icrc-ledger-types",
  "serde",
  "tokio",
@@ -745,6 +749,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9c9e6a11ca8224451684bc0d7d5a7adbf8f2fd6887261a1cfc3c0432f9d4068e"
 dependencies = [
  "powerfmt",
+ "serde",
 ]
 
 [[package]]

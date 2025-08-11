@@ -162,11 +162,11 @@ impl ArchiveCanisterManager {
         block_id: BlockIndex,
         block: EncodedBlock,
     ) -> Result<(), String> {
-        trace(&format!("Starting to insert single block"));
-        trace(&format!("insert_block: block_id: {}", block_id));
+        trace(format!("Starting to insert single block"));
+        trace(format!("insert_block: block_id: {}", block_id));
 
         for (_, canister) in self.sub_canister_manager.sub_canisters.iter_mut() {
-            trace(&format!(
+            trace(format!(
                 "Checking available space in canister {:?}...",
                 canister.canister_id()
             ));
@@ -195,8 +195,8 @@ impl ArchiveCanisterManager {
             .await
         {
             Ok(mut new_canister) => {
-                trace(&format!("Creating new canister to store block."));
-                trace(&format!(
+                trace(format!("Creating new canister to store block."));
+                trace(format!(
                     "Creating new canister to store block. block_id: {}",
                     block_id
                 ));
@@ -204,14 +204,14 @@ impl ArchiveCanisterManager {
                 self.canisters_by_block_id.push((block_id, canister_id));
 
                 if let Err(e) = new_canister.insert_blocks(vec![block.clone()]).await {
-                    trace(&format!("Failed to insert block into new canister: {}", e));
+                    trace(format!("Failed to insert block into new canister: {}", e));
                     return Err(format!("Failed to insert block into new canister: {}", e));
                 }
 
                 Ok(())
             }
             Err(e) => {
-                trace(&format!("Failed to create a new canister: {:?}", e));
+                trace(format!("Failed to create a new canister: {:?}", e));
                 Err(format!("Failed to create a new canister: {:?}", e))
             }
         }
@@ -243,11 +243,11 @@ impl ArchiveCanisterManager {
     /// * `Ok(Principal)` containing the canister ID
     /// * `Err(String)` if no canister is found for the block ID
     pub fn get_canister_id_by_block_id(&self, block_id: BlockIndex) -> Result<Principal, String> {
-        trace(&format!(
+        trace(format!(
             "get_canister_id_by_block_id: block_id: {}, canisters_by_block_id: {:?}",
             block_id, self.canisters_by_block_id
         ));
-        trace(&format!(
+        trace(format!(
             "get_canister_id_by_block_id: canisters_by_block_id: {:?}",
             self.canisters_by_block_id
         ));

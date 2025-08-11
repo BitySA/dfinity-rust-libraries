@@ -85,7 +85,7 @@ impl ArchiveCanister {
         )
         .await;
 
-        trace(&format!(
+        trace(format!(
             "Checking canister {:?} remaining capacity: {res:?}",
             self.canister_id()
         ));
@@ -93,7 +93,7 @@ impl ArchiveCanister {
         match res {
             Ok(available_space) => Ok(u128::try_from(available_space.0).unwrap()),
             Err(err) => {
-                trace(&format!(
+                trace(format!(
                     "Failed to get archive size for canister {:?}: {:?}",
                     self.canister_id(),
                     err

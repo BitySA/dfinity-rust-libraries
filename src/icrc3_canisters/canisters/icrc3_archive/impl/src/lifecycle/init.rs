@@ -12,7 +12,7 @@ pub use bity_ic_icrc3_archive_api::lifecycle::Args;
 
 #[init]
 fn init(args: Args) {
-    trace(&format!("archive canister init args: {:?}", args));
+    trace(format!("archive canister init args: {:?}", args));
     match args {
         Args::Init(init_args) => {
             bity_ic_canister_logger::init(init_args.test_mode);

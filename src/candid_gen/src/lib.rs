@@ -12,7 +12,7 @@
 //!
 //! # Examples
 //! ```
-//! use bity_dfinity_library::candid_gen::*;
+//! use bity_ic_candid_gen::*;
 //!
 //! // Generate a method with arguments
 //! generate_candid_method!(my_canister, transfer, update);
@@ -56,7 +56,7 @@ struct MethodAttribute {
 ///
 /// # Example
 /// ```
-/// use bity_dfinity_library::candid_gen::generate_candid_method;
+/// use bity_ic_candid_gen::generate_candid_method;
 ///
 /// generate_candid_method!(my_canister, transfer, update);
 /// ```
@@ -103,7 +103,7 @@ pub fn generate_candid_method(input: TokenStream) -> TokenStream {
 ///
 /// # Example
 /// ```
-/// use bity_dfinity_library::candid_gen::generate_candid_method_no_args;
+/// use bity_ic_candid_gen::generate_candid_method_no_args;
 ///
 /// generate_candid_method_no_args!(my_canister, get_balance, query);
 /// ```

@@ -6,7 +6,7 @@
 //!
 //! # Example
 //! ```
-//! use bity_dfinity_library::canister_logger::{init, export_logs};
+//! use bity_ic_canister_logger::{init, export_logs};
 //! use tracing::info;
 //!
 //! // Initialize the logger
@@ -106,7 +106,7 @@ pub fn init_with_logs(enable_trace: bool, logs: Vec<LogEntry>, traces: Vec<LogEn
 ///
 /// # Examples
 /// ```
-/// use bity_dfinity_library::canister_logger::LogBuffer;
+/// use bity_ic_canister_logger::LogBuffer;
 ///
 /// let mut buffer = LogBuffer::with_capacity(10);
 /// buffer.append(LogEntry {

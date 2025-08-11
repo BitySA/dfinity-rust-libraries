@@ -9,10 +9,10 @@ pub use icrc3_example_api::updates::add_random_transaction::{
 
 #[update]
 fn add_random_transaction(_: RandomTransactionArgs) -> RandomTransactionResponse {
-    trace(&format!("add_random_transaction"));
+    trace("add_random_transaction");
     let transaction = read_state(|state| state.data.create_fake_transaction());
 
-    trace(&format!(
+    trace(format!(
         "add_random_transaction transaction: {:?}",
         transaction
     ));
@@ -21,14 +21,12 @@ fn add_random_transaction(_: RandomTransactionArgs) -> RandomTransactionResponse
         .map_err(|e| format!("Error adding transaction: {}", e))
     {
         Ok(_) => {
-            trace(&format!("transaction added."));
+            trace("transaction added.");
         }
         Err(e) => {
-            trace(&format!("error adding transaction: {}", e));
+            trace(format!("error adding transaction: {}", e));
         }
     }
 
-    // trace(&format!("add_random_transaction result: {:?}", result));
-
-    ()
+    // trace(format!("add_random_transaction result: {:?}", result));
 }

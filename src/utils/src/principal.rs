@@ -16,7 +16,7 @@ impl PrincipalDotAccountFormat for Account {
             Some(subaccount) => format!("{}.{}", self.owner, hex::encode(subaccount)),
             None => format!(
                 "{}.0000000000000000000000000000000000000000000000000000000000000000",
-                self.owner.to_string()
+                self.owner
             ),
         }
     }

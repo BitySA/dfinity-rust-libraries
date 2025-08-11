@@ -8,18 +8,18 @@ pub use icrc3_example_api::updates::prepare_transaction::{
 
 #[update]
 fn prepare_transaction(transaction: PrepareTransactionArgs) -> PrepareTransactionResponse {
-    trace(&format!("prepare_transaction: starting"));
+    trace(format!("prepare_transaction: starting"));
 
     // Prepare the transaction
     let prepared_tx = match icrc3_prepare_transaction(transaction) {
         Ok(prepared) => {
-            trace(&format!(
+            trace(format!(
                 "prepare_transaction: transaction prepared successfully"
             ));
             prepared
         }
         Err(e) => {
-            trace(&format!(
+            trace(format!(
                 "prepare_transaction: error preparing transaction: {}",
                 e
             ));
@@ -27,7 +27,7 @@ fn prepare_transaction(transaction: PrepareTransactionArgs) -> PrepareTransactio
         }
     };
 
-    trace(&format!(
+    trace(format!(
         "prepare_transaction: returning hash: {:?}",
         prepared_tx.transaction_hash
     ));

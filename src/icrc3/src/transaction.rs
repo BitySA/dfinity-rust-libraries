@@ -117,7 +117,7 @@ impl GlobalTransaction {
 
 impl From<GlobalTransaction> for ICRC3Value {
     fn from(tx: GlobalTransaction) -> Self {
-        trace(&format!("from {:?}", tx.0));
+        trace(format!("from {:?}", tx.0));
         tx.0
     }
 }

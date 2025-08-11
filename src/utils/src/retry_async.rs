@@ -16,7 +16,7 @@ use std::future::Future;
 /// # Example
 ///
 /// ```
-/// use bity_dfinity_library::utils::retry_async;
+/// use bity_ic_utils::retry_async;
 ///
 /// async fn fallible_operation() -> Result<i32, String> {
 ///     // Some operation that might fail
