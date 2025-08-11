@@ -1,6 +1,6 @@
 [package]
 name = "icrc3_archive"
-version = "0.3.0"
+version = "0.3.1"
 description = "icrc3 archive"
 edition = "2021"
 
