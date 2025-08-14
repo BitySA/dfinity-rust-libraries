@@ -34,7 +34,7 @@ sha2 = { workspace = true }
 anyhow = { workspace = true }
 
 bity-ic-canister-time = "0.2.0"
-bity-ic-types = "0.1.0"
+bity-ic-types = "0.1.1"
 bity-ic-utils = "0.2.0"
 bity-ic-subcanister-manager = "0.3.1"
 bity-ic-icrc3-archive-api = "0.3.0"

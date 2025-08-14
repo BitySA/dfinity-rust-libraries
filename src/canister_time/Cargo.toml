@@ -15,6 +15,6 @@ documentation = "https://docs.rs/bity-ic-canister-time"
 ic0 = { workspace = true }
 ic-cdk = { workspace = true }
 ic-cdk-timers = { workspace = true }
-bity-ic-types = { path = "../types" }
+bity-ic-types = "0.1.1"
 tracing = { workspace = true }
 time = { workspace = true }

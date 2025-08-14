@@ -113,20 +113,20 @@ where
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use bity_ic_types::BuildVersion;
-    use bity_ic_utils::env::CanisterEnv;
+    // use super::*;
+    // use bity_ic_types::BuildVersion;
+    // use bity_ic_utils::env::CanisterEnv;
 
-    // Example functions
-    async fn example_async_action() -> Result<(), String> {
-        println!("Async Action executed");
-        Ok(())
-    }
+    // // Example functions
+    // async fn example_async_action() -> Result<(), String> {
+    //     println!("Async Action executed");
+    //     Ok(())
+    // }
 
-    fn example_sync_action() -> Result<(), String> {
-        println!("Sync Action executed");
-        Ok(())
-    }
+    // fn example_sync_action() -> Result<(), String> {
+    //     println!("Sync Action executed");
+    //     Ok(())
+    // }
 
     // #[test]
     // fn test_sync_job() {
@@ -212,7 +212,7 @@ where
     F: Fn() -> Fut + 'static,
     Fut: std::future::Future<Output = Result<(), String>> + 'static,
 {
-    ic_cdk::spawn(async move {
+    ic_cdk::futures::spawn(async move {
         let _ = retry_with_attempts_async(max_attempts, retry_delay_duration, func).await;
     });
 }
@@ -229,5 +229,5 @@ where
 //         println!("Async function executed");
 //     }
 
-//     ic_cdk::spawn(async_function());
+//     ic_cdk::futures::spawn(async_function());
 // }

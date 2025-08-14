@@ -49,7 +49,7 @@ use ic_cdk::management_canister::{
 use ic_management_canister_types::CanisterIdRecord;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
-use std::{any::Any, collections::HashMap, fmt::Debug, future::Future};
+use std::{any::Any, collections::HashMap, fmt::Debug};
 
 /// Error types for storage operations
 #[derive(Debug)]
@@ -207,202 +207,198 @@ where
         &mut self,
         init_args: <T as Canister>::ParamType,
     ) -> Result<Box<T>, NewCanisterError> {
-        async move {
-            let mut canister_id = Principal::anonymous();
+        let mut canister_id = Principal::anonymous();
 
-            for (_canister_id, canister) in self.sub_canisters.iter() {
-                if canister.state() == CanisterState::Created {
-                    canister_id = *_canister_id;
-                    break;
-                }
+        for (_canister_id, canister) in self.sub_canisters.iter() {
+            if canister.state() == CanisterState::Created {
+                canister_id = *_canister_id;
+                break;
             }
-
-            if canister_id == Principal::anonymous() {
-                let settings = CanisterSettings {
-                    controllers: Some(self.controllers.clone()),
-                    compute_allocation: None,
-                    memory_allocation: None,
-                    freezing_threshold: None,
-                    reserved_cycles_limit: Some(Nat::from(self.reserved_cycles)),
-                    log_visibility: Some(LogVisibility::Public),
-                    wasm_memory_limit: None,
-                    wasm_memory_threshold: None,
-                };
-
-                canister_id = match retry_async(
-                    async || {
-                        create_canister_with_extra_cycles(
-                            &CreateCanisterArgs {
-                                settings: Some(settings.clone()),
-                            },
-                            self.initial_cycles,
-                        )
-                        .await
-                    },
-                    3,
-                )
-                .await
-                {
-                    Ok(canister) => canister.canister_id,
-                    Err(e) => {
-                        return Err(NewCanisterError::CreateCanisterError(format!("{e:?}")));
-                    }
-                };
-
-                add_canisters_to_fund_manager(
-                    &mut self.fund_manager,
-                    self.funding_config.clone(),
-                    vec![canister_id],
-                );
-
-                self.sub_canisters.insert(
-                    canister_id,
-                    Box::new(T::new(
-                        canister_id,
-                        CanisterState::Created,
-                        init_args.clone(),
-                    )),
-                );
-            }
-
-            let encoded_init_args = match Encode!(&init_args) {
-                Ok(encoded_init_args) => encoded_init_args,
-                Err(e) => {
-                    return Err(NewCanisterError::FailedToSerializeInitArgs(format!("{e}")));
-                }
-            };
-
-            let install_args = InstallCodeArgs {
-                mode: CanisterInstallMode::Install,
-                canister_id,
-                wasm_module: self.wasm.clone(),
-                arg: encoded_init_args.clone(),
-            };
-
-            match install_code(&install_args).await {
-                Ok(_) => {}
-                Err(e) => {
-                    return Err(NewCanisterError::InstallCodeError(format!("{:?}", e)));
-                }
-            }
-
-            let canister = Box::new(T::new(
-                canister_id,
-                CanisterState::Installed,
-                init_args.clone(),
-            ));
-
-            self.sub_canisters.insert(canister_id, canister.clone());
-
-            Ok(canister)
         }
+
+        if canister_id == Principal::anonymous() {
+            let settings = CanisterSettings {
+                controllers: Some(self.controllers.clone()),
+                compute_allocation: None,
+                memory_allocation: None,
+                freezing_threshold: None,
+                reserved_cycles_limit: Some(Nat::from(self.reserved_cycles)),
+                log_visibility: Some(LogVisibility::Public),
+                wasm_memory_limit: None,
+                wasm_memory_threshold: None,
+            };
+
+            canister_id = match retry_async(
+                async || {
+                    create_canister_with_extra_cycles(
+                        &CreateCanisterArgs {
+                            settings: Some(settings.clone()),
+                        },
+                        self.initial_cycles,
+                    )
+                    .await
+                },
+                3,
+            )
+            .await
+            {
+                Ok(canister) => canister.canister_id,
+                Err(e) => {
+                    return Err(NewCanisterError::CreateCanisterError(format!("{e:?}")));
+                }
+            };
+
+            add_canisters_to_fund_manager(
+                &mut self.fund_manager,
+                self.funding_config.clone(),
+                vec![canister_id],
+            );
+
+            self.sub_canisters.insert(
+                canister_id,
+                Box::new(T::new(
+                    canister_id,
+                    CanisterState::Created,
+                    init_args.clone(),
+                )),
+            );
+        }
+
+        let encoded_init_args = match Encode!(&init_args) {
+            Ok(encoded_init_args) => encoded_init_args,
+            Err(e) => {
+                return Err(NewCanisterError::FailedToSerializeInitArgs(format!("{e}")));
+            }
+        };
+
+        let install_args = InstallCodeArgs {
+            mode: CanisterInstallMode::Install,
+            canister_id,
+            wasm_module: self.wasm.clone(),
+            arg: encoded_init_args.clone(),
+        };
+
+        match install_code(&install_args).await {
+            Ok(_) => {}
+            Err(e) => {
+                return Err(NewCanisterError::InstallCodeError(format!("{:?}", e)));
+            }
+        }
+
+        let canister = Box::new(T::new(
+            canister_id,
+            CanisterState::Installed,
+            init_args.clone(),
+        ));
+
+        self.sub_canisters.insert(canister_id, canister.clone());
+
+        Ok(canister)
     }
 
     pub async fn update_canisters(
         &mut self,
         update_args: <T as Canister>::ParamType,
     ) -> Result<(), Vec<String>> {
-        async move {
-            let init_args = match Encode!(&update_args.clone()) {
-                Ok(encoded_init_args) => encoded_init_args,
-                Err(e) => {
-                    return Err(vec![format!(
-                        "ERROR : failed to create init args with error - {e}"
-                    )]);
-                }
-            };
+        let init_args = match Encode!(&update_args.clone()) {
+            Ok(encoded_init_args) => encoded_init_args,
+            Err(e) => {
+                return Err(vec![format!(
+                    "ERROR : failed to create init args with error - {e}"
+                )]);
+            }
+        };
 
-            let mut canister_upgrade_errors = vec![];
+        let mut canister_upgrade_errors = vec![];
 
-            for (canister_id, _canister) in self.sub_canisters.clone().iter() {
-                match retry_async(
-                    async || {
-                        stop_canister(&CanisterIdRecord {
-                            canister_id: *canister_id,
-                        })
-                        .await
-                    },
-                    3,
-                )
-                .await
-                {
-                    Ok(_) => {
-                        self.sub_canisters.insert(
+        for (canister_id, _canister) in self.sub_canisters.clone().iter() {
+            match retry_async(
+                async || {
+                    stop_canister(&CanisterIdRecord {
+                        canister_id: *canister_id,
+                    })
+                    .await
+                },
+                3,
+            )
+            .await
+            {
+                Ok(_) => {
+                    self.sub_canisters.insert(
+                        *canister_id,
+                        Box::new(T::new(
                             *canister_id,
-                            Box::new(T::new(
-                                *canister_id,
-                                CanisterState::Stopped,
-                                update_args.clone(),
-                            )),
-                        );
-                    }
-                    Err(e) => {
-                        canister_upgrade_errors.push(format!(
+                            CanisterState::Stopped,
+                            update_args.clone(),
+                        )),
+                    );
+                }
+                Err(e) => {
+                    canister_upgrade_errors.push(format!(
                             "ERROR: storage upgrade :: storage with principal : {} failed to stop with error {:?}",
                             *canister_id, e
                         ));
-                        continue;
-                    }
+                    continue;
                 }
+            }
 
-                let result = {
-                    let init_args = init_args.clone();
-                    let wasm_module = self.wasm.clone();
+            let result = {
+                let init_args = init_args.clone();
+                let wasm_module = self.wasm.clone();
 
-                    let install_args = InstallCodeArgs {
-                        mode: CanisterInstallMode::Upgrade(None),
-                        canister_id: *canister_id,
-                        wasm_module,
-                        arg: init_args,
-                    };
-                    retry_async(|| install_code(&install_args), 3).await
+                let install_args = InstallCodeArgs {
+                    mode: CanisterInstallMode::Upgrade(None),
+                    canister_id: *canister_id,
+                    wasm_module,
+                    arg: init_args,
                 };
+                retry_async(|| install_code(&install_args), 3).await
+            };
 
-                match result {
-                    Ok(_) => {
-                        match retry_async(
-                            async || {
-                                start_canister(&CanisterIdRecord {
-                                    canister_id: *canister_id,
-                                })
-                                .await
-                            },
-                            3,
-                        )
-                        .await
-                        {
-                            Ok(_) => {
-                                self.sub_canisters.insert(
+            match result {
+                Ok(_) => {
+                    match retry_async(
+                        async || {
+                            start_canister(&CanisterIdRecord {
+                                canister_id: *canister_id,
+                            })
+                            .await
+                        },
+                        3,
+                    )
+                    .await
+                    {
+                        Ok(_) => {
+                            self.sub_canisters.insert(
+                                *canister_id,
+                                Box::new(T::new(
                                     *canister_id,
-                                    Box::new(T::new(
-                                        *canister_id,
-                                        CanisterState::Installed,
-                                        update_args.clone(),
-                                    )),
-                                );
-                            }
-                            Err(e) => {
-                                canister_upgrade_errors.push(format!(
+                                    CanisterState::Installed,
+                                    update_args.clone(),
+                                )),
+                            );
+                        }
+                        Err(e) => {
+                            canister_upgrade_errors.push(format!(
                                     "ERROR: storage upgrade :: storage with principal : {} failed to start with error {:?}",
                                     *canister_id, e
                                 ));
-                            }
                         }
                     }
-                    Err(e) => {
-                        canister_upgrade_errors.push(format!(
+                }
+                Err(e) => {
+                    canister_upgrade_errors.push(format!(
                             "ERROR: storage upgrade :: storage with principal : {} failed to install upgrade {:?}",
                             *canister_id, e
                         ));
-                    }
                 }
             }
+        }
 
-            if !canister_upgrade_errors.is_empty() {
-                Err(canister_upgrade_errors)
-            } else {
-                Ok(())
-            }
+        if !canister_upgrade_errors.is_empty() {
+            Err(canister_upgrade_errors)
+        } else {
+            Ok(())
         }
     }
 

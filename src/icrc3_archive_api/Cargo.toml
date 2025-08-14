@@ -13,7 +13,7 @@ documentation = "https://docs.rs/bity-ic-icrc3-archive-api"
 inttest = []
 
 [dependencies]
-bity-ic-types = "0.1.0"
+bity-ic-types = "0.1.1"
 candid = { workspace = true }
 icrc-ledger-types = { workspace = true }
 serde = { workspace = true, features = ["derive"] }

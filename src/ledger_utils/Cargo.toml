@@ -17,4 +17,4 @@ ic-ledger-types = { workspace = true }
 icrc-ledger-types = { workspace = true }
 sha2 = { workspace = true }
 sha256 = { workspace = true }
-bity-ic-types = "0.1.0"
+bity-ic-types = "0.1.1"

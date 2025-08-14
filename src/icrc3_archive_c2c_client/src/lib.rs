@@ -1,3 +1,4 @@
+use bity_ic_canister_client::canister_client_macros::candid;
 use bity_ic_canister_client::generate_candid_c2c_call;
 use bity_ic_icrc3_archive_api::*;
 
