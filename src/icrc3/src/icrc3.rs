@@ -1,16 +1,20 @@
-use crate::blockchain::archive_canister_manager::ArchiveCanisterManager;
+use crate::blockchain::archive_canister_manager::{ArchiveCanisterManager, ARCHIVE_WASM};
 use crate::blockchain::blockchain::Blockchain;
 use crate::config::ICRC3Config;
 use crate::utils::{get_timestamp, last_block_hash_tree, trace};
 
-use bity_ic_icrc3_archive_api::types::hash::HashOf;
+use bity_ic_icrc3_archive_api::{
+    archive_config::ArchiveConfig, lifecycle::BlockType, types::hash::HashOf,
+};
+use bity_ic_types::BuildVersion;
 use bity_ic_types::TimestampNanos;
 use candid::Nat;
 use ic_certification::AsHashTree;
 use icrc_ledger_types::icrc::generic_value::ICRC3Value;
 use serde::{Deserialize, Serialize};
 use serde_bytes::ByteBuf;
-use std::collections::VecDeque;
+use sha2::{Digest, Sha256};
+use std::collections::{HashMap, VecDeque};
 use std::time::Duration;
 
 /// The maximum allowed time drift for transaction timestamps
@@ -52,15 +56,50 @@ impl ICRC3 {
     ///
     /// A new ICRC3 instance with an empty blockchain and ledger
     pub fn new(icrc3_config: ICRC3Config) -> Self {
+        let this_canister_id = ic_cdk::api::canister_self();
+        let version = bity_ic_icrc3_archive_api::VERSION.to_string();
+        let mut hasher = Sha256::new();
+        hasher.update(version.as_bytes());
+        let commit_hash = format!("{:x}", hasher.finalize());
+
         Self {
             blockchain: Blockchain::new(
-                ArchiveCanisterManager::default(),
+                ArchiveCanisterManager::new(
+                    bity_ic_icrc3_archive_api::init::InitArgs {
+                        test_mode: false,
+                        version: bity_ic_icrc3_archive_api::VERSION
+                            .parse::<BuildVersion>()
+                            .unwrap(),
+                        commit_hash: commit_hash.clone(),
+                        authorized_principals: vec![this_canister_id],
+                        archive_config: ArchiveConfig::default(),
+                        master_canister_id: this_canister_id,
+                        block_type: BlockType::Default,
+                    },
+                    bity_ic_icrc3_archive_api::post_upgrade::UpgradeArgs {
+                        version: bity_ic_icrc3_archive_api::VERSION
+                            .parse::<BuildVersion>()
+                            .unwrap(),
+                        commit_hash,
+                        block_type: BlockType::Default,
+                    },
+                    HashMap::new(),
+                    vec![this_canister_id],
+                    vec![this_canister_id],
+                    icrc3_config.constants.initial_cycles,
+                    icrc3_config.constants.reserved_cycles,
+                    ARCHIVE_WASM.to_vec(),
+                    None,
+                    None,
+                    None,
+                ),
                 None,
                 0,
                 0,
-                icrc3_config.constants.ttl_for_non_archived_transactions,
+                Duration::from_secs(120),
                 icrc3_config.constants.max_unarchived_transactions,
             ),
+
             ledger: VecDeque::new(),
             prepared_transactions: VecDeque::new(),
             last_index: 0,

@@ -13,9 +13,9 @@ use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::collections::HashMap;
 
-const ARCHIVE_WASM: &[u8] = include_bytes!("../../wasm/icrc3_archive_canister.wasm.gz");
-const DEFAULT_INITIAL_CYCLES: u128 = 100_000_000_000_000_000;
-const DEFAULT_RESERVED_CYCLES: u128 = 100_000_000_000_000_000;
+pub const ARCHIVE_WASM: &[u8] = include_bytes!("../../wasm/icrc3_archive_canister.wasm.gz");
+const DEFAULT_INITIAL_CYCLES: u128 = 5_000_000_000_000;
+const DEFAULT_RESERVED_CYCLES: u128 = 5_000_000_000_000;
 const DEFAULT_MIN_CYCLES: u128 = 1_000_000_000_000;
 const DEFAULT_FUND_CYCLES: u128 = 2_000_000_000_000;
 const DEFAULT_INTERVAL_SECS: u64 = 60;
