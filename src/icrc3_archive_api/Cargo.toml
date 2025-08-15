@@ -1,6 +1,6 @@
 [package]
 name = "bity-ic-icrc3-archive-api"
-version = "0.3.0"
+version = "0.3.1"
 description = "bity icrc3 archive api"
 edition = "2021"
 license = "MIT"
