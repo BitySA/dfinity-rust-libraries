@@ -248,7 +248,7 @@ impl ICRC3Interface for ICRC3 {
 
         self.ledger.push_back(checked_transaction.clone());
         self.last_index += 1;
-        self.last_phash = Some(ByteBuf::from(checked_transaction.clone().hash().to_vec()));
+        self.last_phash = Some(ByteBuf::from(transaction_hash));
 
         let block = DefaultBlock::from_transaction(
             self.blockchain.last_hash,
