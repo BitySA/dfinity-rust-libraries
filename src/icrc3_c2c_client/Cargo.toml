@@ -1,0 +1,21 @@
+[package]
+name = "bity-ic-icrc3-c2c-client"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+description = "bity icrc3 c2c client"
+repository = "https://github.com/BitySA/dfinity-rust-libraries"
+keywords = ["dfinity", "internet-computer", "ic", "canister", "subcanister"]
+authors = ["Bity Team", "Gautier Wojda <gautier.wojda@bity.com>"]
+documentation = "https://docs.rs/bity-ic-icrc3-c2c-client"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+# bity-ic-canister-client = { path = "../canister_client" }
+bity-ic-canister-client = "0.2.4"
+bity-ic-icrc3 = "0.4.8"
+bity-ic-types = "0.1.1"
+ic-cdk = { workspace = true }
+candid = { workspace = true }
+serde = { workspace = true }
