@@ -469,9 +469,6 @@ impl TransactionType for ICRC7Transaction {
                 if self.tx.tid.is_none() {
                     return Err("Token ID is required for update_token".to_string());
                 }
-                if self.tx.from.is_none() {
-                    return Err("From is required for update_token".to_string());
-                }
                 if self.tx.to.is_some() {
                     return Err("To is not allowed for update_token".to_string());
                 }

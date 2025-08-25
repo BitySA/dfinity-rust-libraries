@@ -273,6 +273,38 @@ dependencies = [
 [[package]]
 name = "bity-ic-icrc3"
 version = "0.4.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9f0fde46842c24b39fcd2fc18c97c90868aa400894ad3e76a34db846e168d75b"
+dependencies = [
+ "anyhow",
+ "bity-ic-canister-time 0.2.0",
+ "bity-ic-icrc3-archive-api 0.3.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "bity-ic-icrc3-archive-c2c-client 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "bity-ic-subcanister-manager 0.3.1",
+ "bity-ic-types 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "bity-ic-utils 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "candid",
+ "canfund",
+ "futures",
+ "hex",
+ "ic-cdk",
+ "ic-certification",
+ "ic-ledger-types",
+ "ic-stable-structures",
+ "ic0 0.25.1",
+ "icrc-ledger-types",
+ "leb128",
+ "serde",
+ "serde_bytes",
+ "serde_cbor",
+ "sha2",
+ "syn 2.0.105",
+ "tracing",
+]
+
+[[package]]
+name = "bity-ic-icrc3"
+version = "0.4.9"
 dependencies = [
  "anyhow",
  "bity-ic-canister-time 0.2.0",
@@ -354,6 +386,18 @@ checksum = "2ded1224fea13ba1f42d673136f0925b76295f5c2d64fb1cb85305cae327a00b"
 dependencies = [
  "bity-ic-canister-client 0.2.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "bity-ic-icrc3-archive-api 0.3.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "bity-ic-types 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "candid",
+ "ic-cdk",
+ "serde",
+]
+
+[[package]]
+name = "bity-ic-icrc3-c2c-client"
+version = "0.1.0"
+dependencies = [
+ "bity-ic-canister-client 0.2.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "bity-ic-icrc3 0.4.8",
  "bity-ic-types 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "candid",
  "ic-cdk",
@@ -1343,7 +1387,7 @@ dependencies = [
  "bity-ic-canister-state-macros 0.1.0",
  "bity-ic-canister-time 0.2.0",
  "bity-ic-canister-tracing-macros 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "bity-ic-icrc3",
+ "bity-ic-icrc3 0.4.9",
  "bity-ic-icrc3-macros",
  "bity-ic-serializer 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "bity-ic-stable-memory 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1367,7 +1411,7 @@ dependencies = [
 name = "icrc3-example-api"
 version = "0.1.0"
 dependencies = [
- "bity-ic-icrc3",
+ "bity-ic-icrc3 0.4.9",
  "bity-ic-icrc3-archive-api 0.3.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "bity-ic-types 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "candid",
@@ -1539,7 +1583,7 @@ version = "0.1.0"
 dependencies = [
  "arbitrary",
  "bity-ic-canister-time 0.2.0",
- "bity-ic-icrc3",
+ "bity-ic-icrc3 0.4.9",
  "bity-ic-icrc3-archive-api 0.3.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "bity-ic-types 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "bity-ic-utils 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",

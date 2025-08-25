@@ -56,7 +56,7 @@ pub mod icrc3_get_blocks {
 }
 
 /// Module containing types for the `icrc3_get_tip_certificate` endpoint.
-pub mod icrc3_get_tip_cerificate {
+pub mod icrc3_get_tip_certificate {
     use icrc_ledger_types::icrc3::blocks::ICRC3DataCertificate;
 
     /// Arguments for the `icrc3_get_tip_certificate` endpoint
