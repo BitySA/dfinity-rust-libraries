@@ -1,6 +1,6 @@
 [package]
 name = "bity-ic-ledger-utils"
-version = "0.2.0"
+version = "0.2.1"
 edition = "2021"
 description = "Description spécifique de la crate"
 license = "MIT"
@@ -16,5 +16,4 @@ candid = { workspace = true }
 ic-ledger-types = { workspace = true }
 icrc-ledger-types = { workspace = true }
 sha2 = { workspace = true }
-sha256 = { workspace = true }
 bity-ic-types = "0.1.1"
