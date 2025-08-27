@@ -30,14 +30,14 @@ pub const PERMITTED_DRIFT: Duration = Duration::from_millis(100);
 /// * `blockchain` - The blockchain implementation
 /// * `ledger` - A queue of recent transactions
 /// * `prepared_transactions` - A FIFO queue of prepared transaction hashes
-/// * `last_index` - The index of the last transaction
+/// * `next_index` - The index of the next transaction
 /// * `icrc3_config` - Configuration parameters
 #[derive(Serialize, Deserialize)]
 pub struct ICRC3 {
     pub blockchain: Blockchain,
     pub ledger: VecDeque<ICRC3Value>,
     pub prepared_transactions: VecDeque<(String, TimestampNanos)>,
-    pub last_index: u64,
+    pub next_index: u64,
     pub last_phash: Option<ByteBuf>,
     pub icrc3_config: ICRC3Config,
 }
@@ -102,7 +102,7 @@ impl ICRC3 {
 
             ledger: VecDeque::new(),
             prepared_transactions: VecDeque::new(),
-            last_index: 0,
+            next_index: 0,
             last_phash: None,
             icrc3_config,
         }
@@ -265,7 +265,7 @@ impl ICRC3 {
     /// A vector containing the root hash of the certification tree
     pub fn get_hash_tree(&self) -> Vec<u8> {
         let hash_tree_root = last_block_hash_tree(
-            self.last_index,
+            self.next_index,
             self.blockchain
                 .last_hash
                 .unwrap_or(HashOf::new([0; 32]))
@@ -327,7 +327,7 @@ impl From<ICRC3> for Certificate {
     ///
     /// The certificate is then set as the certified data for the canister.
     fn from(val: ICRC3) -> Self {
-        let last_block_index = val.last_index;
+        let last_block_index = val.next_index - 1;
         let last_block_hash = val.blockchain.last_hash.unwrap_or(HashOf::new([0; 32]));
 
         let leaf1 = leaf(last_block_index.to_string());

@@ -293,11 +293,14 @@ impl Blockchain {
             return None;
         }
 
-        if block_id > self.chain_length() {
+        if block_id >= self.chain_length() {
+            // This is a non-archived block stored locally
+            let local_index = block_id - self.chain_length();
             self.local_transactions
-                .get(block_id as usize - self.chain_length() as usize - 1)
+                .get(local_index as usize)
                 .map(|(_, block)| block.clone())
         } else {
+            // This is an archived block, we don't have it locally
             None
         }
     }

@@ -27,7 +27,7 @@ fn add_same_transactions(_: RandomTransactionArgs) -> RandomTransactionResponse 
         }
         Err(e) => match e {
             bity_ic_icrc3::types::Icrc3Error::DuplicateTransaction { duplicate_of } => {
-                if duplicate_of == 1 {
+                if duplicate_of == 0 {
                     trace(format!("transaction already added: {}", duplicate_of));
                 } else {
                     ic_cdk::trap(format!(

@@ -2,6 +2,7 @@ use crate::client::icrc3::*;
 use crate::icrc3_suite::setup::default_test_setup;
 use crate::utils::tick_n_blocks;
 
+use bity_ic_canister_time::DAY_IN_MS;
 use candid::Nat;
 use icrc_ledger_types::icrc3::blocks::GetBlocksRequest;
 use std::time::Duration;
@@ -76,6 +77,90 @@ fn test_multiple_transactions() {
     );
 
     assert_eq!(get_blocks_result.blocks.len(), 10);
+
+    for (i, block) in get_blocks_result.blocks.iter().enumerate() {
+        println!("Block {}: {:?}", i, block);
+        assert_eq!(block.id, Nat::from(i as u64));
+    }
+
+    test_env
+        .pic
+        .advance_time(Duration::from_millis(DAY_IN_MS * 2));
+    tick_n_blocks(&mut test_env.pic, 50);
+
+    let get_blocks_result = icrc3_get_blocks(
+        &mut test_env.pic,
+        test_env.controller,
+        test_env.icrc3_id,
+        &get_blocks_args,
+    );
+
+    println!("get_blocks_result: {:?}", get_blocks_result);
+    assert_eq!(get_blocks_result.blocks.len(), 0);
+    assert_eq!(get_blocks_result.archived_blocks.len(), 1);
+
+    let archived_block = get_blocks_result.archived_blocks[0].clone();
+
+    let get_blocks_result_2 = icrc3_get_blocks(
+        &mut test_env.pic,
+        test_env.controller,
+        archived_block.callback.canister_id,
+        &archived_block.args,
+    );
+
+    assert_eq!(get_blocks_result_2.blocks.len(), 10);
+    assert_eq!(get_blocks_result_2.archived_blocks.len(), 0);
+
+    for (i, block) in get_blocks_result_2.blocks.iter().enumerate() {
+        println!("Block {}: {:?}", i, block);
+        assert_eq!(block.id, Nat::from(i as u64));
+    }
+
+    for _ in 0..10 {
+        add_random_transaction(
+            &mut test_env.pic,
+            test_env.controller,
+            test_env.icrc3_id,
+            &(),
+        );
+
+        test_env.pic.advance_time(Duration::from_secs(2));
+        tick_n_blocks(&mut test_env.pic, 50);
+    }
+
+    let get_blocks_result = icrc3_get_blocks(
+        &mut test_env.pic,
+        test_env.controller,
+        test_env.icrc3_id,
+        &get_blocks_args,
+    );
+
+    println!("get_blocks_result: {:?}", get_blocks_result);
+    assert_eq!(get_blocks_result.blocks.len(), 10);
+    assert_eq!(get_blocks_result.archived_blocks.len(), 1);
+
+    let archived_block = get_blocks_result.archived_blocks[0].clone();
+
+    let get_blocks_result_2 = icrc3_get_blocks(
+        &mut test_env.pic,
+        test_env.controller,
+        archived_block.callback.canister_id,
+        &archived_block.args,
+    );
+
+    println!("get_blocks_result_2: {:?}", get_blocks_result_2);
+    assert_eq!(get_blocks_result_2.blocks.len(), 10);
+    assert_eq!(get_blocks_result_2.archived_blocks.len(), 0);
+
+    for (i, block) in get_blocks_result.blocks.iter().enumerate() {
+        println!("Block {}: {:?}", i, block);
+        assert_eq!(block.id, Nat::from(i as u64 + 10));
+    }
+
+    for (i, block) in get_blocks_result_2.blocks.iter().enumerate() {
+        println!("Block {}: {:?}", i, block);
+        assert_eq!(block.id, Nat::from(i as u64));
+    }
 }
 
 #[test]
@@ -107,35 +192,6 @@ fn test_throttling() {
     );
 
     assert_eq!(get_blocks_result.blocks.len(), 13);
-    assert_eq!(get_blocks_result.archived_blocks.len(), 0);
-}
-
-#[test]
-fn test_concurrent_transactions() {
-    let mut test_env = default_test_setup();
-
-    add_same_transactions(
-        &mut test_env.pic,
-        test_env.controller,
-        test_env.icrc3_id,
-        &(),
-    );
-
-    let get_blocks_args = vec![GetBlocksRequest {
-        start: Nat::from(0u64),
-        length: Nat::from(10u64),
-    }];
-
-    let get_blocks_result = icrc3_get_blocks(
-        &mut test_env.pic,
-        test_env.controller,
-        test_env.icrc3_id,
-        &get_blocks_args,
-    );
-
-    println!("get_blocks_result: {:?}", get_blocks_result);
-
-    assert_eq!(get_blocks_result.blocks.len(), 1);
     assert_eq!(get_blocks_result.archived_blocks.len(), 0);
 }
 

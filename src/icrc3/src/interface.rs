@@ -239,7 +239,7 @@ impl ICRC3Interface for ICRC3 {
                 if let Some(ICRC3Value::Blob(existing_thash)) = existing_map.get("thash") {
                     if existing_thash.as_slice() == transaction_hash {
                         return Err(Icrc3Error::DuplicateTransaction {
-                            duplicate_of: self.last_index - i as u64,
+                            duplicate_of: self.next_index - i as u64 - 1,
                         });
                     }
                 }
@@ -247,7 +247,7 @@ impl ICRC3Interface for ICRC3 {
         }
 
         self.ledger.push_back(checked_transaction.clone());
-        self.last_index += 1;
+        self.next_index += 1;
         self.last_phash = Some(ByteBuf::from(transaction_hash));
 
         let block = DefaultBlock::from_transaction(
@@ -263,7 +263,7 @@ impl ICRC3Interface for ICRC3 {
             }
         }
 
-        Ok(self.last_index)
+        Ok(self.next_index)
     }
 
     fn prepare_transaction<T: TransactionType>(
@@ -338,7 +338,7 @@ impl ICRC3Interface for ICRC3 {
                 if let Some(ICRC3Value::Blob(existing_thash)) = existing_map.get("thash") {
                     if existing_thash.as_slice() == transaction_hash {
                         return Err(Icrc3Error::DuplicateTransaction {
-                            duplicate_of: self.last_index - i as u64,
+                            duplicate_of: self.next_index - i as u64 - 1,
                         });
                     }
                 }
@@ -407,21 +407,19 @@ impl ICRC3Interface for ICRC3 {
             }
         });
 
-        self.last_index += 1;
         self.last_phash = Some(ByteBuf::from(icrc3_transaction.clone().hash().to_vec()));
 
         // Add block to blockchain
         let block =
             DefaultBlock::from_transaction(self.blockchain.last_hash, icrc3_transaction, timestamp);
 
-        match self.blockchain.add_block(block) {
-            Ok(_) => (),
-            Err(e) => {
-                return Err(Icrc3Error::Icrc3Error(e));
+        return match self.blockchain.add_block(block) {
+            Ok(index) => {
+                self.next_index = index + 1;
+                Ok(index)
             }
-        }
-
-        Ok(self.last_index)
+            Err(e) => Err(Icrc3Error::Icrc3Error(e)),
+        };
     }
 
     fn icrc3_get_archives(&self) -> Vec<ICRC3ArchiveInfo> {
@@ -443,7 +441,7 @@ impl ICRC3Interface for ICRC3 {
         args: Vec<GetBlocksRequest>,
     ) -> crate::types::icrc3_get_blocks::Response {
         let mut response = GetBlocksResult {
-            log_length: Nat::from(self.last_index),
+            log_length: Nat::from(self.next_index),
             blocks: vec![],
             archived_blocks: vec![],
         };
@@ -457,7 +455,7 @@ impl ICRC3Interface for ICRC3 {
             let mut current_canister = None;
 
             for i in start..start + length {
-                if i > self.blockchain.chain_length() {
+                if i >= self.blockchain.chain_length() {
                     let block = self.blockchain.get_block(i);
 
                     if let Some(block) = block {
@@ -469,6 +467,7 @@ impl ICRC3Interface for ICRC3 {
                         continue;
                     }
                 }
+
                 let block_canister_id = self.blockchain.get_block_canister_id(i);
 
                 trace(format!("block_canister_id: {:?}", block_canister_id));

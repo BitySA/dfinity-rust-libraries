@@ -273,6 +273,8 @@ dependencies = [
 [[package]]
 name = "bity-ic-icrc3"
 version = "0.4.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2d2d9396f8017bf1995fdc1f40bf39b2417941cfdabc2055ee7d9ca542e174d8"
 dependencies = [
  "anyhow",
  "bity-ic-canister-time 0.2.0",
@@ -302,9 +304,7 @@ dependencies = [
 
 [[package]]
 name = "bity-ic-icrc3"
-version = "0.4.9"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2d2d9396f8017bf1995fdc1f40bf39b2417941cfdabc2055ee7d9ca542e174d8"
+version = "0.5.0"
 dependencies = [
  "anyhow",
  "bity-ic-canister-time 0.2.0",
@@ -397,7 +397,7 @@ name = "bity-ic-icrc3-c2c-client"
 version = "0.1.0"
 dependencies = [
  "bity-ic-canister-client 0.2.4 (registry+https://github.com/rust-lang/crates.io-index)",
- "bity-ic-icrc3 0.4.9 (registry+https://github.com/rust-lang/crates.io-index)",
+ "bity-ic-icrc3 0.4.9",
  "bity-ic-types 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "candid",
  "ic-cdk",
@@ -1386,7 +1386,7 @@ dependencies = [
  "bity-ic-canister-state-macros 0.1.0",
  "bity-ic-canister-time 0.2.0",
  "bity-ic-canister-tracing-macros 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "bity-ic-icrc3 0.4.9",
+ "bity-ic-icrc3 0.5.0",
  "bity-ic-icrc3-macros",
  "bity-ic-serializer 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "bity-ic-stable-memory 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1410,7 +1410,7 @@ dependencies = [
 name = "icrc3-example-api"
 version = "0.1.0"
 dependencies = [
- "bity-ic-icrc3 0.4.9",
+ "bity-ic-icrc3 0.5.0",
  "bity-ic-icrc3-archive-api 0.3.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "bity-ic-types 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "candid",
@@ -1582,7 +1582,7 @@ version = "0.1.0"
 dependencies = [
  "arbitrary",
  "bity-ic-canister-time 0.2.0",
- "bity-ic-icrc3 0.4.9",
+ "bity-ic-icrc3 0.5.0",
  "bity-ic-icrc3-archive-api 0.3.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "bity-ic-types 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "bity-ic-utils 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
