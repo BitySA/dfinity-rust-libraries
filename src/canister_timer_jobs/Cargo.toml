@@ -14,12 +14,13 @@ documentation = "https://docs.rs/bity-ic-canister-timer-jobs"
 [dependencies]
 ic-cdk-timers = { workspace = true }
 serde = { workspace = true }
-bity-ic-types = "0.1.1"
-bity-ic-utils = "0.2.0"
 tracing = { workspace = true }
 ic-cdk = { workspace = true }
 syn = { workspace = true, features = ["full"] }
 quote = "1.0"
+
+bity-ic-types = "0.1.1"
+bity-ic-utils = "0.2.0"
 
 [dev-dependencies]
 tokio = {version = "1.39.2", features = ["rt", "macros"]}

@@ -15,5 +15,6 @@ candid = { workspace = true }
 serde = { workspace = true }
 ic-cdk = { workspace = true }
 tracing = { workspace = true }
-bity-ic-types = "0.1.0"
 anyhow = { workspace = true }
+
+bity-ic-types = "0.1.0"
