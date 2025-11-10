@@ -20,7 +20,7 @@ members = [
     "src/icrc3_canisters/canisters/icrc3_archive/impl",
     # "src/icrc3_canisters/integration_testing",
     "src/icrc3_macros",
-    # "src/icrc3",
+    "src/icrc3",
     "src/icrc3_archive_api",
     "src/icrc3_archive_c2c_client",
     "src/icrc3_c2c_client",

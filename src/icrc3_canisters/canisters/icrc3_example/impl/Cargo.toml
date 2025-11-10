@@ -20,26 +20,26 @@ ic0 = { workspace = true }
 serde_bytes = { workspace = true }
 lazy_static = { workspace = true }
 
-# bity-ic-canister-logger = { workspace = true }
-# bity-ic-canister-state-macros = { workspace = true }
-# bity-ic-canister-tracing-macros = { workspace = true }
-# bity-ic-canister-time = { workspace = true }
-# bity-ic-serializer = { workspace = true }
-# bity-ic-stable-memory = { workspace = true }
-# bity-ic-types ={ workspace = true }
-# bity-ic-utils = { workspace = true }
-# icrc3-example-api = { workspace = true }
-# bity-ic-icrc3 = { workspace = true }
-# bity-ic-icrc3-macros = { workspace = true }
-
-bity-ic-canister-logger = { path =   "../../../../canister_logger" }
-bity-ic-canister-state-macros = { path = "../../../../canister_state_macros" }
-bity-ic-canister-tracing-macros = { path = "../../../../canister_tracing_macros" }
-bity-ic-canister-time = { path = "../../../../canister_time" }
-bity-ic-serializer = { path = "../../../../serializer" }
-bity-ic-stable-memory = { path = "../../../../stable_memory" }
-bity-ic-types ={ path = "../../../../types" }
-bity-ic-utils = { path = "../../../../utils" }
+bity-ic-canister-logger = "0.2.1"
+bity-ic-canister-state-macros = "0.2.2"
+bity-ic-canister-tracing-macros = "0.1.1"
+bity-ic-canister-time = "0.2.2"
+bity-ic-serializer = "0.1.1"
+bity-ic-stable-memory = "0.2.2"
+bity-ic-types = "0.1.2"
+bity-ic-utils = "0.2.2"
 icrc3-example-api = { path = "../api" }
-bity-ic-icrc3 = { path = "../../../../icrc3" }
-bity-ic-icrc3-macros = { path = "../../../../icrc3_macros" }
+bity-ic-icrc3 = "0.5.0"
+bity-ic-icrc3-macros = "0.3.4"
+
+# bity-ic-canister-logger = { path =   "../../../../canister_logger" }
+# bity-ic-canister-state-macros = { path = "../../../../canister_state_macros" }
+# bity-ic-canister-tracing-macros = { path = "../../../../canister_tracing_macros" }
+# bity-ic-canister-time = { path = "../../../../canister_time" }
+# bity-ic-serializer = { path = "../../../../serializer" }
+# bity-ic-stable-memory = { path = "../../../../stable_memory" }
+# bity-ic-types ={ path = "../../../../types" }
+# bity-ic-utils = { path = "../../../../utils" }
+# icrc3-example-api = { path = "../api" }
+# bity-ic-icrc3 = { path = "../../../../icrc3" }
+# bity-ic-icrc3-macros = { path = "../../../../icrc3_macros" }
