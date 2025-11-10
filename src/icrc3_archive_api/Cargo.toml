@@ -1,6 +1,6 @@
 [package]
 name = "bity-ic-icrc3-archive-api"
-version = "0.3.1"
+version = "0.3.2"
 description = "bity icrc3 archive api"
 edition = "2021"
 license = "MIT"
@@ -23,5 +23,5 @@ hex = { workspace = true }
 serde_cbor = { workspace = true }
 minicbor = { workspace = true }
 
-# bity-ic-types = "0.1.1"
-bity-ic-types = { path = "../types" }
+bity-ic-types = "0.1.2"
+# bity-ic-types = { path = "../types" }

@@ -1,6 +1,6 @@
 [package]
 name = "bity-ic-canister-timer-jobs"
-version = "0.2.0"
+version = "0.2.1"
 edition = "2021"
 description = "Description spécifique de la crate" 
 license = "MIT"
@@ -19,11 +19,11 @@ ic-cdk = { workspace = true }
 syn = { workspace = true, features = ["full"] }
 quote = "1.0"
 
-# bity-ic-types = "0.1.2"
-# bity-ic-utils = "0.2.1"
+bity-ic-types = "0.1.2"
+bity-ic-utils = "0.2.2"
 
-bity-ic-types = { path = "../types" }
-bity-ic-utils = { path = "../utils" }
+# bity-ic-types = { path = "../types" }
+# bity-ic-utils = { path = "../utils" }
 
 [dev-dependencies]
 tokio = {version = "1.39.2", features = ["rt", "macros"]}

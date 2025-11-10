@@ -1,6 +1,6 @@
 [package]
 name = "bity-ic-icrc3-macros"
-version = "0.3.3"
+version = "0.3.4"
 edition = "2021"
 description = "Icrc3 macros"
 license = "MIT"
@@ -20,4 +20,4 @@ quote = { workspace = true }
 syn = { workspace = true, features = ["full"] }
 lazy_static = { workspace = true }
 
-bity-ic-canister-time = "0.2.1"
+bity-ic-canister-time = "0.2.2"
