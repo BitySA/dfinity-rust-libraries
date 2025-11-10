@@ -64,10 +64,11 @@ pub struct ICRC3Properties {
     pub reserved_cycles: u128,
     /// Maximum number of transactions to purge at once
     pub max_transactions_to_purge: u128,
-    /// ttl for non-archived transactions
-    pub ttl_for_non_archived_transactions: Duration,
-    /// Maximum number of unarchived transactions
-    pub max_unarchived_transactions: u128,
+    /// Maximum size of local stable memory for transactions before archiving.
+    /// If None, transactions are directly archived in a new canister, not stored in the local stable memory.
+    pub max_tx_local_stable_memory_size_bytes: Option<u128>,
+    /// Threshold for archiving blocks to the external archive canister
+    pub threshold_for_archiving_to_external_archive: Option<usize>,
 }
 
 impl ICRC3Properties {
@@ -79,8 +80,8 @@ impl ICRC3Properties {
         initial_cycles: u128,
         reserved_cycles: u128,
         max_transactions_to_purge: u128,
-        ttl_for_non_archived_transactions: Duration,
-        max_unarchived_transactions: u128,
+        max_tx_local_stable_memory_size_bytes: Option<u128>,
+        threshold_for_archiving_to_external_archive: Option<usize>,
     ) -> Self {
         Self {
             tx_window,
@@ -90,8 +91,8 @@ impl ICRC3Properties {
             initial_cycles,
             reserved_cycles,
             max_transactions_to_purge,
-            ttl_for_non_archived_transactions,
-            max_unarchived_transactions,
+            max_tx_local_stable_memory_size_bytes,
+            threshold_for_archiving_to_external_archive,
         }
     }
 }
@@ -99,15 +100,15 @@ impl ICRC3Properties {
 impl Default for ICRC3Properties {
     fn default() -> Self {
         ICRC3Properties {
-            tx_window: Duration::from_secs(0),
-            max_transactions_in_window: 0_u64.into(),
-            max_memory_size_bytes: 0_u64.into(),
-            max_blocks_per_response: 0_u64.into(),
-            initial_cycles: 0_u64.into(),
-            reserved_cycles: 0_u64.into(),
+            tx_window: Duration::from_millis(100),
+            max_transactions_in_window: 200_u64.into(),
+            max_memory_size_bytes: 1024 * 1024 * 1024_u128, // 1GB
+            max_blocks_per_response: 100_u64.into(),
+            initial_cycles: 5_000_000_000_000_u128,
+            reserved_cycles: 5_000_000_000_000_u128,
             max_transactions_to_purge: 0_u64.into(),
-            ttl_for_non_archived_transactions: Duration::from_secs(120),
-            max_unarchived_transactions: 1000,
+            max_tx_local_stable_memory_size_bytes: None,
+            threshold_for_archiving_to_external_archive: None,
         }
     }
 }

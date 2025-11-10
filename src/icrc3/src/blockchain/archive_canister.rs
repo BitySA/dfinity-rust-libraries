@@ -53,7 +53,7 @@ impl ArchiveCanister {
                 bity_ic_icrc3_archive_api::insert_blocks::Response::Success => {
                     // Update the archive info: increment the `end` by the number of blocks inserted
                     let block_count = blocks.len() as u64;
-                    self.archive_info.end += block_count;
+                    self.archive_info.end += block_count - 1;
 
                     // Log the updated archive info for debugging
                     ic_cdk::println!(

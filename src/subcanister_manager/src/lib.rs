@@ -291,9 +291,13 @@ where
             init_args.clone(),
         ));
 
-        self.sub_canisters.insert(canister_id, canister.clone());
+        self.sub_canisters.insert(canister_id, canister);
 
-        Ok(canister)
+        Ok(self
+            .sub_canisters
+            .get(&canister_id)
+            .expect("Canister was just inserted")
+            .clone())
     }
 
     pub async fn update_canisters(

@@ -8,9 +8,14 @@ edition = "2021"
 [dependencies]
 candid = { workspace = true }
 serde = { workspace = true }
-bity-ic-types = { workspace = true }
 icrc-ledger-types = { workspace = true }
 ic-cdk = { workspace = true }
 
-bity-ic-icrc3-archive-api = { workspace = true }
+# bity-ic-types = { workspace = true }
+# bity-ic-icrc3-archive-api = { workspace = true }
+# bity-ic-icrc3 = { path = { workspace = true }, features = ["debug-logs"] }
+
+
+bity-ic-types = { path = "../../../../types" }
+bity-ic-icrc3-archive-api = { path = "../../../../icrc3_archive_api" }
 bity-ic-icrc3 = { path = "../../../../icrc3", features = ["debug-logs"] }

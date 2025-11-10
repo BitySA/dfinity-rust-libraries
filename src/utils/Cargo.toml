@@ -13,14 +13,19 @@ documentation = "https://docs.rs/bity-ic-utils"
 
 [dependencies]
 candid = { workspace = true }
-bity-ic-canister-time = "0.2.0"
-bity-ic-stable-memory = "0.2.0"
 icrc-ledger-types = { workspace = true }
 ic-cdk = { workspace = true }
 hex = { workspace = true }
 serde = { workspace = true }
-bity-ic-types = "0.1.1"
 tracing = { workspace = true }
 ic-cdk-timers = { workspace = true }
 tokio = { version = "1.39.2", features = ["macros", "rt"]}
 ic-management-canister-types = { workspace = true }
+
+# bity-ic-canister-time = "0.2.0"
+# bity-ic-stable-memory = "0.2.0"
+# bity-ic-types = "0.1.1"
+
+bity-ic-canister-time = { path = "../canister_time" }
+bity-ic-stable-memory = { path = "../stable_memory" }
+bity-ic-types = { path = "../types" }

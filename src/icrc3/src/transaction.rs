@@ -93,23 +93,13 @@ impl GlobalTransaction {
     /// * Contain a "btype" field that is a string
     pub fn validate_transaction_fields(&self) -> Result<(), String> {
         match &self.0 {
-            ICRC3Value::Map(map) => {
-                match map.get("phash") {
-                    Some(phash) => match phash {
-                        ICRC3Value::Blob(_) => {}
-                        _ => return Err("phash is supposed to be a blob".to_string()),
-                    },
-                    None => return Err("phash field is required".to_string()),
-                };
-
-                match map.get("btype") {
-                    Some(btype) => match btype {
-                        ICRC3Value::Text(_) => Ok(()),
-                        _ => Err("btype is supposed to be a string".to_string()),
-                    },
-                    None => Err("btype field is required".to_string()),
-                }
-            }
+            ICRC3Value::Map(map) => match map.get("phash") {
+                Some(phash) => match phash {
+                    ICRC3Value::Blob(_) => Ok(()),
+                    _ => return Err("phash is supposed to be a blob".to_string()),
+                },
+                None => return Err("phash field is required".to_string()),
+            },
             _ => Err("Transaction is supposed to be a map".to_string()),
         }
     }

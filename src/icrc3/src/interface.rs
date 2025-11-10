@@ -246,9 +246,12 @@ impl ICRC3Interface for ICRC3 {
             }
         }
 
+        let original_ledger_length = self.ledger.len();
+        let original_next_index = self.next_index;
+        let original_last_phash = self.last_phash.clone();
+
         self.ledger.push_back(checked_transaction.clone());
         self.next_index += 1;
-        self.last_phash = Some(ByteBuf::from(transaction_hash));
 
         let block = DefaultBlock::from_transaction(
             self.blockchain.last_hash,
@@ -256,9 +259,16 @@ impl ICRC3Interface for ICRC3 {
             timestamp,
         );
 
+        let block_hash = DefaultBlock::block_hash(&block.clone().encode());
+        self.last_phash = Some(ByteBuf::from(block_hash.into_bytes()));
+
         match self.blockchain.add_block(block) {
             Ok(_) => (),
             Err(e) => {
+                self.ledger.truncate(original_ledger_length);
+                self.next_index = original_next_index;
+                self.last_phash = original_last_phash;
+
                 return Err(Icrc3Error::Icrc3Error(e));
             }
         }
@@ -432,7 +442,10 @@ impl ICRC3Interface for ICRC3 {
 
         sub_canisters
             .iter()
-            .map(|canister| canister.archive_info.clone())
+            .map(|canister| {
+                trace(format!("archive_info: {:?}", canister.archive_info));
+                canister.archive_info.clone()
+            })
             .collect()
     }
 
@@ -455,7 +468,7 @@ impl ICRC3Interface for ICRC3 {
             let mut current_canister = None;
 
             for i in start..start + length {
-                if i >= self.blockchain.chain_length() {
+                if i >= self.archived_chain_length() as u64 {
                     let block = self.blockchain.get_block(i);
 
                     if let Some(block) = block {

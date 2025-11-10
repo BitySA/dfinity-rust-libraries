@@ -1,5 +1,6 @@
-use crate::memory::{get_block_log_data_memory, get_block_log_index_memory, VM};
+use crate::memory::{get_block_log_data_memory, get_block_log_index_memory};
 
+use crate::memory::VM;
 use bity_ic_icrc3_archive_api::{
     archive_config::ArchiveConfig, types::encoded_blocks::EncodedBlock,
 };
@@ -12,7 +13,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Serialize, Deserialize)]
 pub struct Archive {
     #[serde(skip, default = "init_archive_map")]
-    pub archive: StableLog<EncodedBlock, VM, VM>, // NOTE: block id, block
+    pub archive: StableLog<EncodedBlock, VM, VM>,
     pub archive_config: ArchiveConfig,
 }
 
@@ -36,7 +37,6 @@ impl Archive {
 
 fn init_archive_map() -> StableLog<EncodedBlock, VM, VM> {
     StableLog::init(get_block_log_index_memory(), get_block_log_data_memory())
-        .expect("failed to initialize stable log")
 }
 
 impl Archive {

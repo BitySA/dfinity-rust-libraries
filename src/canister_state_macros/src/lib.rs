@@ -60,7 +60,7 @@
 macro_rules! canister_state {
     ($type:ty) => {
         thread_local! {
-            static __STATE: std::cell::RefCell<Option<std::rc::Rc<$type>>> = std::cell::RefCell::default();
+            static __STATE: std::cell::RefCell<Option<$type>> = std::cell::RefCell::default();
         }
 
         const __STATE_ALREADY_INITIALIZED: &str = "State has already been initialized";
@@ -74,12 +74,11 @@ macro_rules! canister_state {
         /// # Panics
         /// Panics if the state has already been initialized
         pub fn init_state(state: $type) {
-            __STATE.with(|s| {
-                let mut lock = s.write().unwrap();
-                if lock.is_some() {
+            __STATE.with_borrow_mut(|s| {
+                if s.is_some() {
                     panic!("{}", __STATE_ALREADY_INITIALIZED);
                 } else {
-                    *s = Some(std::rc::Rc::new(state));
+                    *s = Some(state);
                 }
             });
         }
@@ -95,7 +94,7 @@ macro_rules! canister_state {
         /// # Panics
         /// Panics if the state has not been initialized
         pub fn replace_state(state: $type) -> $type {
-            __STATE.replace(Some(std::rc::Rc::new(state))).expect(__STATE_NOT_INITIALIZED).as_ref().clone()
+            __STATE.replace(Some(state)).expect(__STATE_NOT_INITIALIZED)
         }
 
         /// Takes ownership of the current state.
@@ -106,7 +105,7 @@ macro_rules! canister_state {
         /// # Panics
         /// Panics if the state has not been initialized
         pub fn take_state() -> $type {
-            __STATE.take().expect(__STATE_NOT_INITIALIZED).as_ref().clone()
+            __STATE.take().expect(__STATE_NOT_INITIALIZED)
         }
 
         /// Reads the state using a closure.
@@ -123,7 +122,7 @@ macro_rules! canister_state {
         where
             F: FnOnce(&$type) -> R,
         {
-            __STATE.with_borrow(|s| f(s.as_ref().expect(__STATE_NOT_INITIALIZED).as_ref()))
+            __STATE.with_borrow(|s| f(s.as_ref().expect(__STATE_NOT_INITIALIZED)))
         }
 
         /// Mutates the state using a closure.
@@ -139,104 +138,6 @@ macro_rules! canister_state {
         pub fn mutate_state<F, R>(f: F) -> R
         where
             F: FnOnce(&mut $type) -> R,
-        {
-            __STATE.with_borrow_mut(|s| {
-                let state = std::rc::Rc::make_mut(s.as_mut().expect(__STATE_NOT_INITIALIZED));
-                f(state)
-            })
-        }
-
-        /// Trait for async functions that can be used with state operations
-        /// This is temporary trait to be replaced once rust release official AsyncFn trait definition.
-        /// see https://github.com/rust-lang/rust/pull/132706
-        pub trait AsyncFn<Args>: FnOnce(Args) {
-            type Future: std::future::Future<Output = Self::Output> + Send + 'static;
-            type Output;
-        }
-
-        impl<F, Args, Fut, Out> AsyncFn<Args> for F
-        where
-            F: FnOnce(Args, Output = Fut),
-            Fut: std::future::Future<Output = Out> + Send + 'static,
-        {
-            type Future = Fut;
-            type Output = Out;
-        }
-
-        /// Reads the state using an async closure.
-        ///
-        /// # Arguments
-        /// * `f` - An async closure that takes a reference to the state and returns a value
-        ///
-        /// # Returns
-        /// A Future that will resolve to the result of the closure
-        ///
-        /// # Panics
-        /// Panics if the state has not been initialized
-        pub fn read_state_async<F>(f: F) -> F::Future
-        where
-            F: AsyncFn<(&$type,)>,
-            F::Future: Send + 'static,
-        {
-            __STATE.with_borrow(|s| {
-                let state = s.as_ref().expect(__STATE_NOT_INITIALIZED).as_ref();
-                f(state)
-            })
-        }
-
-        /// Mutates the state using an async closure.
-        ///
-        /// # Arguments
-        /// * `f` - An async closure that takes a mutable reference to the state and returns a value
-        ///
-        /// # Returns
-        /// A Future that will resolve to the result of the closure
-        ///
-        /// # Panics
-        /// Panics if the state has not been initialized
-        pub fn mutate_state_async<F>(f: F) -> F::Future
-        where
-            F: AsyncFn<(&mut $type,)>,
-            F::Future: Send + 'static,
-        {
-            __STATE.with_borrow_mut(|s| {
-                let state = std::rc::Rc::make_mut(s.as_mut().expect(__STATE_NOT_INITIALIZED));
-                f(state)
-            })
-        }
-
-        /// Reads the state using an async closure.
-        ///
-        /// # Arguments
-        /// * `f` - An async closure that takes a reference to the state and returns a future
-        ///
-        /// # Returns
-        /// A Future that will resolve to the result of the closure
-        ///
-        /// # Panics
-        /// Panics if the state has not been initialized
-        pub fn read_state_async<F, Fut, R>(f: F) -> impl std::future::Future<Output = R>
-        where
-            F: for<'a> FnOnce(&'a $type) -> Fut,
-            Fut: std::future::Future<Output = R>,
-        {
-            __STATE.with_borrow_mut(|s| f(s.as_mut().expect(__STATE_NOT_INITIALIZED)))
-        }
-
-        /// Mutates the state using an async closure.
-        ///
-        /// # Arguments
-        /// * `f` - An async closure that takes a mutable reference to the state and returns a future
-        ///
-        /// # Returns
-        /// A Future that will resolve to the result of the closure
-        ///
-        /// # Panics
-        /// Panics if the state has not been initialized
-        pub fn mutate_state_async<F, Fut, R>(f: F) -> impl std::future::Future<Output = R>
-        where
-            F: for<'a> FnOnce(&'a mut $type) -> Fut,
-            Fut: std::future::Future<Output = R>,
         {
             __STATE.with_borrow_mut(|s| f(s.as_mut().expect(__STATE_NOT_INITIALIZED)))
         }

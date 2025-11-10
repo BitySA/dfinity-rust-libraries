@@ -13,7 +13,6 @@ documentation = "https://docs.rs/bity-ic-icrc3-archive-api"
 inttest = []
 
 [dependencies]
-bity-ic-types = "0.1.1"
 candid = { workspace = true }
 icrc-ledger-types = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
@@ -23,3 +22,6 @@ sha2 = { workspace = true }
 hex = { workspace = true }
 serde_cbor = { workspace = true }
 minicbor = { workspace = true }
+
+# bity-ic-types = "0.1.1"
+bity-ic-types = { path = "../types" }

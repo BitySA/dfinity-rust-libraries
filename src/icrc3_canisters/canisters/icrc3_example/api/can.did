@@ -32,11 +32,11 @@ type ICRC3Properties = record {
   max_blocks_per_response : nat;
   initial_cycles : nat;
   tx_window : Duration;
+  max_tx_local_stable_memory_size_bytes : opt nat;
+  threshold_for_archiving_to_external_archive : opt nat64;
   max_transactions_to_purge : nat;
   max_memory_size_bytes : nat;
-  ttl_for_non_archived_transactions : Duration;
   max_transactions_in_window : nat;
-  max_unarchived_transactions : nat;
   reserved_cycles : nat;
 };
 type ICRC3Value = variant {

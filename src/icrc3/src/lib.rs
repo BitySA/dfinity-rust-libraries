@@ -56,6 +56,7 @@ pub mod blockchain;
 pub mod config;
 pub mod icrc3;
 pub mod interface;
+pub mod memory;
 pub mod transaction;
 pub mod types;
 pub mod utils;

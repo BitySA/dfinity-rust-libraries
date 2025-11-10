@@ -95,9 +95,11 @@ impl ICRC3 {
                 ),
                 None,
                 0,
-                0,
                 Duration::from_secs(120),
-                icrc3_config.constants.max_unarchived_transactions,
+                icrc3_config.constants.max_tx_local_stable_memory_size_bytes,
+                icrc3_config
+                    .constants
+                    .threshold_for_archiving_to_external_archive,
             ),
 
             ledger: VecDeque::new(),
@@ -119,6 +121,13 @@ impl ICRC3 {
     /// `true` if the system should throttle new transactions, `false` otherwise
     pub fn is_throttling(&self) -> bool {
         let num_in_window = self.ledger_len();
+
+        trace(format!(
+            "is_throttling: num_in_window: {}, max_transactions_in_window: {}, transaction_window: {}",
+            num_in_window,
+            self.max_transactions_in_window(),
+            self.transaction_window().as_secs()
+        ));
 
         if num_in_window >= self.max_transactions_in_window() / 2 {
             let max_rate = (0.5 * self.max_transactions_in_window() as f64
@@ -237,8 +246,8 @@ impl ICRC3 {
     }
 
     /// Returns the current size of the blockchain.
-    pub fn blockchain_size(&self) -> u64 {
-        self.blockchain.chain_length()
+    pub fn archived_chain_length(&self) -> usize {
+        self.blockchain.archived_chain_length
     }
 
     /// Returns the current number of transactions in the ledger.
@@ -317,12 +326,13 @@ impl ICRC3 {
 use ic_certification::fork;
 use ic_certification::hash_tree::leaf;
 use ic_certification::Certificate;
+use leb128;
 
 impl From<ICRC3> for Certificate {
     /// Converts an ICRC3 instance into a Certificate.
     ///
     /// This implementation creates a certification tree containing:
-    /// * The last block index
+    /// * The last block index (encoded as LEB128)
     /// * The last block hash
     ///
     /// The certificate is then set as the certified data for the canister.
@@ -330,7 +340,12 @@ impl From<ICRC3> for Certificate {
         let last_block_index = val.next_index - 1;
         let last_block_hash = val.blockchain.last_hash.unwrap_or(HashOf::new([0; 32]));
 
-        let leaf1 = leaf(last_block_index.to_string());
+        // Encode last_block_index as LEB128
+        let mut leb128_encoded = Vec::new();
+        leb128::write::unsigned(&mut leb128_encoded, last_block_index)
+            .expect("Failed to encode as LEB128");
+
+        let leaf1 = leaf(leb128_encoded);
         let leaf2 = leaf(last_block_hash.as_slice());
 
         let hash_tree = fork(leaf1, leaf2);

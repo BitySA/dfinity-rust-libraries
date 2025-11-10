@@ -30,6 +30,12 @@ impl Storable for EncodedBlock {
         Cow::Owned(buffer)
     }
 
+    fn into_bytes(self) -> Vec<u8> {
+        let mut buffer = Vec::new();
+        minicbor::encode(self, &mut buffer).expect("failed to encode EncodedBlock");
+        buffer
+    }
+
     fn from_bytes(bytes: Cow<[u8]>) -> Self {
         minicbor::decode(&bytes).expect("failed to decode EncodedBlock")
     }

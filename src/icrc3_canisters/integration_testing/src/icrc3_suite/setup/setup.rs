@@ -6,7 +6,6 @@ use candid::Principal;
 use icrc3_example_api::Args;
 use icrc_ledger_types::icrc3::blocks::SupportedBlockType;
 use pocket_ic::{PocketIc, PocketIcBuilder};
-use std::time::Duration;
 
 pub struct TestEnv {
     pub controller: Principal,
@@ -27,6 +26,7 @@ impl Debug for TestEnv {
 pub struct TestEnvBuilder {
     controller: Principal,
     icrc3_id: CanisterId,
+    pub icrc3_constants: ICRC3Properties,
 }
 
 impl Default for TestEnvBuilder {
@@ -34,6 +34,7 @@ impl Default for TestEnvBuilder {
         Self {
             controller: random_principal(),
             icrc3_id: Principal::from_slice(&[0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
+            icrc3_constants: ICRC3Properties::default(),
         }
     }
 }
@@ -48,18 +49,6 @@ impl TestEnvBuilder {
 
         self.icrc3_id = pic.create_canister_with_settings(Some(self.controller.clone()), None);
 
-        let mut constants = ICRC3Properties::default();
-
-        // constants.max_memory_size_bytes = 1000;
-        constants.max_memory_size_bytes = 600000;
-        constants.tx_window = Duration::from_millis(500);
-        constants.max_transactions_in_window = 10;
-        constants.max_transactions_to_purge = 5;
-        constants.ttl_for_non_archived_transactions = Duration::from_secs(120);
-        constants.max_unarchived_transactions = 1000;
-        constants.initial_cycles = 5_000_000_000_000;
-        constants.reserved_cycles = 5_000_000_000_000;
-
         let icrc3_init_args = Args::Init(icrc3_example_api::init::InitArgs {
             test_mode: true,
             version: BuildVersion::min(),
@@ -70,7 +59,7 @@ impl TestEnvBuilder {
                     block_type: "btype_test".to_string(),
                     url: "https://github.com/dfinity/ICRC/blob/main/ICRCs/ICRC-3/README.md#supported-block-types".to_string(),
                 }],
-                constants,
+                constants: self.icrc3_constants.clone(),
             },
         });
 

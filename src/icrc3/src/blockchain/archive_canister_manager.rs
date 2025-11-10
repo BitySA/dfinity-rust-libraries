@@ -33,7 +33,7 @@ pub struct ArchiveCanisterManager {
     /// Arguments used for upgrading existing canisters
     pub upgrade_args: bity_ic_icrc3_archive_api::post_upgrade::UpgradeArgs,
     /// Mapping of block IDs to canister IDs
-    pub canisters_by_block_id: Vec<(BlockIndex, Principal)>,
+    pub canisters_by_block_offset: Vec<(BlockIndex, Principal)>,
 }
 
 impl Default for ArchiveCanisterManager {
@@ -82,7 +82,7 @@ impl Default for ArchiveCanisterManager {
                 commit_hash,
                 block_type: BlockType::Default,
             },
-            canisters_by_block_id: vec![],
+            canisters_by_block_offset: vec![],
         }
     }
 }
@@ -138,7 +138,7 @@ impl ArchiveCanisterManager {
             ),
             init_args,
             upgrade_args,
-            canisters_by_block_id: vec![],
+            canisters_by_block_offset: vec![],
         }
     }
 
@@ -157,13 +157,13 @@ impl ArchiveCanisterManager {
     ///
     /// * `Ok(())` if the block was successfully inserted
     /// * `Err(String)` if the insertion failed
-    pub async fn insert_block(
+    pub async fn insert_blocks(
         &mut self,
-        block_id: BlockIndex,
-        block: EncodedBlock,
+        blocks: Vec<EncodedBlock>,
+        block_offset: BlockIndex,
     ) -> Result<(), String> {
-        trace(format!("Starting to insert single block"));
-        trace(format!("insert_block: block_id: {}", block_id));
+        trace(format!("Starting to insert blocks"));
+        trace(format!("insert_blocks: blocks: {:?}", blocks));
 
         for (_, canister) in self.sub_canister_manager.sub_canisters.iter_mut() {
             trace(format!(
@@ -171,7 +171,7 @@ impl ArchiveCanisterManager {
                 canister.canister_id()
             ));
 
-            match canister.insert_blocks(vec![block.clone()]).await {
+            match canister.insert_blocks(blocks.clone()).await {
                 Ok(_) => {
                     return Ok(());
                 }
@@ -186,7 +186,7 @@ impl ArchiveCanisterManager {
         }
 
         let mut init_args = self.init_args.clone();
-        init_args.archive_config.block_offset = block_id;
+        init_args.archive_config.block_offset = block_offset;
 
         // If no canister had enough space, create a new canister
         match self
@@ -194,18 +194,31 @@ impl ArchiveCanisterManager {
             .create_canister(bity_ic_icrc3_archive_api::Args::Init(init_args))
             .await
         {
-            Ok(mut new_canister) => {
+            Ok(new_canister) => {
                 trace(format!("Creating new canister to store block."));
                 trace(format!(
-                    "Creating new canister to store block. block_id: {}",
-                    block_id
+                    "Creating new canister to store blocks. block_offset: {}",
+                    block_offset
                 ));
                 let canister_id = new_canister.canister_id();
-                self.canisters_by_block_id.push((block_id, canister_id));
+                self.canisters_by_block_offset
+                    .push((block_offset, canister_id));
 
-                if let Err(e) = new_canister.insert_blocks(vec![block.clone()]).await {
-                    trace(format!("Failed to insert block into new canister: {}", e));
-                    return Err(format!("Failed to insert block into new canister: {}", e));
+                // Get a mutable reference to the canister in the HashMap to modify it directly
+                if let Some(canister_in_manager) = self
+                    .sub_canister_manager
+                    .sub_canisters
+                    .get_mut(&canister_id)
+                {
+                    if let Err(e) = canister_in_manager.insert_blocks(blocks.clone()).await {
+                        trace(format!("Failed to insert block into new canister: {}", e));
+                        return Err(format!("Failed to insert block into new canister: {}", e));
+                    }
+                } else {
+                    return Err(format!(
+                        "Canister {} not found in manager after creation",
+                        canister_id
+                    ));
                 }
 
                 Ok(())
@@ -244,19 +257,19 @@ impl ArchiveCanisterManager {
     /// * `Err(String)` if no canister is found for the block ID
     pub fn get_canister_id_by_block_id(&self, block_id: BlockIndex) -> Result<Principal, String> {
         trace(format!(
-            "get_canister_id_by_block_id: block_id: {}, canisters_by_block_id: {:?}",
-            block_id, self.canisters_by_block_id
+            "get_canister_id_by_block_id: block_id: {}, canisters_by_block_offset: {:?}",
+            block_id, self.canisters_by_block_offset
         ));
         trace(format!(
-            "get_canister_id_by_block_id: canisters_by_block_id: {:?}",
-            self.canisters_by_block_id
+            "get_canister_id_by_block_id: canisters_by_block_offset: {:?}",
+            self.canisters_by_block_offset
         ));
 
         match self
-            .canisters_by_block_id
+            .canisters_by_block_offset
             .iter()
             .rev()
-            .find(|(start_id, _)| *start_id <= block_id)
+            .find(|(start_offset, _)| *start_offset <= block_id)
         {
             Some((_, canister_id)) => Ok(canister_id.clone()),
             None => Err(format!("Canister not found for block id: {}", block_id)),
