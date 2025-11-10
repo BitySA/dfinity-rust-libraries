@@ -1,6 +1,6 @@
 [package]
 name = "bity-ic-canister-time"
-version = "0.2.1"
+version = "0.2.2"
 edition = "2021"
 description = "Description spécifique de la crate"
 license = "MIT"
@@ -18,4 +18,4 @@ ic-cdk-timers = { workspace = true }
 tracing = { workspace = true }
 time = { workspace = true }
 
-bity-ic-types = "0.1.1"
+bity-ic-types = "0.1.2"

@@ -20,4 +20,4 @@ quote = { workspace = true }
 syn = { workspace = true, features = ["full"] }
 lazy_static = { workspace = true }
 
-bity-ic-canister-time = { workspace = true }
+bity-ic-canister-time = "0.2.1"
