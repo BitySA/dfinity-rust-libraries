@@ -33,16 +33,16 @@ hex = { workspace = true }
 sha2 = { workspace = true }
 anyhow = { workspace = true }
 
-# bity-ic-canister-time = "0.2.0"
-# bity-ic-types = "0.1.1"
-# bity-ic-utils = "0.2.0"
-# bity-ic-subcanister-manager = "0.3.1"
-# bity-ic-icrc3-archive-api = { path = "../icrc3_archive_api" }
-# bity-ic-icrc3-archive-c2c-client = "0.3.1"
+bity-ic-canister-time = "0.2.0"
+bity-ic-types = "0.1.1"
+bity-ic-utils = "0.2.0"
+bity-ic-subcanister-manager = "0.3.1"
+bity-ic-icrc3-archive-api = "0.3.2"
+bity-ic-icrc3-archive-c2c-client = "0.3.1"
 
-bity-ic-canister-time = { path = "../canister_time" }
-bity-ic-types = { path = "../types" }
-bity-ic-utils = { path = "../utils" }
-bity-ic-subcanister-manager = { path = "../subcanister_manager" }
-bity-ic-icrc3-archive-api = { path = "../icrc3_archive_api" }
-bity-ic-icrc3-archive-c2c-client = { path = "../icrc3_archive_c2c_client" }
+# bity-ic-canister-time = { path = "../canister_time" }
+# bity-ic-types = { path = "../types" }
+# bity-ic-utils = { path = "../utils" }
+# bity-ic-subcanister-manager = { path = "../subcanister_manager" }
+# bity-ic-icrc3-archive-api = { path = "../icrc3_archive_api" }
+# bity-ic-icrc3-archive-c2c-client = { path = "../icrc3_archive_c2c_client" }
