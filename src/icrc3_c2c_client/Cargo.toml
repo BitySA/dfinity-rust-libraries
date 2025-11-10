@@ -18,7 +18,7 @@ candid = { workspace = true }
 serde = { workspace = true }
 
 bity-ic-canister-client = "0.2.5"
-bity-ic-icrc3 = "0.4.9" # TODO
+bity-ic-icrc3 = "0.5.0" # TODO
 bity-ic-types = "0.1.2"
 
 # bity-ic-canister-client = { path = "../canister_client" }

@@ -23,7 +23,7 @@ members = [
     "src/icrc3",
     "src/icrc3_archive_api",
     "src/icrc3_archive_c2c_client",
-    "src/icrc3_c2c_client",
+    # "src/icrc3_c2c_client",
 ]
 
 [profile.release]

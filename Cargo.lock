@@ -171,7 +171,7 @@ dependencies = [
  "bity-ic-types 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "ic-cdk",
  "ic-cdk-timers",
- "ic0 1.0.1",
+ "ic0",
  "time",
  "tracing",
 ]
@@ -185,7 +185,7 @@ dependencies = [
  "bity-ic-types 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "ic-cdk",
  "ic-cdk-timers",
- "ic0 1.0.1",
+ "ic0",
  "time",
  "tracing",
 ]
@@ -227,44 +227,12 @@ dependencies = [
 
 [[package]]
 name = "bity-ic-icrc3"
-version = "0.4.9"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2d2d9396f8017bf1995fdc1f40bf39b2417941cfdabc2055ee7d9ca542e174d8"
-dependencies = [
- "anyhow",
- "bity-ic-canister-time 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "bity-ic-icrc3-archive-api 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "bity-ic-icrc3-archive-c2c-client 0.3.2",
- "bity-ic-subcanister-manager 0.3.4 (registry+https://github.com/rust-lang/crates.io-index)",
- "bity-ic-types 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "bity-ic-utils 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "candid",
- "canfund",
- "futures",
- "hex",
- "ic-cdk",
- "ic-certification",
- "ic-ledger-types",
- "ic-stable-structures 0.6.9",
- "ic0 0.25.1",
- "icrc-ledger-types",
- "leb128",
- "serde",
- "serde_bytes",
- "serde_cbor",
- "sha2",
- "syn 2.0.105",
- "tracing",
-]
-
-[[package]]
-name = "bity-ic-icrc3"
 version = "0.5.0"
 dependencies = [
  "anyhow",
  "bity-ic-canister-time 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "bity-ic-icrc3-archive-api 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "bity-ic-icrc3-archive-c2c-client 0.3.2",
+ "bity-ic-icrc3-archive-c2c-client 0.3.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "bity-ic-subcanister-manager 0.3.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "bity-ic-types 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "bity-ic-utils 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -276,7 +244,7 @@ dependencies = [
  "ic-certification",
  "ic-ledger-types",
  "ic-stable-structures 0.7.2",
- "ic0 1.0.1",
+ "ic0",
  "icrc-ledger-types",
  "leb128",
  "serde",
@@ -323,9 +291,7 @@ dependencies = [
 
 [[package]]
 name = "bity-ic-icrc3-archive-c2c-client"
-version = "0.3.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2ded1224fea13ba1f42d673136f0925b76295f5c2d64fb1cb85305cae327a00b"
+version = "0.3.3"
 dependencies = [
  "bity-ic-canister-client 0.2.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "bity-ic-icrc3-archive-api 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -338,21 +304,11 @@ dependencies = [
 [[package]]
 name = "bity-ic-icrc3-archive-c2c-client"
 version = "0.3.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ce02b82096492e633b935085193ceba72be22e7be89f8b68b49dd596cacf3d0d"
 dependencies = [
  "bity-ic-canister-client 0.2.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "bity-ic-icrc3-archive-api 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "bity-ic-types 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "candid",
- "ic-cdk",
- "serde",
-]
-
-[[package]]
-name = "bity-ic-icrc3-c2c-client"
-version = "0.1.1"
-dependencies = [
- "bity-ic-canister-client 0.2.5 (registry+https://github.com/rust-lang/crates.io-index)",
- "bity-ic-icrc3 0.4.9",
  "bity-ic-types 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "candid",
  "ic-cdk",
@@ -426,7 +382,7 @@ dependencies = [
  "canfund",
  "ic-cdk",
  "ic-management-canister-types",
- "ic0 1.0.1",
+ "ic0",
  "serde",
 ]
 
@@ -441,7 +397,7 @@ dependencies = [
  "canfund",
  "ic-cdk",
  "ic-management-canister-types",
- "ic0 1.0.1",
+ "ic0",
  "serde",
 ]
 
@@ -873,7 +829,7 @@ dependencies = [
  "ic-cdk-macros",
  "ic-error-types",
  "ic-management-canister-types",
- "ic0 1.0.1",
+ "ic0",
  "serde",
  "serde_bytes",
  "slotmap",
@@ -886,7 +842,7 @@ version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "99f4ee8930fd2e491177e2eb7fff53ee1c407c13b9582bdc7d6920cf83109a2d"
 dependencies = [
- "ic0 1.0.1",
+ "ic0",
  "slotmap",
 ]
 
@@ -912,7 +868,7 @@ dependencies = [
  "candid",
  "futures",
  "ic-cdk",
- "ic0 1.0.1",
+ "ic0",
  "serde",
  "serde_bytes",
  "slotmap",
@@ -987,12 +943,6 @@ dependencies = [
 
 [[package]]
 name = "ic0"
-version = "0.25.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "39a4ced1c92f952a12e554742ffa7d21752a02450930c3b76bea78a2f1b7ab16"
-
-[[package]]
-name = "ic0"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1499d08fd5be8f790d477e1865d63bab6a8d748300e141270c4296e6d5fdd6bc"
@@ -1063,7 +1013,7 @@ dependencies = [
  "ic-cdk",
  "ic-cdk-macros",
  "ic-stable-structures 0.7.2",
- "ic0 1.0.1",
+ "ic0",
  "icrc-ledger-types",
  "num-traits",
  "serde",
