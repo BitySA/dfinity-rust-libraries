@@ -1,6 +1,6 @@
 [package]
 name = "bity-ic-utils"
-version = "0.2.1"
+version = "0.2.2"
 edition = "2021"
 description = "Description spécifique de la crate"
 license = "MIT"
@@ -22,10 +22,10 @@ ic-cdk-timers = { workspace = true }
 tokio = { version = "1.39.2", features = ["macros", "rt"]}
 ic-management-canister-types = { workspace = true }
 
-# bity-ic-canister-time = "0.2.0"
-# bity-ic-stable-memory = "0.2.0"
-# bity-ic-types = "0.1.1"
+bity-ic-canister-time = "0.2.2"
+bity-ic-stable-memory = "0.2.2"
+bity-ic-types = "0.1.2"
 
-bity-ic-canister-time = { path = "../canister_time" }
-bity-ic-stable-memory = { path = "../stable_memory" }
-bity-ic-types = { path = "../types" }
+# bity-ic-canister-time = { path = "../canister_time" }
+# bity-ic-stable-memory = { path = "../stable_memory" }
+# bity-ic-types = { path = "../types" }

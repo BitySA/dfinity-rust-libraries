@@ -1,6 +1,6 @@
 [package]
 name = "bity-ic-canister-logger"
-version = "0.2.0"
+version = "0.2.1"
 edition = "2021"
 description = "Description spécifique de la crate"
 license = "MIT"
@@ -17,4 +17,6 @@ serde = { workspace = true }
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true, features = ["json"] }
 
-bity-ic-canister-time = { path = "../canister_time" }
+# bity-ic-canister-time = { path = "../canister_time" }
+
+bity-ic-canister-time = "0.2.2"

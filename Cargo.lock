@@ -118,9 +118,9 @@ dependencies = [
 
 [[package]]
 name = "bity-ic-canister-logger"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
- "bity-ic-canister-time",
+ "bity-ic-canister-time 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "candid",
  "serde",
  "tracing",
@@ -134,6 +134,20 @@ version = "0.2.2"
 [[package]]
 name = "bity-ic-canister-time"
 version = "0.2.2"
+dependencies = [
+ "bity-ic-types 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "ic-cdk",
+ "ic-cdk-timers",
+ "ic0",
+ "time",
+ "tracing",
+]
+
+[[package]]
+name = "bity-ic-canister-time"
+version = "0.2.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ba4aec24118dc7e6499d1b09a3587ff403a19a421abb530cee36e362789efae1"
 dependencies = [
  "bity-ic-types 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "ic-cdk",
@@ -195,6 +209,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "bity-ic-stable-memory"
+version = "0.2.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8027e14a61d2553154286593ae2d469492805b8be375ad6218aea998cb02c4dd"
+dependencies = [
+ "ic-cdk",
+ "ic-stable-structures 0.7.2",
+]
+
+[[package]]
 name = "bity-ic-subcanister-manager"
 version = "0.3.3"
 dependencies = [
@@ -233,11 +257,11 @@ dependencies = [
 
 [[package]]
 name = "bity-ic-utils"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
- "bity-ic-canister-time",
- "bity-ic-stable-memory",
- "bity-ic-types 0.1.2",
+ "bity-ic-canister-time 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "bity-ic-stable-memory 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "bity-ic-types 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "candid",
  "hex",
  "ic-cdk",
