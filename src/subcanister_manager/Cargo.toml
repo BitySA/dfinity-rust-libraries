@@ -19,4 +19,6 @@ canfund = "0.8.4"
 ic0 = { workspace = true }
 ic-management-canister-types = { workspace = true }
 
-bity-ic-utils = "0.2.1"
+# bity-ic-utils = "0.2.1"
+
+bity-ic-utils = { path = "../utils" }

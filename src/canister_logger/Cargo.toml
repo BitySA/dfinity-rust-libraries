@@ -17,4 +17,4 @@ serde = { workspace = true }
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true, features = ["json"] }
 
-bity-ic-canister-time = "0.2.0"
+bity-ic-canister-time = { path = "../canister_time" }

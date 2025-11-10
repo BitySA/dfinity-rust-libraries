@@ -13,9 +13,14 @@ documentation = "https://docs.rs/bity-ic-icrc3-c2c-client"
 
 [dependencies]
 # bity-ic-canister-client = { path = "../canister_client" }
-bity-ic-canister-client = "0.2.4"
-bity-ic-icrc3 = "0.4.9"
-bity-ic-types = "0.1.1"
 ic-cdk = { workspace = true }
 candid = { workspace = true }
 serde = { workspace = true }
+
+# bity-ic-canister-client = "0.2.4"
+# bity-ic-icrc3 = "0.4.9"
+# bity-ic-types = "0.1.1"
+
+bity-ic-canister-client = { path = "../canister_client" }
+bity-ic-icrc3 = { path = "../icrc3" }
+bity-ic-types = { path = "../types" }
