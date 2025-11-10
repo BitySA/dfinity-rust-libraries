@@ -227,7 +227,7 @@ dependencies = [
 
 [[package]]
 name = "bity-ic-icrc3"
-version = "0.5.0"
+version = "0.6.0"
 dependencies = [
  "anyhow",
  "bity-ic-canister-time 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)",
