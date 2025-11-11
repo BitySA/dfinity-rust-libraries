@@ -207,6 +207,11 @@ impl ICRC3Interface for ICRC3 {
             }
         };
 
+        trace(format!(
+            "checked_transaction as ICRC3Value: {:?}",
+            transaction.tx()
+        ));
+
         if !self
             .icrc3_config
             .supported_blocks
@@ -220,14 +225,14 @@ impl ICRC3Interface for ICRC3 {
 
         // Check if transaction already exists in ledger
         for (i, existing_tx) in self.ledger.iter().enumerate() {
-            if let ICRC3Value::Map(ref existing_map) = existing_tx {
-                if let Some(tx) = existing_map.get("tx") {
-                    if tx.clone().hash().as_slice() == transaction_hash.as_slice() {
-                        return Err(Icrc3Error::DuplicateTransaction {
-                            duplicate_of: self.next_index - i as u64 - 1,
-                        });
-                    }
-                }
+            let mut existing_tx_clone = existing_tx.clone();
+            if let ICRC3Value::Map(ref mut existing_map) = existing_tx_clone {
+                existing_map.remove("phash");
+            }
+            if existing_tx_clone.clone().hash().as_slice() == transaction_hash.as_slice() {
+                return Err(Icrc3Error::DuplicateTransaction {
+                    duplicate_of: self.next_index - i as u64 - 1,
+                });
             }
         }
         self.ledger.push_back(checked_transaction.clone());
@@ -313,14 +318,14 @@ impl ICRC3Interface for ICRC3 {
 
         // Check if transaction already exists in ledger
         for (i, existing_tx) in self.ledger.iter().enumerate() {
-            if let ICRC3Value::Map(ref existing_map) = existing_tx {
-                if let Some(tx) = existing_map.get("tx") {
-                    if tx.clone().hash().as_slice() == transaction_hash.as_slice() {
-                        return Err(Icrc3Error::DuplicateTransaction {
-                            duplicate_of: self.next_index - i as u64 - 1,
-                        });
-                    }
-                }
+            let mut existing_tx_clone = existing_tx.clone();
+            if let ICRC3Value::Map(ref mut existing_map) = existing_tx_clone {
+                existing_map.remove("phash");
+            }
+            if existing_tx_clone.clone().hash().as_slice() == transaction_hash.as_slice() {
+                return Err(Icrc3Error::DuplicateTransaction {
+                    duplicate_of: self.next_index - i as u64 - 1,
+                });
             }
         }
 
@@ -345,7 +350,7 @@ impl ICRC3Interface for ICRC3 {
 
         let basic_transaction = GlobalTransaction::new(transaction_as_icrc3);
 
-        let mut icrc3_transaction = ICRC3Value::from(basic_transaction);
+        let icrc3_transaction = ICRC3Value::from(basic_transaction);
 
         let transaction_hash = transaction.tx().hash().to_vec();
 
@@ -371,11 +376,12 @@ impl ICRC3Interface for ICRC3 {
             ));
         }
 
-        self.last_phash = Some(ByteBuf::from(icrc3_transaction.clone().hash().to_vec()));
-
         // Add block to blockchain
         let block =
             DefaultBlock::from_transaction(self.blockchain.last_hash, icrc3_transaction, timestamp);
+
+        let block_hash = DefaultBlock::block_hash(&block.clone().encode());
+        self.last_phash = Some(ByteBuf::from(block_hash.into_bytes()));
 
         return match self.blockchain.add_block(block) {
             Ok(index) => {

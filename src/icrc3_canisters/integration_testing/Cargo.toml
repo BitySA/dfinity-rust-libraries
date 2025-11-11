@@ -13,6 +13,7 @@ lazy_static = "1.4.0"
 # icrc3_index_api = { path = "../canisters/icrc3_index/api" }
 serde_bytes = { workspace = true}
 icrc-ledger-types = { workspace = true }
+hex = { workspace = true }
 
 arbitrary = { version = "1.4.1", features = ["derive"] } 
 

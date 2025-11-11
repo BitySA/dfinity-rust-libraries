@@ -1605,6 +1605,7 @@ dependencies = [
  "bity-ic-types 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "bity-ic-utils 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "candid",
+ "hex",
  "icrc-ledger-types",
  "icrc3-example-api",
  "lazy_static",

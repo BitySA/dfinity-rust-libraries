@@ -21,3 +21,5 @@ syn = { workspace = true, features = ["full"] }
 lazy_static = { workspace = true }
 
 bity-ic-canister-time = "0.2.2"
+
+# bity-ic-canister-time = { path = "../canister_time" }

@@ -24,4 +24,5 @@ serde_cbor = { workspace = true }
 minicbor = { workspace = true }
 
 bity-ic-types = "0.1.2"
+
 # bity-ic-types = { path = "../types" }
