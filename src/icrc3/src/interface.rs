@@ -200,7 +200,7 @@ impl ICRC3Interface for ICRC3 {
 
         let basic_transaction = GlobalTransaction::new(transaction_as_icrc3);
 
-        let mut checked_transaction = match basic_transaction.validate_transaction_fields() {
+        let checked_transaction = match basic_transaction.validate_transaction_fields() {
             Ok(_) => ICRC3Value::from(basic_transaction),
             Err(e) => {
                 return Err(Icrc3Error::Icrc3Error(e));
@@ -218,26 +218,11 @@ impl ICRC3Interface for ICRC3 {
 
         let transaction_hash = transaction.tx().hash();
 
-        checked_transaction = ICRC3Value::Map(match checked_transaction {
-            ICRC3Value::Map(mut map) => {
-                map.insert(
-                    "thash".to_string(),
-                    ICRC3Value::Blob(ByteBuf::from(transaction_hash)),
-                );
-                map
-            }
-            _ => {
-                return Err(Icrc3Error::Icrc3Error(
-                    "Invalid transaction format".to_string(),
-                ))
-            }
-        });
-
         // Check if transaction already exists in ledger
         for (i, existing_tx) in self.ledger.iter().enumerate() {
             if let ICRC3Value::Map(ref existing_map) = existing_tx {
-                if let Some(ICRC3Value::Blob(existing_thash)) = existing_map.get("thash") {
-                    if existing_thash.as_slice() == transaction_hash {
+                if let Some(tx) = existing_map.get("tx") {
+                    if tx.clone().hash().as_slice() == transaction_hash.as_slice() {
                         return Err(Icrc3Error::DuplicateTransaction {
                             duplicate_of: self.next_index - i as u64 - 1,
                         });
@@ -245,13 +230,12 @@ impl ICRC3Interface for ICRC3 {
                 }
             }
         }
+        self.ledger.push_back(checked_transaction.clone());
+        self.next_index += 1;
 
         let original_ledger_length = self.ledger.len();
         let original_next_index = self.next_index;
         let original_last_phash = self.last_phash.clone();
-
-        self.ledger.push_back(checked_transaction.clone());
-        self.next_index += 1;
 
         let block = DefaultBlock::from_transaction(
             self.blockchain.last_hash,
@@ -309,7 +293,7 @@ impl ICRC3Interface for ICRC3 {
 
         let basic_transaction = GlobalTransaction::new(transaction_as_icrc3);
 
-        let mut checked_transaction = match basic_transaction.validate_transaction_fields() {
+        let checked_transaction = match basic_transaction.validate_transaction_fields() {
             Ok(_) => ICRC3Value::from(basic_transaction),
             Err(e) => {
                 return Err(Icrc3Error::Icrc3Error(e));
@@ -327,26 +311,11 @@ impl ICRC3Interface for ICRC3 {
 
         let transaction_hash = transaction.tx().hash().to_vec();
 
-        checked_transaction = ICRC3Value::Map(match checked_transaction {
-            ICRC3Value::Map(mut map) => {
-                map.insert(
-                    "thash".to_string(),
-                    ICRC3Value::Blob(ByteBuf::from(transaction_hash.clone())),
-                );
-                map
-            }
-            _ => {
-                return Err(Icrc3Error::Icrc3Error(
-                    "Invalid transaction format".to_string(),
-                ))
-            }
-        });
-
         // Check if transaction already exists in ledger
         for (i, existing_tx) in self.ledger.iter().enumerate() {
             if let ICRC3Value::Map(ref existing_map) = existing_tx {
-                if let Some(ICRC3Value::Blob(existing_thash)) = existing_map.get("thash") {
-                    if existing_thash.as_slice() == transaction_hash {
+                if let Some(tx) = existing_map.get("tx") {
+                    if tx.clone().hash().as_slice() == transaction_hash.as_slice() {
                         return Err(Icrc3Error::DuplicateTransaction {
                             duplicate_of: self.next_index - i as u64 - 1,
                         });
@@ -401,21 +370,6 @@ impl ICRC3Interface for ICRC3 {
                 "Transaction not found in prepared transactions".to_string(),
             ));
         }
-
-        icrc3_transaction = ICRC3Value::Map(match icrc3_transaction {
-            ICRC3Value::Map(mut map) => {
-                map.insert(
-                    "thash".to_string(),
-                    ICRC3Value::Blob(ByteBuf::from(transaction_hash.clone())),
-                );
-                map
-            }
-            _ => {
-                return Err(Icrc3Error::Icrc3Error(
-                    "Invalid transaction format".to_string(),
-                ))
-            }
-        });
 
         self.last_phash = Some(ByteBuf::from(icrc3_transaction.clone().hash().to_vec()));
 

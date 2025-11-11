@@ -29,7 +29,7 @@ bity-ic-stable-memory = "0.2.2"
 bity-ic-types = "0.1.2"
 bity-ic-utils = "0.2.2"
 icrc3-example-api = { path = "../api" }
-bity-ic-icrc3 = "0.5.0"
+bity-ic-icrc3 = "0.6.0"
 bity-ic-icrc3-macros = "0.3.4"
 
 # bity-ic-canister-logger = { path =   "../../../../canister_logger" }

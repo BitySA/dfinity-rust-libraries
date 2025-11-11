@@ -16,17 +16,17 @@ icrc-ledger-types = { workspace = true }
 
 arbitrary = { version = "1.4.1", features = ["derive"] } 
 
-# bity-ic-icrc3-archive-api = { workspace = true }
-# bity-ic-icrc3 = { path = { workspace = true }
-# bity-ic-types = { workspace = true }
-# bity-ic-utils = { workspace = true }
-# bity-ic-canister-time = { workspace = true }
+bity-ic-icrc3-archive-api = "0.3.2"
+bity-ic-icrc3 = "0.6.0"
+bity-ic-types = "0.1.2"
+bity-ic-utils = "0.2.2"
+bity-ic-canister-time = "0.2.2"
 
-bity-ic-icrc3-archive-api = { path = "../../icrc3_archive_api" }
-bity-ic-icrc3 = { path = "../../icrc3" }
-bity-ic-types = { path = "../../types" }
-bity-ic-utils = { path = "../../utils" }
-bity-ic-canister-time = { path = "../../canister_time" }
+# bity-ic-icrc3-archive-api = { path = "../../icrc3_archive_api" }
+# bity-ic-icrc3 = { path = "../../icrc3" }
+# bity-ic-types = { path = "../../types" }
+# bity-ic-utils = { path = "../../utils" }
+# bity-ic-canister-time = { path = "../../canister_time" }
 
 
 icrc3-example-api = { path = "../canisters/icrc3_example/api" }

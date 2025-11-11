@@ -144,44 +144,6 @@ pub fn get_timestamp(transaction: &ICRC3Value) -> Result<Nat, String> {
     }
 }
 
-/// Extracts the transaction hash from a transaction.
-///
-/// # Arguments
-///
-/// * `transaction` - The transaction to extract the hash from
-///
-/// # Returns
-///
-/// * `Ok(Hash)` if the hash is valid
-/// * `Err(String)` if the hash is invalid or missing
-///
-/// # Errors
-///
-/// Returns an error if:
-/// * The transaction is not a map
-/// * The thash field is missing
-/// * The thash is not a Blob
-/// * The thash is not exactly 32 bytes
-pub fn get_transaction_hash(transaction: &ICRC3Value) -> Result<Hash, String> {
-    let ICRC3Value::Map(map) = transaction else {
-        return Err("top_level is not a valid ICRC3Value::Map".to_string());
-    };
-    let thash = map.get("thash");
-    if let Some(thash) = thash {
-        if let ICRC3Value::Blob(thash) = thash {
-            let bytes: [u8; 32] = thash
-                .as_slice()
-                .try_into()
-                .map_err(|_| "thash must be exactly 32 bytes".to_string())?;
-            Ok(bytes)
-        } else {
-            Err("thash is not a valid ICRC3Value::Blob".to_string())
-        }
-    } else {
-        Err("thash field not found".to_string())
-    }
-}
-
 /// Calculates the size of an ICRC3Value in bytes.
 ///
 /// # Arguments
