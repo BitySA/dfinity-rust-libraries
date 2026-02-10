@@ -19,10 +19,10 @@ ic-cdk = { workspace = true }
 syn = { workspace = true, features = ["full"] }
 quote = "1.0"
 
-# bity-ic-types = "0.1.2"
+bity-ic-types = "0.2.0"
 # bity-ic-utils = "0.2.2"
 
-bity-ic-types = { path = "../types" }
+# bity-ic-types = { path = "../types" }
 bity-ic-utils = { path = "../utils" }
 
 [dev-dependencies]

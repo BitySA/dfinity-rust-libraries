@@ -26,7 +26,7 @@ lazy_static = { workspace = true }
 # bity-ic-canister-time = "0.2.2"
 # bity-ic-serializer = "0.1.1"
 # bity-ic-stable-memory = "0.2.2"
-# bity-ic-types = "0.1.2"
+bity-ic-types = "0.2.0"
 # bity-ic-utils = "0.2.2"
 # icrc3-example-api = { path = "../api" }
 # bity-ic-icrc3 = { path = "../../../../icrc3" }
@@ -38,7 +38,7 @@ bity-ic-canister-tracing-macros = { path = "../../../../canister_tracing_macros"
 bity-ic-canister-time = { path = "../../../../canister_time" }
 bity-ic-serializer = { path = "../../../../serializer" }
 bity-ic-stable-memory = { path = "../../../../stable_memory" }
-bity-ic-types ={ path = "../../../../types" }
+# bity-ic-types ={ path = "../../../../types" }
 bity-ic-utils = { path = "../../../../utils" }
 icrc3-example-api = { path = "../api" }
 bity-ic-icrc3 = { path = "../../../../icrc3" }
