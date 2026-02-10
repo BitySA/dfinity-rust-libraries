@@ -1,6 +1,6 @@
 [package]
 name = "bity-ic-icrc3-c2c-client"
-version = "0.1.1"
+version = "0.2.0"
 edition = "2021"
 license = "MIT"
 description = "bity icrc3 c2c client"
@@ -17,10 +17,10 @@ ic-cdk = { workspace = true }
 candid = { workspace = true }
 serde = { workspace = true }
 
-# bity-ic-canister-client = "0.2.5"
-# bity-ic-icrc3 = "0.6.0" 
-# bity-ic-types = "0.1.2"
+bity-ic-canister-client = "0.3.0"
+bity-ic-icrc3 = "0.7.0" 
+bity-ic-types = "0.2.0"
 
-bity-ic-canister-client = { path = "../canister_client" }
-bity-ic-icrc3 = { path = "../icrc3" }
-bity-ic-types = { path = "../types" }
+#bity-ic-canister-client = { path = "../canister_client" }
+#bity-ic-icrc3 = { path = "../icrc3" }
+#bity-ic-types = { path = "../types" }
