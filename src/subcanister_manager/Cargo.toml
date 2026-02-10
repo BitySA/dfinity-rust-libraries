@@ -17,8 +17,7 @@ candid = { workspace = true }
 serde = { workspace = true }
 canfund = "0.8.4"
 ic0 = { workspace = true }
-ic-management-canister-types = { workspace = true }
 
-bity-ic-utils = "0.2.2"
+# bity-ic-utils = "0.2.2"
 
-# bity-ic-utils = { path = "../utils" }
+bity-ic-utils = { path = "../utils" }

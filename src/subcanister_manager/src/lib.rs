@@ -43,10 +43,9 @@ use canfund::{
 };
 use ic_cdk::management_canister::create_canister_with_extra_cycles;
 use ic_cdk::management_canister::{
-    canister_status, install_code, start_canister, stop_canister, CanisterInstallMode,
-    CanisterSettings, CreateCanisterArgs, InstallCodeArgs, LogVisibility,
+    canister_status, install_code, start_canister, stop_canister, CanisterIdRecord,
+    CanisterInstallMode, CanisterSettings, CreateCanisterArgs, InstallCodeArgs, LogVisibility,
 };
-use ic_management_canister_types::CanisterIdRecord;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use std::{any::Any, collections::HashMap, fmt::Debug};
@@ -226,6 +225,7 @@ where
                 log_visibility: Some(LogVisibility::Public),
                 wasm_memory_limit: None,
                 wasm_memory_threshold: None,
+                environment_variables: None,
             };
 
             canister_id = match retry_async(

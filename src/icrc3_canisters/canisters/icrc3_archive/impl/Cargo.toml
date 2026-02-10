@@ -21,21 +21,21 @@ ciborium = { workspace = true }
 num-traits = { workspace = true }
 ic0 = { workspace = true }
 
-bity-ic-serializer = "0.1.1"
-bity-ic-stable-memory = "0.2.2"
-bity-ic-types = "0.1.2"
-bity-ic-utils = "0.2.2"
-bity-ic-icrc3-archive-api = "0.3.2"
-bity-ic-canister-logger = "0.2.1"
-bity-ic-canister-state-macros ="0.2.2"
-bity-ic-canister-tracing-macros = "0.1.1"
+# bity-ic-serializer = "0.1.1"
+# bity-ic-stable-memory = "0.2.2"
+# bity-ic-types = "0.1.2"
+# bity-ic-utils = "0.2.2"
+# bity-ic-icrc3-archive-api = "0.3.2"
+# bity-ic-canister-logger = "0.2.1"
+# bity-ic-canister-state-macros ="0.2.2"
+# bity-ic-canister-tracing-macros = "0.1.1"
 
 
-# bity-ic-serializer = { path = "../../../../serializer" }
-# bity-ic-stable-memory = { path = "../../../../stable_memory" }
-# bity-ic-types = { path = "../../../../types" }
-# bity-ic-utils = { path = "../../../../utils" }
-# bity-ic-icrc3-archive-api = { path = "../../../../icrc3_archive_api" }
-# bity-ic-canister-logger = { path = "../../../../canister_logger" }
-# bity-ic-canister-state-macros ={ path = "../../../../canister_state_macros" }
-# bity-ic-canister-tracing-macros = { path = "../../../../canister_tracing_macros" }
+bity-ic-serializer = { path = "../../../../serializer" }
+bity-ic-stable-memory = { path = "../../../../stable_memory" }
+bity-ic-types = { path = "../../../../types" }
+bity-ic-utils = { path = "../../../../utils" }
+bity-ic-icrc3-archive-api = { path = "../../../../icrc3_archive_api" }
+bity-ic-canister-logger = { path = "../../../../canister_logger" }
+bity-ic-canister-state-macros ={ path = "../../../../canister_state_macros" }
+bity-ic-canister-tracing-macros = { path = "../../../../canister_tracing_macros" }

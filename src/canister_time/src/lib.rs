@@ -128,8 +128,8 @@ pub fn now_nanos() -> TimestampNanos {
 /// # Returns
 /// The `TimerId` that can be used to cancel the timer
 pub fn run_now_then_interval(interval: Duration, func: fn()) -> TimerId {
-    ic_cdk_timers::set_timer(Duration::ZERO, func);
-    ic_cdk_timers::set_timer_interval(interval, func)
+    ic_cdk_timers::set_timer(Duration::ZERO, async move { func() });
+    ic_cdk_timers::set_timer_interval(interval, move || async move { func() })
 }
 
 /// Runs a function at the specified interval.
@@ -138,7 +138,7 @@ pub fn run_now_then_interval(interval: Duration, func: fn()) -> TimerId {
 /// * `interval` - The duration between executions
 /// * `func` - The function to execute
 pub fn run_interval(interval: Duration, func: fn()) {
-    ic_cdk_timers::set_timer_interval(interval, func);
+    ic_cdk_timers::set_timer_interval(interval, move || async move { func() });
 }
 
 /// Runs a function once immediately.
@@ -146,7 +146,7 @@ pub fn run_interval(interval: Duration, func: fn()) {
 /// # Arguments
 /// * `func` - The function to execute
 pub fn run_once(func: fn()) {
-    ic_cdk_timers::set_timer(Duration::ZERO, func);
+    ic_cdk_timers::set_timer(Duration::ZERO, async move { func() });
 }
 
 pub fn start_job_daily_at(hour: u8, func: fn()) {
@@ -156,11 +156,9 @@ pub fn start_job_daily_at(hour: u8, func: fn()) {
         if next_timestamp > now_millis {
             let delay = Duration::from_millis(next_timestamp - now_millis);
 
-            let timer_func = move || {
+            ic_cdk_timers::set_timer(delay, async move {
                 run_now_then_interval(Duration::from_millis(DAY_IN_MS), func);
-            };
-
-            ic_cdk_timers::set_timer(delay, timer_func);
+            });
 
             tracing::info!(
                 "Job scheduled to start at the next {}:00. (Timestamp: {})",
@@ -223,11 +221,9 @@ pub fn start_job_weekly_at(weekday: Weekday, hour: u8, func: fn(), now_fn: &impl
         if next_timestamp > now_millis {
             let delay = Duration::from_millis(next_timestamp - now_millis);
 
-            let timer_func = move || {
+            ic_cdk_timers::set_timer(delay, async move {
                 run_now_then_interval(Duration::from_millis(DAY_IN_MS * 7), func);
-            };
-
-            ic_cdk_timers::set_timer(delay, timer_func);
+            });
 
             tracing::info!(
                 "Job scheduled to start on {:?} at {}:00. (Timestamp: {})",

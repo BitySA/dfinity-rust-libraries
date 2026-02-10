@@ -1,7 +1,6 @@
 use bity_ic_types::{CanisterId, Cycles};
 use ic_cdk::call::CallResult;
-use ic_cdk::management_canister;
-use ic_management_canister_types::CanisterIdRecord;
+use ic_cdk::management_canister::{self, CanisterIdRecord};
 use tracing::{error, info};
 
 pub async fn deposit_cycles(canister_id: CanisterId, amount: Cycles) -> CallResult<()> {

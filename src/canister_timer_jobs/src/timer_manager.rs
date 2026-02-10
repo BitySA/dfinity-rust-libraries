@@ -49,7 +49,10 @@ where
         let retry_delay_duration = self.retry_delay_duration;
 
         self.timer_id = Some(ic_cdk_timers::set_timer_interval(interval, move || {
-            run_sync(job_function.clone(), max_attempts, retry_delay_duration)
+            let job_function = job_function.clone();
+            async move {
+                run_sync(job_function, max_attempts, retry_delay_duration);
+            }
         }));
 
         self.last_run = Some(env.now());
@@ -69,7 +72,10 @@ where
         let retry_delay_duration = self.retry_delay_duration;
 
         self.timer_id = Some(ic_cdk_timers::set_timer_interval(interval, move || {
-            run_async(job_function.clone(), max_attempts, retry_delay_duration)
+            let job_function = job_function.clone();
+            async move {
+                run_async(job_function, max_attempts, retry_delay_duration);
+            }
         }));
 
         self.last_run = Some(env.now());

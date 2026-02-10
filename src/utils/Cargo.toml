@@ -20,12 +20,11 @@ serde = { workspace = true }
 tracing = { workspace = true }
 ic-cdk-timers = { workspace = true }
 tokio = { version = "1.39.2", features = ["macros", "rt"]}
-ic-management-canister-types = { workspace = true }
 
-bity-ic-canister-time = "0.2.2"
-bity-ic-stable-memory = "0.2.2"
-bity-ic-types = "0.1.2"
+# bity-ic-canister-time = "0.2.2"
+# bity-ic-stable-memory = "0.2.2"
+# bity-ic-types = "0.1.2"
 
-# bity-ic-canister-time = { path = "../canister_time" }
-# bity-ic-stable-memory = { path = "../stable_memory" }
-# bity-ic-types = { path = "../types" }
+bity-ic-canister-time = { path = "../canister_time" }
+bity-ic-stable-memory = { path = "../stable_memory" }
+bity-ic-types = { path = "../types" }

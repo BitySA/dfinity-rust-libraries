@@ -174,7 +174,8 @@ impl ICRC3Interface for ICRC3 {
         let now = ic_cdk::api::time() as u128;
 
         let timestamp: u128 = if let Some(timestamp) = transaction.timestamp() {
-            timestamp.into()
+            let ts = timestamp as u128;
+            ts
         } else {
             now
         };
@@ -235,12 +236,13 @@ impl ICRC3Interface for ICRC3 {
                 });
             }
         }
-        self.ledger.push_back(checked_transaction.clone());
-        self.next_index += 1;
 
         let original_ledger_length = self.ledger.len();
         let original_next_index = self.next_index;
         let original_last_phash = self.last_phash.clone();
+
+        self.ledger.push_back(checked_transaction.clone());
+        self.next_index += 1;
 
         let block = DefaultBlock::from_transaction(
             self.blockchain.last_hash,

@@ -17,10 +17,10 @@ ic-cdk = { workspace = true }
 candid = { workspace = true }
 serde = { workspace = true }
 
-bity-ic-canister-client = "0.2.5"
-bity-ic-icrc3 = "0.6.0" 
-bity-ic-types = "0.1.2"
+# bity-ic-canister-client = "0.2.5"
+# bity-ic-icrc3 = "0.6.0" 
+# bity-ic-types = "0.1.2"
 
-# bity-ic-canister-client = { path = "../canister_client" }
-# bity-ic-icrc3 = { path = "../icrc3" }
-# bity-ic-types = { path = "../types" }
+bity-ic-canister-client = { path = "../canister_client" }
+bity-ic-icrc3 = { path = "../icrc3" }
+bity-ic-types = { path = "../types" }

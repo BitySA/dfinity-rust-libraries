@@ -1,4 +1,4 @@
-use bity_ic_types::TimestampSeconds;
+use bity_ic_types::{TimestampNanos, TimestampSeconds};
 use candid::{CandidType, Nat};
 use icrc_ledger_types::icrc::generic_value::ICRC3Value;
 use icrc_ledger_types::icrc1::account::Account;
@@ -34,7 +34,7 @@ pub type Hash = [u8; HASH_LENGTH];
 ///         Ok(())
 ///     }
 ///     
-///     fn timestamp(&self) -> Option<TimestampSeconds> {
+///     fn timestamp(&self) -> Option<TimestampNanos> {
 ///         // timestamp logic
 ///         None
 ///     }
@@ -53,7 +53,7 @@ pub trait TransactionType: Sized + Clone + Into<ICRC3Value> {
     fn validate_transaction_fields(&self) -> Result<(), String>;
 
     /// Returns the timestamp of the transaction if available.
-    fn timestamp(&self) -> Option<TimestampSeconds>;
+    fn timestamp(&self) -> Option<TimestampNanos>;
 
     /// Returns the transaction data.
     fn tx(&self) -> ICRC3Value;

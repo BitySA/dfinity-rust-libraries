@@ -4,15 +4,14 @@ use bity_ic_types::TimestampMillis;
 use candid::Principal;
 use lazy_static::lazy_static;
 use pocket_ic::PocketIc;
-use rand::{rng, RngCore};
+use rand::{rng, RngExt};
 
 lazy_static! {
     pub static ref HOURS_IN_WEEK: u64 = 168;
 }
 
 pub fn random_principal() -> Principal {
-    let mut bytes = [0u8; 29];
-    rng().fill_bytes(&mut bytes);
+    let bytes: [u8; 29] = rng().random();
     Principal::from_slice(&bytes)
 }
 
