@@ -37,6 +37,7 @@ pub struct ICRC3 {
     pub blockchain: Blockchain,
     pub ledger: VecDeque<ICRC3Value>,
     pub prepared_transactions: VecDeque<(String, TimestampNanos)>,
+    #[serde(alias = "last_index")]
     pub next_index: u64,
     pub last_phash: Option<ByteBuf>,
     pub icrc3_config: ICRC3Config,

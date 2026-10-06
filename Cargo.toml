@@ -1,29 +1,10 @@
 [workspace]
 resolver = "2" 
+# Release branch for bity-ic-icrc3 0.5.x on ic-cdk 0.20 (keeps the 0.5 stable state layout and the
+# Candid block encoding of bity-ic-icrc3-archive-api 0.3.1). Only the re-released crates are members.
 members = [
-    "src/candid_gen",
-    "src/canister_client",
-    "src/canister_logger",
-    "src/canister_state_macros",
-    "src/canister_time",
-    "src/canister_tracing_macros",
-    "src/serializer",
-    "src/stable_memory",
-    "src/types",
-    "src/utils",
-    "src/subcanister_manager",
-    "src/ledger_utils",
-    "src/canister_timer_jobs",
-
-    "src/icrc3_canisters/canisters/icrc3_example/api",
-    "src/icrc3_canisters/canisters/icrc3_example/impl",
-    "src/icrc3_canisters/canisters/icrc3_archive/impl",
-    "src/icrc3_canisters/integration_testing",
-    "src/icrc3_macros",
     "src/icrc3",
-    "src/icrc3_archive_api",
     "src/icrc3_archive_c2c_client",
-    "src/icrc3_c2c_client",
 ]
 
 [profile.release]
@@ -38,10 +19,10 @@ futures = "0.3.29"
 # Enable `custom` feature of k256's getrandom dependency. See icp_neuron/impl/src/ecdsa.rs for more details.
 getrandom = { version = "0.3.1", features = ["custom"] }
 hex = "0.4.3"
-ic-cdk = "0.18.3"
-ic-cdk-macros = "0.18.3"
-ic-cdk-timers = "0.12.0"
-ic-ledger-types = "0.15.0"
+ic-cdk = "0.20"
+ic-cdk-macros = "0.20"
+ic-cdk-timers = "1.0"
+ic-ledger-types = "0.16.0"
 ic-stable-structures = "0.6.9"
 ic-transport-types = "0.39.3"
 ic0 = "0.25.1"
@@ -75,7 +56,7 @@ async-trait = "0.1.86"
 enum_dispatch = "0.3.13"
 typetag = "0.2.18"
 minicbor = { version = "1.0.0", features = ["alloc", "derive"] }
-canfund = "0.8.4"
+canfund = "0.8.5"
 ic-asset-certification = "3.0.3"
 ic-http-certification = "3.0.3"
 sha256 = "1.6.0"
