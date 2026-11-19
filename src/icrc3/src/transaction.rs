@@ -423,9 +423,6 @@ impl TransactionType for ICRC7Transaction {
                 if self.tx.to.is_none() {
                     return Err("To is required for mint".to_string());
                 }
-                if self.tx.meta.is_some() {
-                    return Err("Meta is not allowed for mint".to_string());
-                }
             }
             "7burn" => {
                 if self.tx.tid.is_none() {
@@ -697,5 +694,68 @@ impl From<ICRC37Transaction> for ICRC3Value {
         map.insert("tx".to_string(), tx_value);
 
         ICRC3Value::Map(map)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use candid::Principal;
+
+    fn icrc7(op: &str, meta: Option<ICRC3Value>) -> ICRC7Transaction {
+        let account = Account {
+            owner: Principal::anonymous(),
+            subaccount: None,
+        };
+        let (from, to) = match op {
+            "7mint" => (None, Some(account)),
+            "7burn" => (Some(account), None),
+            _ => (Some(account), Some(account)),
+        };
+        ICRC7Transaction::new(
+            op.to_string(),
+            0,
+            ICRC7TransactionData {
+                op: op.to_string(),
+                tid: Some(Nat::from(1u64)),
+                from,
+                to,
+                meta,
+                memo: None,
+                created_at_time: None,
+            },
+        )
+    }
+
+    fn token_metadata() -> ICRC3Value {
+        let mut metadata = BTreeMap::new();
+        metadata.insert("name".to_string(), ICRC3Value::Text("one".to_string()));
+        let mut meta = BTreeMap::new();
+        meta.insert("icrc7:token_metadata".to_string(), ICRC3Value::Map(metadata));
+        ICRC3Value::Map(meta)
+    }
+
+    #[test]
+    fn a_mint_may_carry_the_token_metadata() {
+        assert_eq!(icrc7("7mint", None).validate_transaction_fields(), Ok(()));
+        assert_eq!(
+            icrc7("7mint", Some(token_metadata())).validate_transaction_fields(),
+            Ok(())
+        );
+        let value: ICRC3Value = icrc7("7mint", Some(token_metadata())).tx();
+        match value {
+            ICRC3Value::Map(tx) => assert_eq!(tx.get("meta"), Some(&token_metadata())),
+            other => panic!("tx is not a map: {other:?}"),
+        }
+    }
+
+    #[test]
+    fn burns_and_transfers_still_refuse_meta() {
+        assert!(icrc7("7burn", Some(token_metadata()))
+            .validate_transaction_fields()
+            .is_err());
+        assert!(icrc7("7xfer", Some(token_metadata()))
+            .validate_transaction_fields()
+            .is_err());
     }
 }

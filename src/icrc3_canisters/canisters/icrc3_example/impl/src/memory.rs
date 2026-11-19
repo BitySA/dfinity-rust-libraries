@@ -4,6 +4,7 @@ use ic_stable_structures::{
 };
 
 const UPGRADES: MemoryId = MemoryId::new(0);
+const BLOCK_LOG: MemoryId = MemoryId::new(1);
 
 pub type VM = VirtualMemory<DefaultMemoryImpl>;
 
@@ -15,6 +16,12 @@ thread_local! {
 
 pub fn get_upgrades_memory() -> VM {
     get_memory(UPGRADES)
+}
+
+/// Gives the ICRC3 block log its memory from this canister's manager. Call it
+/// first in `init` and `post_upgrade`.
+pub fn init_memory() {
+    bity_ic_icrc3::memory::init_block_log_memory(get_memory(BLOCK_LOG));
 }
 
 fn get_memory(id: MemoryId) -> VM {

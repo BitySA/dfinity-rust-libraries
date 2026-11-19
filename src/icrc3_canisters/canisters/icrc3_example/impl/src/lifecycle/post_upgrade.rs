@@ -20,7 +20,18 @@ fn post_upgrade(args: Args) {
                 "Cannot upgrade the canister with an Init argument. Please provide an Upgrade argument."
             ),
         Args::Upgrade(upgrade_args) => {
+            // Earlier versions of the ICRC3 library ran a second memory
+            // manager over this stable memory; fix the header it left
+            // before this canister's manager reads it.
+            let repair = bity_ic_icrc3::memory::repair_memory_manager_header(
+                &ic_stable_structures::DefaultMemoryImpl::default(),
+            )
+            .unwrap_or_else(|error| ic_cdk::trap(&format!("stable memory is damaged: {error}")));
+            crate::memory::init_memory();
             info!("Post-upgrade starting with args: {:?}", upgrade_args);
+            if let Some(repair) = repair {
+                info!("Repaired the memory manager header: {:?}", repair);
+            }
             let memory = get_upgrades_memory();
             let reader = get_reader(&memory);
 

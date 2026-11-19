@@ -12,6 +12,7 @@ use tracing::info;
 fn init(args: Args) {
     match args {
         Args::Init(init_args) => {
+            crate::memory::init_memory();
             bity_ic_canister_logger::init(init_args.test_mode);
 
             let env = CanisterEnv::new(
